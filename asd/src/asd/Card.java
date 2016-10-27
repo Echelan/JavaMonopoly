@@ -12,6 +12,7 @@ public class Card {
     
     public static int COMMUNITY_CHEST_ID = 1;
     public static int CHANCE_ID = 2;
+    public static int PROPERTY_ID = 3;
     
     public static int PAY_CATEGORY = 1;
     public static int COLLECT_CATEGORY = 2;
@@ -19,6 +20,7 @@ public class Card {
     public static int ADVANCE_CATEGORY = 4;
     public static int RETRACT_CATEGORY = 5;
     public static int FREE_JAIL_CATEGORY = 6;
+    public static int PROPERTY_CATEGORY = 7;
     
     private final String description;
     private final int identifier;

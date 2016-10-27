@@ -12,7 +12,12 @@ public class Property extends Card{
 
     private int numHotels;
     private int numHotel;
-    
+
+    public Property(int numHotels, int numHotel, String description, int identifier, int category, Object value, int perHouse, int perHotel) {
+        super(description, identifier, category, value, perHouse, perHotel);
+        this.numHotels = numHotels;
+        this.numHotel = numHotel;
+    }
     
     public Property(String description, int identifier, int category, Object value, int perHouse, int perHotel) {
         super(description, identifier, category, value, perHouse, perHotel);

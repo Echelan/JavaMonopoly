@@ -11,7 +11,7 @@ package asd;
 public class Player {
     
     private int funds;
-    private Card deeds;
-    private Card hand;
+    private Node deeds;
+    private Node hand;
     
 }
