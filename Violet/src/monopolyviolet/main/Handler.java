@@ -10,5 +10,17 @@ package monopolyviolet.main;
  * @author movillaf
  */
 public class Handler {
+	public static final int SIZEX = 900;
+	public static final int SIZEY = 800;
+	
+	public Handler() {
+		new GameWindow(SIZEX,SIZEY);
+		
+		new Card(1);
+	}
     
+	
+	private void createProperties() {
+		
+	}
 }

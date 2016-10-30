@@ -18,16 +18,15 @@ import javax.swing.JWindow;
  */
 public class MonopolyViolet {
 
-//	private static Handler h;
-	public static float SIZE = (float) 3;
+	private static Handler h;
 	
 	public static void main(String[] args) throws InterruptedException {
 
 		SplashWindow s = new SplashWindow();
 
-//		monopolyviolet.data.NIC.loadAllData();
+		monopolyviolet.data.NIC.loadAllData();
 
-//		h = new Handler(SIZE);
+		h = new Handler();
 
 		try {
 			Thread.sleep(1000);

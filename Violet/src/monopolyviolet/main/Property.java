@@ -4,29 +4,31 @@
  */
 package monopolyviolet.main;
 
+import java.awt.Color;
+
 /**
  *
  * @author movillaf
  */
-public class Property extends Card{
-
-    private int numHotels;
+public class Property extends Node{
+	
+	private String name;
+	private Color color;
+	
+    private int numHouse;
     private int numHotel;
-
-    public Property(int numHotels, int numHotel, String description, int identifier, int category, Object value, int perHouse, int perHotel) {
-        super(description, identifier, category, value, perHouse, perHotel);
-        this.numHotels = numHotels;
-        this.numHotel = numHotel;
-    }
-    
-    public Property(String description, int identifier, int category, Object value, int perHouse, int perHotel) {
-        super(description, identifier, category, value, perHouse, perHotel);
-    }
-
-    public Property(String description, int identifier, int category, Object value) {
-        super(description, identifier, category, value);
-    }
-    
-    
-    
+	
+	private int rent0;
+	private int rent1;
+	private int rent2;
+	private int rent3;
+	private int rent4;
+	private int rent5;
+	
+	private int mortgage;
+	
+	private int costHouse;
+	private int costHotel;
+	
+	
 }
