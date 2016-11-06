@@ -16,11 +16,15 @@ public class Handler {
 	public static final int SCREEN_SIZE_X = 600;
 	public static final int SCREEN_SIZE_Y = 600;
 	public static Scene gameState;
-        
+	private GameWindow gw;
+	
 	public Handler() {
-		new GameWindow(this);
+		gw = new GameWindow(this);
 		
-		gameState = new monopolyviolet.scenes.Game(this);		
+		gameState = new monopolyviolet.scenes.Title(this);		
 		
+//		gameState.add(new monopolyviolet.scenes.Title(this));
+		
+		gw.startCanvasThread();
 	}
 }

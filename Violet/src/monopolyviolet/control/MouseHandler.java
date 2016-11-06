@@ -9,7 +9,8 @@ package monopolyviolet.control;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseWheelEvent;
+import monopolyviolet.model.Handler;
+import monopolyviolet.scenes.Scene;
 
 
 /**
@@ -17,48 +18,51 @@ import java.awt.event.MouseWheelEvent;
  * @author Andres
  */
 public class MouseHandler extends MouseAdapter {
-
+	
+	public static int EVENT_MOVE = 0;
+	public static int EVENT_DRAG = 1;
+	public static int EVENT_PRESS = 2;
+	public static int EVENT_RELEASE = 3;
+	public static int EVENT_CLICK = 4;
+	
 	@Override
 	public void mouseMoved(MouseEvent e) {
-//		super.mouseMoved(e); //To change body of generated methods, choose Tools | Templates.
+		int action = EVENT_MOVE;
+		int x = e.getX();
+		int y = e.getY();
+		((Scene) Handler.gameState.get(Handler.gameState.size() - 1)).receiveAction(action,x,y);
 	}
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
-//		super.mouseDragged(e); //To change body of generated methods, choose Tools | Templates.
-	}
-
-	@Override
-	public void mouseWheelMoved(MouseWheelEvent e) {
-//		super.mouseWheelMoved(e); //To change body of generated methods, choose Tools | Templates.
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
-//		super.mouseExited(e); //To change body of generated methods, choose Tools | Templates.
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
-//		super.mouseEntered(e); //To change body of generated methods, choose Tools | Templates.
+		int action = EVENT_DRAG;
+		int x = e.getX();
+		int y = e.getY();
+		((Scene) Handler.gameState.get(Handler.gameState.size() - 1)).receiveAction(action,x,y);
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-//		super.mouseReleased(e); //To change body of generated methods, choose Tools | Templates.
+		int action = EVENT_RELEASE;
+		int x = e.getX();
+		int y = e.getY();
+		((Scene) Handler.gameState.get(Handler.gameState.size() - 1)).receiveAction(action,x,y);
 	}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-//		super.mousePressed(e); //To change body of generated methods, choose Tools | Templates.
+		int action = EVENT_PRESS;
+		int x = e.getX();
+		int y = e.getY();
+		((Scene) Handler.gameState.get(Handler.gameState.size() - 1)).receiveAction(action,x,y);
 	}
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-//		super.mouseClicked(e); //To change body of generated methods, choose Tools | Templates.
-		System.out.println("FILTHY MICE!");
+		int action = EVENT_CLICK;
+		int x = e.getX();
+		int y = e.getY();
+		((Scene) Handler.gameState.get(Handler.gameState.size() - 1)).receiveAction(action,x,y);
 	}
-
-	
 	
 }

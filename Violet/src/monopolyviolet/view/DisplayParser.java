@@ -16,7 +16,6 @@ import monopolyviolet.scenes.Scene;
  * @author Andres
  */
 public class DisplayParser {
-
 	private static final int ssX = Handler.SCREEN_SIZE_X, ssY = Handler.SCREEN_SIZE_Y;
 
 	public static BufferedImage displayImage() {

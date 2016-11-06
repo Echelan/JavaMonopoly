@@ -10,7 +10,6 @@ package monopolyviolet.data;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.List;
 
 /**
  *
@@ -61,9 +60,8 @@ public abstract class NIC {
 			String value = Files.readAllLines(archivo.toPath()).get(i);
 			if (INFO_CARDS == null) {
 				INFO_CARDS = new DataNode(value);
-//				INFO_CARDS.setLinkR(INFO_CARDS);
 			} else {
-				INFO_CARDS.insertAfter(new DataNode(value));
+				INFO_CARDS.add(new DataNode(value));
 			}
 		}
 		
@@ -72,9 +70,8 @@ public abstract class NIC {
 			String value = Files.readAllLines(archivo.toPath()).get(i);
 			if (INFO_PROPERTIES == null) {
 				INFO_PROPERTIES = new DataNode(value);
-//				INFO_PROPERTIES.setLinkR(INFO_PROPERTIES);
 			} else {
-				INFO_PROPERTIES.insertAfter(new DataNode(value));
+				INFO_PROPERTIES.add(new DataNode(value));
 			}
 		}
 	}

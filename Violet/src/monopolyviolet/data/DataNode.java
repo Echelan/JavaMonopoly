@@ -12,6 +12,7 @@ import monopolyviolet.model.Node;
  * @author Andres
  */
 public class DataNode extends Node{
+	
 	private String value;
 
 	public DataNode(String value) {

@@ -8,6 +8,7 @@ package monopolyviolet.scenes;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import monopolyviolet.control.MouseHandler;
 import monopolyviolet.model.Card;
 import monopolyviolet.model.Handler;
 import monopolyviolet.model.Node;
@@ -22,7 +23,7 @@ public class Game extends Scene{
     private Card communityCard;
     private Card chanceCard;
 	private Node map;
-
+	
 	public Game(Handler main) {
 		super(main, "GAME", true);
 		
@@ -39,7 +40,7 @@ public class Game extends Scene{
 			Card tempCard = new Card(i);
 			if (tempCard.getCardType() == Card.COMMUNITY_CHEST_ID) {
 				if (communityCard != null) {
-					communityCard.insertAfter(tempCard);
+					communityCard.add(tempCard);
 				} else {
 					communityCard = tempCard;
 					communityCard.setLinkL(communityCard);
@@ -47,7 +48,7 @@ public class Game extends Scene{
 				}
 			} else if (tempCard.getCardType() == Card.CHANCE_ID) {
 				if (chanceCard != null) {
-					chanceCard.insertAfter(tempCard);
+					chanceCard.add(tempCard);
 				} else {
 					chanceCard = tempCard;
 					chanceCard.setLinkL(chanceCard);
@@ -62,17 +63,19 @@ public class Game extends Scene{
 	}
     
 	public BufferedImage getDisplay() throws IOException{
-		BufferedImage tempStitched = new BufferedImage(100,100, BufferedImage.TYPE_INT_ARGB);
-		Graphics g = tempStitched.getGraphics();
+		BufferedImage display = new BufferedImage(ssX, ssY, BufferedImage.TYPE_INT_ARGB);
+		Graphics g = display.getGraphics();
 		
 		
 		
-		return tempStitched;
+		return display;
 	}
 
 	@Override
-	public void receiveAction(String action, String state) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	public void receiveAction(int action, int x, int y) {
+		if (action == MouseHandler.EVENT_CLICK) {
+			
+		}
 	}
 	
 }

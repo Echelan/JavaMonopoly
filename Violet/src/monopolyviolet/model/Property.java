@@ -5,7 +5,9 @@
 package monopolyviolet.model;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -18,13 +20,14 @@ import monopolyviolet.data.DataNode;
  */
 public class Property extends Node{
 	
-	public static Color propertyPink = Color.getHSBColor(335/360f,71/100f,92/100f);
-	public static Color propertyBlue = Color.getHSBColor(186/360f,98/100f,82/100f);
-	public static Color propertyRed = Color.getHSBColor(356/360f,80/100f,89/100f);
-	public static Color propertyYellow = Color.getHSBColor(43/360f,90/100f,95/100f);
-	public static Color propertyGreen = Color.getHSBColor(124/360f,57/100f,67/100f);
-	public static Color propertyPurple = Color.getHSBColor(261/360f,62/100f,94/100f);
-	public static Color propertyLime = Color.getHSBColor(65/360f,74/100f,79/100f);
+	public static Color PROPERTY_PINK = Color.getHSBColor(335/360f,71/100f,92/100f);
+	public static Color PROPERTY_BLUE = Color.getHSBColor(186/360f,98/100f,82/100f);
+	public static Color PROPERTY_RED = Color.getHSBColor(356/360f,80/100f,89/100f);
+	public static Color PROPERTY_YELLOW = Color.getHSBColor(43/360f,90/100f,95/100f);
+	public static Color PROPERTY_GREEN = Color.getHSBColor(124/360f,57/100f,67/100f);
+	public static Color PROPERTY_PURPLE = Color.getHSBColor(261/360f,62/100f,94/100f);
+	public static Color PROPERTY_LIME = Color.getHSBColor(65/360f,74/100f,79/100f);
+	public static Color PROPERTY_ORANGE = Color.getHSBColor(35.1f/360f,100/100f,100/100f);
 	
 	private int id;
 	private String name;
@@ -34,6 +37,7 @@ public class Property extends Node{
 	private String rentChanges;
 	private int numHouses;
 	private int owner;
+	private Color color; 
 		
 	public Property(int id) {
 		this.id = id;
@@ -57,6 +61,34 @@ public class Property extends Node{
 				this.buildingCost = Integer.parseInt(partes[1]);
             }else if (partes[0].compareTo("rentChange")==0) {
 				this.rentChanges = partes[1];
+            }else if (partes[0].compareTo("color")==0) {
+				partes[1] = partes[1].substring(1,  partes[1].length()-1);
+				switch(partes[1]) {
+					case "PINK":
+						this.color = PROPERTY_PINK;
+						break;
+					case "BLUE":
+						this.color = PROPERTY_BLUE;
+						break;
+					case "RED":
+						this.color = PROPERTY_RED;
+						break;
+					case "YELLOW":
+						this.color = PROPERTY_YELLOW;
+						break;
+					case "GREEN":
+						this.color = PROPERTY_GREEN;
+						break;
+					case "PURPLE":
+						this.color = PROPERTY_PURPLE;
+						break;
+					case "LIME":
+						this.color = PROPERTY_LIME;
+						break;
+					case "ORANGE":
+						this.color = PROPERTY_ORANGE;
+						break;
+				}
             }
         }
 	}
@@ -158,32 +190,48 @@ public class Property extends Node{
 	}
 	
 	
-	public BufferedImage getPropertyMap(int rotation) throws IOException{
-		BufferedImage tempStitched = new BufferedImage(154,225, BufferedImage.TYPE_INT_ARGB);
-		Graphics g = tempStitched.getGraphics();
+	public BufferedImage getPropertyMap() throws IOException{
+		BufferedImage display = new BufferedImage(154,225, BufferedImage.TYPE_INT_ARGB);
+		Graphics g = display.getGraphics();
 		
 		int maxX = 154;
 		int maxY = 225;
 		
 		g.fillRect(0, 0, maxX, maxY);
-		g.drawImage(ImageIO.read(new File("assets/propertyMap.png")), maxX, maxY, 0, 0, null);
+		g.setColor(this.color);
+		g.fillRect(0, 0, maxX, 150);
+		g.drawImage(ImageIO.read(new File("assets/propertyMap.png")), 0, 0, maxX, maxY, null);
+		g.setFont(new Font("Arial",Font.BOLD,30));
+		g.setColor(Color.BLACK);
 		g.drawString(this.name,maxX/2,20 );
 		
-		return tempStitched;
+		return display;
 	}
 	
 	
-	public BufferedImage getPropertyCard(int rotation) throws IOException{
-		BufferedImage tempStitched = new BufferedImage(246, 360, BufferedImage.TYPE_INT_ARGB);
-		Graphics g = tempStitched.getGraphics();
+	public BufferedImage getPropertyCard() throws IOException{
+		BufferedImage display = new BufferedImage(246, 360, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = (Graphics2D) display.getGraphics();
 		
 		int maxX = 246;
 		int maxY = 360;
 		
 		g.fillRect(0, 0, maxX, maxY);
-		g.drawImage(ImageIO.read(new File("assets/propertyCard.png")), maxX, maxY, 0, 0, null);
-		g.drawString(this.name,maxX/2,20);
+		g.setColor(this.color);
+		g.fillRect(0, 0, maxX, 75);
+		g.drawImage(ImageIO.read(new File("assets/propertyCard.png")), 0, 0, maxX, maxY, null);
+		g.setFont(new Font("Arial",Font.BOLD,20));
+		g.setColor(Color.BLACK);
+		g.drawString(this.name, maxX*0.075f, 50);
 		
-		return tempStitched;
+		
+		return display;
+	}
+
+	/**
+	 * @return the color
+	 */
+	public Color getColor() {
+		return color;
 	}
 }

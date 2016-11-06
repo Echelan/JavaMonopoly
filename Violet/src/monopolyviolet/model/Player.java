@@ -34,7 +34,7 @@ public class Player {
 			this.deeds.setLinkL(this.deeds);
 			this.deeds.setLinkR(this.deeds);
 		} else {
-			this.deeds.insertAfter(deed);
+			this.deeds.add(deed);
 		}
 	}
 
@@ -47,7 +47,7 @@ public class Player {
 			this.hand.setLinkL(this.hand);
 			this.hand.setLinkR(this.hand);
 		} else {
-			this.hand.insertAfter(card);
+			this.hand.add(card);
 		}
 	}
 

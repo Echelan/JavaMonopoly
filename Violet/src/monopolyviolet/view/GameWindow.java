@@ -35,23 +35,18 @@ public class GameWindow extends JFrame implements WindowListener, ActionListener
 		setResizable(false);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                
-                
+        
 		screen = new GameDisplay(main);
 		screen.setBounds(1, 1, main.SCREEN_SIZE_X, main.SCREEN_SIZE_Y);
-		screen.setBackground(Color.green);
 		screen.setFocusable(false);
 		add(screen);
-
-
-//		addMouseListener(new MouseHandler());
 
 		setVisible(true);
 	}
 	
-//	public void startCanvasThread(){
-//		screen.thisThread.start();
-//	}
+	public void startCanvasThread(){
+		screen.thisThread.start();
+	}
 	
         
 	//<editor-fold defaultstate="collapsed" desc="Overriden JFrame Methods">

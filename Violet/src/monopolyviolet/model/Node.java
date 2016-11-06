@@ -23,11 +23,16 @@ public abstract class Node {
 		return lookingGlass;
 	}
 	
+	public void add(Node element) {
+		this.insertEnd(element);
+	}
+	
 	public boolean isEmpty() {
-		boolean value = true;
-		if (this != null) {
-			value = false;
+		boolean value = false;
+		if (this == null) {
+			value = true;
 		}
+		
 		return value;
 	}
 	
@@ -96,7 +101,11 @@ public abstract class Node {
 		}
 		this.linkR = element;
 	}
-
+	
+	public void insertEnd(Node element) {
+		this.get(this.size()-1).insertAfter(element);
+	}
+	
 	public void insertBefore(Node element) {
 		element.disconnect();
 		element.linkR = this;

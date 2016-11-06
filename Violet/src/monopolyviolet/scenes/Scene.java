@@ -29,7 +29,7 @@ public abstract class Scene extends Node{
 		this.full = full;
 	}
 
-	public abstract void receiveAction(String action, String state);
+	public abstract void receiveAction(int action, int x, int y);
 
 	public void dispose() {
 		main.gameState.remove(main.gameState.size() - 1);
