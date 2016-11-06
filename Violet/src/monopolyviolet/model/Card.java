@@ -4,6 +4,13 @@
  */
 package monopolyviolet.model;
 
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
+import monopolyviolet.data.DataNode;
+
 /**
  *
  * @author movillaf
@@ -36,7 +43,7 @@ public class Card extends Node{
     }
     
     private void readInfo(int id) {
-        String[] cardInfo = monopolyviolet.data.NIC.INFO_CARDS.get(id).split(";");
+        String[] cardInfo = ((DataNode) monopolyviolet.data.NIC.INFO_CARDS.get(id-1)).getValue().split(";");
         for (int i = 0; i < cardInfo.length; i++) {
             String[] partes = cardInfo[i].split("=");
             if (partes[0].compareTo("title")==0) {
@@ -115,4 +122,17 @@ public class Card extends Node{
         return value;
     }
     
+	public BufferedImage getPropertyMap(int rotation) throws IOException{
+		BufferedImage tempStitched = new BufferedImage(507,310, BufferedImage.TYPE_INT_ARGB);
+		Graphics g = tempStitched.getGraphics();
+		
+		int maxX = 507;
+		int maxY = 310;
+		
+		g.fillRect(0, 0, maxX, maxY);
+		g.drawImage(ImageIO.read(new File("assets/card.png")), maxX, maxY, 0, 0, null);
+		g.drawString(this.title,maxX/2,20);
+		
+		return tempStitched;
+	}
 }

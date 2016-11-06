@@ -5,6 +5,12 @@
 package monopolyviolet.model;
 
 import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
+import monopolyviolet.data.DataNode;
 
 /**
  *
@@ -27,15 +33,17 @@ public class Property extends Node{
 	private int buildingCost;
 	private String rentChanges;
 	private int numHouses;
+	private int owner;
 		
 	public Property(int id) {
 		this.id = id;
 		this.numHouses = 0;
+		this.owner = -1;
 		readInfo(this.id);
 	}
 	
 	private void readInfo(int id) {
-        String[] propertyInfo = monopolyviolet.data.NIC.INFO_PROPERTIES.get(id-1).split(";");
+        String[] propertyInfo = ((DataNode) monopolyviolet.data.NIC.INFO_PROPERTIES.get(id-1)).getValue().split(";");
         for (int i = 0; i < propertyInfo.length; i++) {
             String[] partes = propertyInfo[i].split("=");
             if (partes[0].compareTo("name")==0) {
@@ -134,7 +142,48 @@ public class Property extends Node{
 	public int getRent() {
 		return getRentValue(this.numHouses);
 	}
+
+	/**
+	 * @return the owner
+	 */
+	public int getOwner() {
+		return owner;
+	}
+
+	/**
+	 * @param owner the owner to set
+	 */
+	public void setOwner(int owner) {
+		this.owner = owner;
+	}
 	
 	
+	public BufferedImage getPropertyMap(int rotation) throws IOException{
+		BufferedImage tempStitched = new BufferedImage(154,225, BufferedImage.TYPE_INT_ARGB);
+		Graphics g = tempStitched.getGraphics();
+		
+		int maxX = 154;
+		int maxY = 225;
+		
+		g.fillRect(0, 0, maxX, maxY);
+		g.drawImage(ImageIO.read(new File("assets/propertyMap.png")), maxX, maxY, 0, 0, null);
+		g.drawString(this.name,maxX/2,20 );
+		
+		return tempStitched;
+	}
 	
+	
+	public BufferedImage getPropertyCard(int rotation) throws IOException{
+		BufferedImage tempStitched = new BufferedImage(246, 360, BufferedImage.TYPE_INT_ARGB);
+		Graphics g = tempStitched.getGraphics();
+		
+		int maxX = 246;
+		int maxY = 360;
+		
+		g.fillRect(0, 0, maxX, maxY);
+		g.drawImage(ImageIO.read(new File("assets/propertyCard.png")), maxX, maxY, 0, 0, null);
+		g.drawString(this.name,maxX/2,20);
+		
+		return tempStitched;
+	}
 }

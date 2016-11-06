@@ -10,6 +10,7 @@ package monopolyviolet.view;
 import java.awt.Color;
 import java.awt.event.*;
 import javax.swing.*;
+import monopolyviolet.model.Handler;
 
 /**
  * @author movillaf
@@ -25,26 +26,25 @@ public class GameWindow extends JFrame implements WindowListener, ActionListener
 	
 	/**
 	 * Create a new GameWindow.
-	 * @param sizeX size of window in X dimension.
-	 * @param sizeY size of window in Y dimension.
+	 * @param main main game handler
 	 */
-	public GameWindow(int sizeX, int sizeY) {
+	public GameWindow(Handler main) {
 		setLayout(null);
-		setSize(sizeX + 8, sizeY + 31);
+		setSize(main.SCREEN_SIZE_X + 8, main.SCREEN_SIZE_Y + 31);
 		setTitle("Monopoly Violet");
 		setResizable(false);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 
                 
-		screen = new GameDisplay();
-		screen.setBounds(1, 1, sizeX, sizeY);
+		screen = new GameDisplay(main);
+		screen.setBounds(1, 1, main.SCREEN_SIZE_X, main.SCREEN_SIZE_Y);
 		screen.setBackground(Color.green);
 		screen.setFocusable(false);
 		add(screen);
 
 
-//		addKeyListener(new KeyHandler());
+//		addMouseListener(new MouseHandler());
 
 		setVisible(true);
 	}

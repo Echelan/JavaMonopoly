@@ -9,6 +9,9 @@ package monopolyviolet.view;
 
 import java.awt.Canvas;
 import java.awt.Graphics;
+import monopolyviolet.control.MouseHandler;
+import monopolyviolet.model.Handler;
+import monopolyviolet.scenes.Scene;
 
 /**
  *
@@ -16,10 +19,21 @@ import java.awt.Graphics;
  */
 public class GameDisplay extends Canvas implements Runnable {
 	
+	private String lastState;
+	public Thread thisThread;
+	private Handler main;
+	
 	/**
 	 * Create a GameDisplay custom canvas.
+	 * @param main main game handler
 	 */
-	public GameDisplay() {
+	public GameDisplay(Handler main) {
+		lastState = "";
+		thisThread = new Thread(this);
+		
+		addMouseListener(new MouseHandler());
+
+		this.main = main;
 	}
 
 	@Override
@@ -34,7 +48,23 @@ public class GameDisplay extends Canvas implements Runnable {
 	public void run() {
 		createBufferStrategy(3);
 		while (true) {
-			
+			if (!Handler.gameState.isEmpty()) {
+				Graphics g = getBufferStrategy().getDrawGraphics();
+
+				if (lastState.compareTo(((Scene) Handler.gameState.get(Handler.gameState.size() - 1)).getName()) != 0) {
+					g.clearRect(0, 0, this.getWidth(), this.getHeight());
+					lastState = ((Scene) Handler.gameState.get(Handler.gameState.size() - 1)).getName();
+				}
+
+				g.drawImage(DisplayParser.displayImage(), 0, 0, this.getWidth(), this.getHeight(), this);
+
+				repaint();
+			}
+
+			try {
+				Thread.sleep(40);
+			} catch (InterruptedException ex) {
+			}
 		}
 	}
 
