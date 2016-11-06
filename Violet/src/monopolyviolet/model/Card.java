@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package monopolyviolet.main;
+package monopolyviolet.model;
 
 /**
  *
@@ -55,34 +55,24 @@ public class Card extends Node{
             }else if (partes[0].compareTo("flags")==0) {
                 partes[1] = partes[1].substring(1,  partes[1].length()-1);
                 String flags = partes[1];
-//                System.out.println(flags);
                 if (flags.contains("at")) {
-//                        System.out.println("ADVANCE TO CARD");
                     this.category = ADVANCE_TO_ID;
                 } else if (flags.contains("ai")) {
                      this.category = ADVANCE_TO_ID;
-//                        System.out.println("GO TO JAIL CARD");
                 } else if (flags.contains("a")) {
                      this.category = ADVANCE_ID;
-//                        System.out.println("ADVANCE CARD");
                 } else if (flags.contains("cp")) {
                      this.category = COLLECT_ID+PER_PLAYER_ID;
-//                        System.out.println("COLLECT PER PLAYER CARD");
                 } else if (flags.contains("c")) {
                      this.category = COLLECT_ID;
-//                        System.out.println("COLLECT CARD");
                 } else if (flags.contains("pi")) {
                      this.category = PAY_ID+PER_ITEM_ID;
-//                        System.out.println("PAY PER ITEM CARD");
                 } else if (flags.contains("pp")) {
                      this.category = PAY_ID+PER_PLAYER_ID;
-//                        System.out.println("PAY PER PLAYER CARD");
                 } else if (flags.contains("p")) {
                      this.category = PAY_ID;
-//                        System.out.println("PAY CARD");
                 } else if (flags.contains("fj")) {
                      this.category = FREE_JAIL_ID;
-//                        System.out.println("FREE JAIL CARD");
                 }
             }else if (partes[0].compareTo("value")==0) {
                 this.value = partes[1];

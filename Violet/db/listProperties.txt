@@ -1,0 +1,21 @@
+id=1;name="Mediterranean Avenue";price=60;rent=2;buildingCost=50;rentChange=5,3,3,2,1
+id=2;name="Baltic Avenue";price=60;rent=4;buildingCost=50;rentChange=5,3,3,2,0.9
+id=3;name="Oriental Avenue";price=100;rent=6;buildingCost=50;rentChange=5,3,3,1.67,0.746
+id=4;name="Vermont Avenue";price=100;rent=6;buildingCost=50;rentChange=5,3,3,1.67,0.746
+id=5;name="Connecticut Avenue";price=120;rent=8;buildingCost=50;rentChange=5,2.5,3,1.732,0.8
+id=6;name="St. Charles Place";price=140;rent=10;buildingCost=100;rentChange=5,3,3,1.5625,0.698
+id=7;name="States Avenue";price=140;rent=10;buildingCost=100;rentChange=5,3,3,1.5625,0.698
+id=8;name="Virginia Avenue";price=160;rent=12;buildingCost=100;rentChange=5,3,2.78,1.59,0.75
+id=9;name="St. James Place";price=180;rent=14;buildingCost=100;rentChange=5,2.86,2.75,1.5625,0.73
+id=10;name="Tennesee Avenue";price=180;rent=14;buildingCost=100;rentChange=5,2.86,2.75,1.5625,0.73
+id=11;name="New York Avenue";price=200;rent=16;buildingCost=100;rentChange=5,2.75,2.728,1.538,0.7145
+id=12;name="Kentucky Avenue";price=220;rent=18;buildingCost=150;rentChange=5,2.78,2.8,1.434,0.6665
+id=13;name="Indiana Avenue";price=220;rent=18;buildingCost=150;rentChange=5,2.78,2.8,1.434,0.6665
+id=14;name="Illinois Avenue";price=240;rent=20;buildingCost=150;rentChange=5,3,2.5,1.424,0.657
+id=15;name="Atlantic Avenue";price=260;rent=22;buildingCost=150;rentChange=5,3,2.425,1.413,0.648
+id=16;name="Ventnor Avenue";price=260;rent=22;buildingCost=150;rentChange=5,3,2.425,1.413,0.648
+id=17;name="Marvin Gardens";price=280;rent=24;buildingCost=150;rentChange=5,3,2.363,1.404,0.64
+id=18;name="Pacific Avenue";price=300;rent=26;buildingCost=200;rentChange=5,3,2.31,1.428,0.637
+id=19;name="North Carolina Avenue";price=300;rent=26;buildingCost=200;rentChange=5,3,2.31,1.428,0.637
+id=20;name="Pennsylvania Avenue";price=320;rent=28;buildingCost=200;rentChange=5.37,2.995,2.222,1.412,0.6362
+id=21;name="Boardwalk";price=400;rent=50;buildingCost=200;rentChange=4,3,2.334,1.417,0.645

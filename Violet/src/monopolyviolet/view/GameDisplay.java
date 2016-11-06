@@ -5,7 +5,7 @@
  *  and Pokemon character names are trademarks of Nintendo.
  *  No copyright or trademark infringement is intended in using Pokemon content on Pokemon Violet.
  */
-package monopolyviolet.main;
+package monopolyviolet.view;
 
 import java.awt.Canvas;
 import java.awt.Graphics;

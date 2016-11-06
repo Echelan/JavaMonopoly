@@ -5,6 +5,7 @@
  */
 package monopolyviolet.main;
 
+import monopolyviolet.model.Handler;
 import java.awt.Graphics;
 import java.awt.MediaTracker;
 import java.awt.image.BufferedImage;
