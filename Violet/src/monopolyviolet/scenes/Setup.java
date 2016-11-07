@@ -19,7 +19,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import monopolyviolet.model.Button;
 import monopolyviolet.model.Handler;
+import monopolyviolet.model.Node;
 import monopolyviolet.model.Player;
 
 /**
@@ -32,13 +34,40 @@ public class Setup extends Scene{
 	private int numPlayers;
 	private int maxPlayers;
 	private int setUpPhase;
-			
+	private String selecting;
+	private Button buttons;
+	
 	public Setup(Handler main) {
 		super(main, "SETUP", true);
 		
+		selecting = "";
 		setUpPhase = 0;
-		maxPlayers = 4;
+		maxPlayers = 6;
 		numPlayers = 0;
+		
+		Button newButton = new Button(400, 100, 150, 40);
+		newButton.setColorFore(Color.gray);
+		newButton.setText("Roll dice");
+		newButton.setInternalName("ROLLS");
+		buttons = newButton;
+		
+		newButton = new Button(400, 200, 150, 40);
+		newButton.setColorFore(Color.gray);
+		newButton.setText("Arrange");
+		newButton.setInternalName("ARRANGE");
+		buttons.add(newButton);
+		
+		newButton = new Button(400, 300, 150, 40);
+		newButton.setColorFore(Color.gray);
+		newButton.setText("Start!");
+		newButton.setInternalName("START");
+		buttons.add(newButton);
+		
+		newButton = new Button(50, 100, 200, 40);
+		newButton.setColorFore(Color.gray);
+		newButton.setText("Add Player 1");
+		newButton.setInternalName("PLAYER;1");
+		buttons.add(newButton);
 	}
 
 	private void addPlayer() {
@@ -51,12 +80,38 @@ public class Setup extends Scene{
 			playerList.add(newPlayer);
 		}
 		numPlayers = numPlayers + 1;
+		
+		((Button) buttons.last()).setColorFore(Color.black);
+		((Button) buttons.last()).setText("Player "+numPlayers);
+		
+		if (numPlayers < maxPlayers) {
+			Button newButton = new Button(50, 100 + (80*numPlayers), 200, 40);
+			newButton.setColorFore(Color.gray);
+			newButton.setText("Add Player "+(numPlayers+1));
+			newButton.setInternalName("PLAYER;"+(numPlayers+1));
+			buttons.add(newButton);
+		}
+		
+		if (numPlayers > 1) {
+			((Button) buttons.get(buttons.search("ROLLS"))).setColorFore(Color.black);
+		}
 	}
 	
 
 	@Override
 	protected void moveEvent(int x, int y) {
-
+		String placement = "";
+		Node lookingGlass = buttons;
+		while (lookingGlass != null) {
+			if (((Button) lookingGlass).isContained(x, y)) {
+				placement = ((Button) lookingGlass).getInternalName();
+				((Button) lookingGlass).setHovered(true);
+			} else {
+				((Button) lookingGlass).setHovered(false);
+			}
+			lookingGlass = lookingGlass.next();
+		}
+		selecting = placement;
 	}
 
 	@Override
@@ -76,17 +131,43 @@ public class Setup extends Scene{
 	
 	@Override
 	protected void clickEvent(int x, int y) {
-		if (50 < x && x < 250){
-			if (numPlayers < maxPlayers) {
-				int minY = 100 + (80*numPlayers);
-				int maxY = 100 + (80*numPlayers) + 40;
-				if (minY < y && y < maxY) {
+		if (setUpPhase == 0) {
+			if (selecting.split(";")[0].compareTo("PLAYER") == 0) {
+				if (Integer.parseInt(selecting.split(";")[1]) == numPlayers+1) {
 					addPlayer();
 				}
+			} else if (selecting.compareTo("ROLLS") == 0){
+				doRolls();
 			}
+		} else if (setUpPhase == 1) {
+			
+		} else if (setUpPhase == 2) {
+			
 		}
 	}
 
+	private void doRolls() {
+		if (numPlayers > 1) {
+			setUpPhase = 1;
+			for (int i = 0; i < numPlayers; i++) {
+				((Player) playerList.get(i)).throwDie();
+			}
+			((Button) buttons.get(buttons.search("ROLLS"))).setColorFore(Color.gray);
+			((Button) buttons.get(buttons.search("ARRANGE"))).setColorFore(Color.black);
+			if (Integer.parseInt(((Button) buttons.last()).getInternalName().split(";")[1]) == numPlayers+1) {
+				buttons.remove(buttons.size() - 1);
+			}
+		}
+	}
+	
+	private void arrange() {
+		
+	}
+	
+	private void start() {
+		
+	}
+	
 	@Override
 	public BufferedImage getDisplay() throws IOException {
 		BufferedImage display = new BufferedImage(ssX, ssY, BufferedImage.TYPE_INT_ARGB);
@@ -95,26 +176,21 @@ public class Setup extends Scene{
 		g.drawImage(ImageIO.read(new File("assets/title/background.png")), 0, 0, ssX, ssY, null);
 		
 		g.setFont(new Font("Arial",Font.BOLD,30));
-		g.drawString("Player List",(ssX/4),50);
+		g.drawString("Player List",300,50);
 		
-		for (int i = 0; i < numPlayers + 1; i++) {
-			int x = 50;
-			int y = 100 + (80*i);
+		Node lookingGlass = buttons;
+		while (lookingGlass != null) {
+			Button thisButton = (Button) lookingGlass;
+			g.drawImage(thisButton.getDisplay(),thisButton.getX(),thisButton.getY(), null);
 			
-			if (i < maxPlayers) {
-				g.setColor(Color.white);
-				g.fillRect(x, y, 200, 40);
-
-				if (i < numPlayers) {
-					g.setColor(Color.black);
-					g.drawString("Player "+(i+1),x+10,y+30);
-
-					g.drawImage(((Player) playerList.get(i)).getDieImage(), x+210,y-5, null);
-				} else if (setUpPhase == 0) {
-					g.setColor(Color.gray);
-					g.drawString("Add Player "+(i+1),x+10,y+30);
-				}
-			}
+			lookingGlass = lookingGlass.next();
+		}
+		
+		for (int i = 0; i < numPlayers; i++) {
+			Player thisPlayer = (Player) playerList.get(i);
+			int x = 270;
+			int y = 100 + (80*i) - 5;
+			g.drawImage(thisPlayer.getDieImage(), x, y, null);
 		}
 		
 		return display;

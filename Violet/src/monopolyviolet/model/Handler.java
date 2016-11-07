@@ -29,7 +29,7 @@ public class Handler {
 		gw = new GameWindow();
 		
 		gameState = new monopolyviolet.scenes.BaseScene(this);
-		gameState.add(new monopolyviolet.scenes.Title(this));
+		gameState = (Scene) gameState.add(new monopolyviolet.scenes.Title(this));
 		
 		gw.startCanvasThread();
 	}

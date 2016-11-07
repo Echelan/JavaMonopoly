@@ -12,7 +12,6 @@
  */
 package monopolyviolet.model;
 
-import monopolyviolet.scenes.Scene;
 
 /**
  *
@@ -24,11 +23,10 @@ public abstract class Node {
     private Node linkL;
 	
 	public Node get(int index) {
-		
 		Node lookingGlass = null;
+		int counter = index;
 		
-		if (index < this.size()) {
-			int counter = index;
+		if (counter < this.size() && counter >= 0) {
 			lookingGlass = this;
 			while (counter > 0) {
 				lookingGlass = lookingGlass.linkR;
@@ -39,8 +37,17 @@ public abstract class Node {
 		return lookingGlass;
 	}
 	
-	public void add(Node element) {
-		this.last().insertAfter(element);
+	public Node add(Node element) {
+		Node value;
+		
+		if (this == null) {
+			value = element;
+		} else {
+			this.last().insertAfter(element);
+			value = this;
+		}
+		
+		return value;
 	}
 	
 	public Node next() {
@@ -90,22 +97,33 @@ public abstract class Node {
 		return this.get(this.size() - 1);
 	}
 	
-	public void remove(int index) {
-		boolean doRemoval = true;
-		if (this.get(index) instanceof Scene) {
-			if (((Scene) this.get(index)).getName().compareTo("BACK") == 0) {
-				doRemoval = false;
+	public Node remove(int index) {
+		Node value;
+		
+		Node removedNode = this.get(index);
+		Node preRemovedNode = null;
+		
+		if (index != 0) {
+			preRemovedNode = this.get(index-1);
+		} else {
+			preRemovedNode = this.get(this.size() - 1);
+		}
+		
+		if (preRemovedNode != null) {
+			if (preRemovedNode.linkR == removedNode) {
+				preRemovedNode.linkR = removedNode.linkR;
 			}
 		}
 		
-		if (doRemoval) {
-			Node removedNode = this.get(index);
-			Node preRemovedNode = this.get(index-1);
-
-			preRemovedNode.linkR = removedNode.linkR;
-
-			removedNode.disconnect();
+		if (removedNode == this) {
+			value = removedNode.linkR;
+		} else {
+			value = this;
 		}
+		
+		removedNode.disconnect();
+		
+		return value;
 	}
 
 	public void setCircular(boolean value) {
