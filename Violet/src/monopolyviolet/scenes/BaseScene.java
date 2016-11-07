@@ -10,32 +10,56 @@
  * COPYRIGHT 1999 Hasbro, Inc. All Rights Reserved.
  * No copyright or trademark infringement is intended in using Monopoly content on Monopoly Violet.
  */
-package monopolyviolet.view;
+package monopolyviolet.scenes;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import monopolyviolet.model.Handler;
-import monopolyviolet.scenes.Scene;
 
 /**
  *
  * @author Andres
  */
-public class DisplayParser {
+public class BaseScene extends Scene{
 
-	public static BufferedImage displayImage() {
-		BufferedImage display = new BufferedImage(Handler.SCREEN_SIZE_X, Handler.SCREEN_SIZE_Y, BufferedImage.TYPE_INT_ARGB);
+	public BaseScene(Handler main) {
+		super(main, "BACK", true);
+	}
+
+	@Override
+	protected void clickEvent(int x, int y) {
+
+	}
+
+	@Override
+	protected void moveEvent(int x, int y) {
+
+	}
+
+	@Override
+	protected void dragEvent(int x, int y) {
+
+	}
+
+	@Override
+	protected void pressEvent(int x, int y) {
+
+	}
+
+	@Override
+	protected void releaseEvent(int x, int y) {
+
+	}
+
+	@Override
+	public BufferedImage getDisplay() throws IOException {
+		BufferedImage display = new BufferedImage(ssX, ssY, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = display.getGraphics();
 
-		Scene currentScene = Handler.gameState;
-		while (currentScene != null) {
-			try {
-				g.drawImage(currentScene.getDisplay(), 0, 0, null);
-			} catch (IOException ex) {
-			}
-			currentScene = (Scene) currentScene.next();
-		}
+		g.setColor(Color.BLACK);
+		g.fillRect(0, 0, ssX, ssY);
 
 		return display;
 	}

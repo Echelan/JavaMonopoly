@@ -1,7 +1,14 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Monopoly Violet - A University Project by Andres Movilla
+ * MONOPOLY COPYRIGHT
+ * the distinctive design of the gameboard
+ * the four corner squares
+ * the Mr. Monopoly name and character
+ * and each of the distinctive elements of the board
+ * are trademarks of Hasbro, Inc.
+ * for its property trading game and game equipment.
+ * COPYRIGHT 1999 Hasbro, Inc. All Rights Reserved.
+ * No copyright or trademark infringement is intended in using Monopoly content on Monopoly Violet.
  */
 package monopolyviolet.model;
 
@@ -19,12 +26,12 @@ public class Handler {
 	private GameWindow gw;
 	
 	public Handler() {
-		gw = new GameWindow(this);
+		gw = new GameWindow();
 		
-		gameState = new monopolyviolet.scenes.Title(this);		
-		
-//		gameState.add(new monopolyviolet.scenes.Title(this));
+		gameState = new monopolyviolet.scenes.BaseScene(this);
+		gameState.add(new monopolyviolet.scenes.Title(this));
 		
 		gw.startCanvasThread();
 	}
+	
 }

@@ -1,9 +1,14 @@
 /*
- *  Pokemon Violet - A University Project by Andres Movilla
- *  Pokemon COPYRIGHT 2002-2016 Pokemon.
- *  COPYRIGHT 1995-2016 Nintendo/Creatures Inc./GAME FREAK inc. TRADEMARK, REGISTERED TRADEMARK
- *  and Pokemon character names are trademarks of Nintendo.
- *  No copyright or trademark infringement is intended in using Pokemon content on Pokemon Violet.
+ * Monopoly Violet - A University Project by Andres Movilla
+ * MONOPOLY COPYRIGHT
+ * the distinctive design of the gameboard
+ * the four corner squares
+ * the Mr. Monopoly name and character
+ * and each of the distinctive elements of the board
+ * are trademarks of Hasbro, Inc.
+ * for its property trading game and game equipment.
+ * COPYRIGHT 1999 Hasbro, Inc. All Rights Reserved.
+ * No copyright or trademark infringement is intended in using Monopoly content on Monopoly Violet.
  */
 package monopolyviolet.view;
 
@@ -21,19 +26,17 @@ public class GameDisplay extends Canvas implements Runnable {
 	
 	private String lastState;
 	public Thread thisThread;
-	private Handler main;
 	
 	/**
 	 * Create a GameDisplay custom canvas.
-	 * @param main main game handler
 	 */
-	public GameDisplay(Handler main) {
+	public GameDisplay() {
 		lastState = "";
 		thisThread = new Thread(this);
 		
-		addMouseListener(new MouseHandler());
-
-		this.main = main;
+		MouseHandler mh = new MouseHandler();
+		addMouseListener(mh);
+		addMouseMotionListener(mh);
 	}
 
 	@Override
@@ -48,21 +51,23 @@ public class GameDisplay extends Canvas implements Runnable {
 	public void run() {
 		createBufferStrategy(3);
 		while (true) {
-			if (!Handler.gameState.isEmpty()) {
-				Graphics g = getBufferStrategy().getDrawGraphics();
+			Graphics g = getBufferStrategy().getDrawGraphics();
 
-				if (lastState.compareTo(((Scene) Handler.gameState.get(Handler.gameState.size() - 1)).getName()) != 0) {
-					g.clearRect(0, 0, this.getWidth(), this.getHeight());
-					lastState = ((Scene) Handler.gameState.get(Handler.gameState.size() - 1)).getName();
-				}
+			String newState = "";
 
-				g.drawImage(DisplayParser.displayImage(), 0, 0, this.getWidth(), this.getHeight(), this);
+			newState = ((Scene) Handler.gameState.last()).getName();
 
-				repaint();
+			if (lastState.compareTo(newState) != 0) {
+				g.clearRect(0, 0, this.getWidth(), this.getHeight());
+				lastState = newState;
 			}
 
+			g.drawImage(DisplayParser.displayImage(), 0, 0, this.getWidth(), this.getHeight(), this);
+
+			repaint();
+
 			try {
-				Thread.sleep(40);
+				Thread.sleep(100);
 			} catch (InterruptedException ex) {
 			}
 		}

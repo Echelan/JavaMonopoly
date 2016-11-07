@@ -1,12 +1,20 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Monopoly Violet - A University Project by Andres Movilla
+ * MONOPOLY COPYRIGHT
+ * the distinctive design of the gameboard
+ * the four corner squares
+ * the Mr. Monopoly name and character
+ * and each of the distinctive elements of the board
+ * are trademarks of Hasbro, Inc.
+ * for its property trading game and game equipment.
+ * COPYRIGHT 1999 Hasbro, Inc. All Rights Reserved.
+ * No copyright or trademark infringement is intended in using Monopoly content on Monopoly Violet.
  */
 package monopolyviolet.scenes;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import monopolyviolet.control.MouseHandler;
 import monopolyviolet.model.Handler;
 import monopolyviolet.model.Node;
 
@@ -29,8 +37,26 @@ public abstract class Scene extends Node{
 		this.full = full;
 	}
 
-	public abstract void receiveAction(int action, int x, int y);
+	public void receiveAction(int action, int x, int y) {
+		if (action == MouseHandler.EVENT_CLICK) {
+			clickEvent(x,y);
+		} else if (action == MouseHandler.EVENT_MOVE) {
+			moveEvent(x,y);
+		} else if (action == MouseHandler.EVENT_DRAG) {
+			dragEvent(x,y);
+		} else if (action == MouseHandler.EVENT_PRESS) {
+			pressEvent(x,y);
+		} else if (action == MouseHandler.EVENT_RELEASE) {
+			releaseEvent(x,y);
+		}
+	}
 
+	protected abstract void clickEvent(int x, int y);
+	protected abstract void moveEvent(int x, int y);
+	protected abstract void dragEvent(int x, int y);
+	protected abstract void pressEvent(int x, int y);
+	protected abstract void releaseEvent(int x, int y);
+	
 	public void dispose() {
 		main.gameState.remove(main.gameState.size() - 1);
 	}
@@ -49,41 +75,6 @@ public abstract class Scene extends Node{
 	 */
 	public boolean isFull() {
 		return full;
-	}
-	
-	protected String[] genMultilineText(String originalText, int charsInLine) {
-		java.util.ArrayList<String> listResult = new java.util.ArrayList<String>();
-		
-		for (int i = 0; i < (originalText.length() / charsInLine) + 1; i++) {
-			String prefix = "", suffix = "";
-
-			int thisLineFirstChar = i * charsInLine;
-			int thisLinePrevChar = thisLineFirstChar - 1;
-			int thisLineLastChar = ((i + 1) * charsInLine) - 2;
-			int thisLineNextChar = thisLineLastChar + 1;
-
-			if (thisLineFirstChar != 0){
-				if (originalText.charAt(thisLinePrevChar) != ' ') {
-					prefix = "" + originalText.charAt(thisLinePrevChar);
-				}
-			}
-
-			if (thisLineNextChar < originalText.length()) {
-				if (originalText.charAt(thisLineNextChar) != ' ' && originalText.charAt(thisLineLastChar) != ' ') {
-					suffix = "-";
-				}
-			} else {
-				thisLineLastChar = originalText.length() - 1;
-			}
-			listResult.add(prefix + originalText.substring(thisLineFirstChar, thisLineLastChar+1) + suffix);
-		}
-		
-		String[] result = new String[listResult.size()];
-		for (int i = 0; i < result.length; i++) {
-			result[i] = listResult.get(i);
-		}
-		
-		return result;
 	}
 
 }

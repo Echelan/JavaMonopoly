@@ -1,9 +1,14 @@
 /*
- *  Pokemon Violet - A University Project by Andres Movilla
- *  Pokemon COPYRIGHT 2002-2016 Pokemon.
- *  COPYRIGHT 1995-2016 Nintendo/Creatures Inc./GAME FREAK inc. TRADEMARK, REGISTERED TRADEMARK
- *  and Pokemon character names are trademarks of Nintendo.
- *  No copyright or trademark infringement is intended in using Pokemon content on Pokemon Violet.
+ * Monopoly Violet - A University Project by Andres Movilla
+ * MONOPOLY COPYRIGHT
+ * the distinctive design of the gameboard
+ * the four corner squares
+ * the Mr. Monopoly name and character
+ * and each of the distinctive elements of the board
+ * are trademarks of Hasbro, Inc.
+ * for its property trading game and game equipment.
+ * COPYRIGHT 1999 Hasbro, Inc. All Rights Reserved.
+ * No copyright or trademark infringement is intended in using Monopoly content on Monopoly Violet.
  */
 package monopolyviolet.view;
 
@@ -28,16 +33,16 @@ public class GameWindow extends JFrame implements WindowListener, ActionListener
 	 * Create a new GameWindow.
 	 * @param main main game handler
 	 */
-	public GameWindow(Handler main) {
+	public GameWindow() {
 		setLayout(null);
-		setSize(main.SCREEN_SIZE_X + 8, main.SCREEN_SIZE_Y + 31);
+		setSize(Handler.SCREEN_SIZE_X + 8, Handler.SCREEN_SIZE_Y + 31);
 		setTitle("Monopoly Violet");
 		setResizable(false);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
-		screen = new GameDisplay(main);
-		screen.setBounds(1, 1, main.SCREEN_SIZE_X, main.SCREEN_SIZE_Y);
+		screen = new GameDisplay();
+		screen.setBounds(1, 1, Handler.SCREEN_SIZE_X, Handler.SCREEN_SIZE_Y);
 		screen.setFocusable(false);
 		add(screen);
 
