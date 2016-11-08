@@ -26,7 +26,7 @@ import monopolyviolet.data.DataNode;
  *
  * @author movillaf
  */
-public class Property extends Node{
+public class Property {
 	
 	public static Color PROPERTY_PINK = Color.getHSBColor(335/360f,71/100f,92/100f);
 	public static Color PROPERTY_BLUE = Color.getHSBColor(186/360f,98/100f,82/100f);
@@ -55,23 +55,24 @@ public class Property extends Node{
 	}
 	
 	private void readInfo(int id) {
-        String[] propertyInfo = ((DataNode) monopolyviolet.data.NIC.INFO_PROPERTIES.get(id-1)).getValue().split(";");
-        for (int i = 0; i < propertyInfo.length; i++) {
-            String[] partes = propertyInfo[i].split("=");
-            if (partes[0].compareTo("name")==0) {
-				partes[1] = partes[1].substring(1,  partes[1].length()-1);
-				this.name = partes[1];
-            }else if (partes[0].compareTo("price")==0) {
-				this.buyPrice = Integer.parseInt(partes[1]);
-            }else if (partes[0].compareTo("rent")==0) {
-				this.rent = Integer.parseInt(partes[1]);
-            }else if (partes[0].compareTo("buildingCost")==0) {
-				this.buildingCost = Integer.parseInt(partes[1]);
-            }else if (partes[0].compareTo("rentChange")==0) {
-				this.rentChanges = partes[1];
-            }else if (partes[0].compareTo("color")==0) {
-				partes[1] = partes[1].substring(1,  partes[1].length()-1);
-				switch(partes[1]) {
+		String value = ((DataNode) monopolyviolet.data.NIC.INFO_PROPERTIES.get(id)).getValue();
+        for (int i = 0; i < value.split(";").length; i++) {
+            if (value.split(";")[i].split("=")[0].compareTo("name")==0) {
+				String wrap =value.split(";")[i].split("=")[1];
+				wrap = wrap.substring(1,  value.split(";")[i].split("=")[1].length()-1);
+				this.name = wrap;
+            }else if (value.split(";")[i].split("=")[0].compareTo("price")==0) {
+				this.buyPrice = Integer.parseInt(value.split(";")[i].split("=")[1]);
+            }else if (value.split(";")[i].split("=")[0].compareTo("rent")==0) {
+				this.rent = Integer.parseInt(value.split(";")[i].split("=")[1]);
+            }else if (value.split(";")[i].split("=")[0].compareTo("buildingCost")==0) {
+				this.buildingCost = Integer.parseInt(value.split(";")[i].split("=")[1]);
+            }else if (value.split(";")[i].split("=")[0].compareTo("rentChange")==0) {
+				this.rentChanges = value.split(";")[i].split("=")[1];
+            }else if (value.split(";")[i].split("=")[0].compareTo("color")==0) {
+				String wrap =value.split(";")[i].split("=")[1];
+				wrap = wrap.substring(1,  value.split(";")[i].split("=")[1].length()-1);
+				switch (wrap) {
 					case "PINK":
 						this.color = PROPERTY_PINK;
 						break;
@@ -207,11 +208,11 @@ public class Property extends Node{
 		
 		g.fillRect(0, 0, maxX, maxY);
 		g.setColor(this.color);
-		g.fillRect(0, 0, maxX, 150);
+		g.fillRect(0, 0, maxX, 60);
 		g.drawImage(ImageIO.read(new File("assets/propertyMap.png")), 0, 0, maxX, maxY, null);
-		g.setFont(new Font("Arial",Font.BOLD,30));
-		g.setColor(Color.BLACK);
-		g.drawString(this.name,maxX/2,20 );
+//		g.setFont(new Font("Arial",Font.BOLD,25));
+//		g.setColor(Color.BLACK);
+//		g.drawString(this.name, (int) (maxX*0.075f), 20);
 		
 		return display;
 	}
@@ -219,7 +220,7 @@ public class Property extends Node{
 	
 	public BufferedImage getPropertyCard() throws IOException{
 		BufferedImage display = new BufferedImage(246, 360, BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g = (Graphics2D) display.getGraphics();
+		Graphics g = (Graphics2D) display.getGraphics();
 		
 		int maxX = 246;
 		int maxY = 360;
@@ -230,7 +231,7 @@ public class Property extends Node{
 		g.drawImage(ImageIO.read(new File("assets/propertyCard.png")), 0, 0, maxX, maxY, null);
 		g.setFont(new Font("Arial",Font.BOLD,20));
 		g.setColor(Color.BLACK);
-		g.drawString(this.name, maxX*0.075f, 50);
+		g.drawString(this.name, (int) (maxX*0.075f), 50);
 		
 		
 		return display;

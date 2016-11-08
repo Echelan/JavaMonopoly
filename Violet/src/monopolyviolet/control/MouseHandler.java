@@ -77,7 +77,7 @@ public class MouseHandler extends MouseAdapter {
 	
 	private void wrapper(int action, int x, int y) {
 		if (Handler.gameState.last() != null) {
-			((Scene) Handler.gameState.last()).receiveAction(action,x,y);
+			Handler.gameState.last().receiveAction(action,x,y);
 		}
 	}
 	

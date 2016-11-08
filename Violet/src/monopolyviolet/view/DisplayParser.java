@@ -16,6 +16,7 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import monopolyviolet.model.Handler;
+import monopolyviolet.model.Node;
 import monopolyviolet.scenes.Scene;
 
 /**
@@ -23,18 +24,18 @@ import monopolyviolet.scenes.Scene;
  * @author Andres
  */
 public class DisplayParser {
-
+	
 	public static BufferedImage displayImage() {
 		BufferedImage display = new BufferedImage(Handler.SCREEN_SIZE_X, Handler.SCREEN_SIZE_Y, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = display.getGraphics();
 
-		Scene currentScene = Handler.gameState;
-		while (currentScene != null) {
+		int counter = 0;
+		while (counter < Handler.gameState.size()) {
 			try {
-				g.drawImage(currentScene.getDisplay(), 0, 0, null);
+				g.drawImage(Handler.gameState.get(counter).getDisplay(), 0, 0, null);
 			} catch (IOException ex) {
 			}
-			currentScene = (Scene) currentScene.next();
+			counter = counter + 1;
 		}
 
 		return display;

@@ -17,16 +17,36 @@ package monopolyviolet.model;
  *
  * @author movillaf
  */
-public abstract class Node {
+public class Node<E> {
     
-    private Node linkR;
-    private Node linkL;
+    private Node<E> linkR;
+    private Node<E> linkL;
+	private E value;
+	private int size;
+
+	public Node(E value) {
+		this.value = value;
+		this.size = 1;
+	}
+
+	public Node() {
+		this.value = null;
+		this.size = 0;
+	}
 	
-	public Node get(int index) {
-		Node lookingGlass = null;
+	public void set(int index, E element) {
+		this.getNode(index).value = element;
+	}
+	
+	public E get(int index) {
+		return this.getNode(index).value;
+	}
+	
+	public Node<E> getNode(int index) {
+		Node<E> lookingGlass = null;
 		int counter = index;
 		
-		if (counter < this.size() && counter >= 0) {
+		if (counter < this.size()) {
 			lookingGlass = this;
 			while (counter > 0) {
 				lookingGlass = lookingGlass.linkR;
@@ -37,105 +57,79 @@ public abstract class Node {
 		return lookingGlass;
 	}
 	
-	public Node add(Node element) {
-		Node value;
-		
-		if (this == null) {
-			value = element;
+	public void add(E element) {
+		if (this.value == null) {
+			this.value = element;
+			size = 1;
 		} else {
-			this.last().insertAfter(element);
-			value = this;
+			this.lastNode().insertAfter(new Node(element));
+			size = size + 1;
 		}
-		
-		return value;
 	}
 	
-	public Node next() {
+	public Node<E> next() {
 		return this.linkR;
 	}
 	
-	public Node prev() {
+	public Node<E> prev() {
 		return this.linkR;
 	}
 	
 	public boolean isEmpty() {
-		boolean value = false;
-		if (this == null) {
-			value = true;
-		}
-		
-		return value;
+		return size == 0;
 	}
 	
 	public int size() {
-		int counter = 0;
-		Node lookingGlass = this;
-		
-		while (lookingGlass != null) {
-			counter = counter + 1;
-			lookingGlass = lookingGlass.linkR;
-			if (lookingGlass == this) {
-				lookingGlass = null;
-			}
-		}
-		
-		return counter;
-	}
-    
-	public void disconnect() {
-		if (this.linkL != null) {
-			this.linkL.linkR = this.linkR;
-		}
-		if (this.linkR != null) {
-			this.linkR.linkL = this.linkL;
-		}
-		this.linkL = null;
-		this.linkR = null;
+		return size;
 	}
 	
-	public Node last() {
-		return this.get(this.size() - 1);
+	public Node<E> lastNode() {
+		return this.getNode(this.size() - 1);
 	}
 	
-	public Node remove(int index) {
-		Node value;
-		
-		Node removedNode = this.get(index);
-		Node preRemovedNode = null;
-		
-		if (index != 0) {
-			preRemovedNode = this.get(index-1);
-		} else {
-			preRemovedNode = this.get(this.size() - 1);
-		}
-		
-		if (preRemovedNode != null) {
-			if (preRemovedNode.linkR == removedNode) {
-				preRemovedNode.linkR = removedNode.linkR;
+	public E last() {
+		return this.lastNode().value;
+	}
+	
+	public void remove(int index) {
+		if (index < size) {
+			Node<E> toRemove = this.getNode(index);
+			
+			toRemove.value = null;
+			
+			if (index != 0) {
+				this.getNode(index-1).linkR = this.getNode(index).linkR;
+			} else {
+				if (this.lastNode().linkR != null) {
+					this.lastNode().linkR = this.getNode(index).linkR;
+				}
 			}
+			
+			if (index+1 < size) {
+				this.getNode(index+1).linkL = this.getNode(index).linkL;
+			} else {
+				if (this.linkL != null) {
+					this.linkL = this.getNode(index).linkL;
+				}
+			}
+			
+			toRemove.linkL = null;
+			toRemove.linkR = null;
+
+			size = size - 1;
 		}
-		
-		if (removedNode == this) {
-			value = removedNode.linkR;
-		} else {
-			value = this;
-		}
-		
-		removedNode.disconnect();
-		
-		return value;
 	}
 
 	public void setCircular(boolean value) {
 		if (value) {
-			this.get(this.size()-1).linkR = this;
+			this.lastNode().linkR = this;
 		} else {
-			this.get(this.size()-1).linkR = null;
+			this.lastNode().linkR = null;
 		}
 	}
 
 	public void setDoubleLink(boolean value) {
-		Node lookingGlass = this;
+		Node<E> lookingGlass = this;
 		while (lookingGlass != null) {
 			if (value) {
 				if (lookingGlass.linkR != null) {
@@ -151,17 +145,22 @@ public abstract class Node {
 		}
 	}
 	
-	public void insertAfter(Node element) {
-		element.disconnect();
+	public void insertAfter(Node<E> element) {
+		element.linkL = null;
+		element.linkR = null;
+		
 		if (this.linkL != null) { // if list is circular
 			element.linkL = this;
 		}
+		
 		element.linkR = this.linkR;
+		
 		if (this.linkR != null) { // if not at the end of list
 			if (this.linkR.linkL != null) { // if list is circular
 				this.linkR.linkL = element;
 			}
 		}
+		
 		this.linkR = element;
 	}
 }

@@ -22,14 +22,16 @@ import monopolyviolet.view.GameWindow;
 public class Handler {
 	public static final int SCREEN_SIZE_X = 600;
 	public static final int SCREEN_SIZE_Y = 600;
-	public static Scene gameState;
+	public static Node<Scene> gameState;
 	private GameWindow gw;
 	
 	public Handler() {
 		gw = new GameWindow();
 		
-		gameState = new monopolyviolet.scenes.BaseScene(this);
-		gameState = (Scene) gameState.add(new monopolyviolet.scenes.Title(this));
+		gameState = new Node();
+		
+//		gameState.add(new monopolyviolet.scenes.Title(this));
+		gameState.add(new monopolyviolet.scenes.Title(this));
 		
 		gw.startCanvasThread();
 	}

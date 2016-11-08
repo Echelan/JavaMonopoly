@@ -15,6 +15,7 @@ package monopolyviolet.data;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import monopolyviolet.model.Node;
 
 /**
  *
@@ -26,11 +27,11 @@ public abstract class NIC {
 		/**
 		 * Main data for Properties.
 		 */
-		public static DataNode INFO_PROPERTIES;
+		public static Node<DataNode> INFO_PROPERTIES = new Node();
 		/**
 		 * Main data for Cards.
 		 */
-		public static DataNode INFO_CARDS;
+		public static Node<DataNode> INFO_CARDS = new Node();
 	//</editor-fold>
 
 	//<editor-fold defaultstate="collapsed" desc="Static Images">
@@ -63,21 +64,13 @@ public abstract class NIC {
 		archivo = new File("db/listCards.txt");
 		for (int i = 0; i < Files.readAllLines(archivo.toPath()).size(); i++) {
 			String value = Files.readAllLines(archivo.toPath()).get(i);
-			if (INFO_CARDS == null) {
-				INFO_CARDS = new DataNode(value);
-			} else {
-				INFO_CARDS.add(new DataNode(value));
-			}
+			INFO_CARDS.add(new DataNode(value));
 		}
 		
 		archivo = new File("db/listProperties.txt");
 		for (int i = 0; i < Files.readAllLines(archivo.toPath()).size(); i++) {
 			String value = Files.readAllLines(archivo.toPath()).get(i);
-			if (INFO_PROPERTIES == null) {
-				INFO_PROPERTIES = new DataNode(value);
-			} else {
-				INFO_PROPERTIES.add(new DataNode(value));
-			}
+			INFO_PROPERTIES.add(new DataNode(value));
 		}
 	}
 	

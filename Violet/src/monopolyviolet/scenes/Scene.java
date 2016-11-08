@@ -16,13 +16,12 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import monopolyviolet.control.MouseHandler;
 import monopolyviolet.model.Handler;
-import monopolyviolet.model.Node;
 
 /**
  *
  * @author Andres
  */
-public abstract class Scene extends Node{
+public abstract class Scene {
 	
 
 	protected static final int ssX = (int) (monopolyviolet.model.Handler.SCREEN_SIZE_X);

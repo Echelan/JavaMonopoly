@@ -51,17 +51,6 @@ public class Button extends Node{
 		this.internalName = "button";
 	}
 	
-	public int search(String internalName) {
-		int counter = 0;
-		Node lookingGlass = this;
-		while (((Button) lookingGlass).getInternalName().compareTo(internalName) != 0) {
-			lookingGlass = lookingGlass.next();
-			counter = counter + 1;
-		}
-		
-		return counter;
-	}
-	
 	public boolean isContained(int x, int y) {
 		boolean value = false;
 		if (this.x < x && x < this.x+this.width) {

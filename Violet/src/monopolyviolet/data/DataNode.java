@@ -12,13 +12,11 @@
  */
 package monopolyviolet.data;
 
-import monopolyviolet.model.Node;
-
 /**
  *
  * @author Andres
  */
-public class DataNode extends Node{
+public class DataNode{
 	
 	private String value;
 

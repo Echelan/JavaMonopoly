@@ -26,8 +26,8 @@ import javax.imageio.ImageIO;
 public class Player extends Node{
     
     private int funds;
-    private Property deeds;
-    private Card hand;
+    private Node<Integer> deeds;
+    private Node<Card> hand;
 	private int roll;
 	private final int id;
 
@@ -35,6 +35,15 @@ public class Player extends Node{
 		this.funds = 1500;
 		this.roll = 0;
 		this.id = id;
+		
+		this.deeds = new Node();
+		this.hand = new Node();
+		
+		hand.setCircular(true);
+		hand.setDoubleLink(true);
+		
+		deeds.setCircular(true);
+		deeds.setDoubleLink(true);
 	}
 
 	/**
@@ -47,14 +56,8 @@ public class Player extends Node{
 	/**
 	 * @param deed the deed to add
 	 */
-	public void addProperty(Property deed) {
-		if (deeds == null) {
-			this.deeds = deed;
-			deeds.setCircular(true);
-			deeds.setDoubleLink(true);
-		} else {
-			this.deeds.add(deed);
-		}
+	public void addProperty(int deed) {
+		this.deeds.add(deed);
 	}
 
 	/**
@@ -74,11 +77,21 @@ public class Player extends Node{
 		return value;
 	}
 	
+	public BufferedImage getPiece() throws IOException {
+		BufferedImage display = new BufferedImage(306/8, 507/8, BufferedImage.TYPE_INT_ARGB);
+		Graphics g = display.getGraphics();
+		
+		String path = "assets/players/"+this.getId()+"/piece.png";
+		g.drawImage(ImageIO.read(new File(path)), 0, 0, 306/8, 507/8, null);
+		
+		return display;
+	}
+	
 	public BufferedImage getDieImage() throws IOException {
 		BufferedImage display = new BufferedImage(202/4, 202/4, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = display.getGraphics();
 		
-		String path = "assets/dice/"+this.getId()+"/"+this.getRoll()+".png";
+		String path = "assets/players/"+this.getId()+"/"+this.getRoll()+".png";
 		g.drawImage(ImageIO.read(new File(path)), 0, 0, 202/4, 202/4, null);
 		
 		return display;
@@ -92,13 +105,7 @@ public class Player extends Node{
 	 * @param card the card to add
 	 */
 	public void addCard(Card card) {
-		if (deeds == null) {
-			this.hand = card;
-			hand.setCircular(true);
-			hand.setDoubleLink(true);
-		} else {
-			this.hand.add(card);
-		}
+		this.hand.add(card);
 	}
 
 	/**
@@ -125,14 +132,14 @@ public class Player extends Node{
 	/**
 	 * @return the deeds
 	 */
-	public Property getDeeds() {
+	public Node<Integer> getDeeds() {
 		return deeds;
 	}
 
 	/**
 	 * @return the hand
 	 */
-	public Card getHand() {
+	public Node<Card> getHand() {
 		return hand;
 	}
 

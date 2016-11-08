@@ -23,7 +23,7 @@ import monopolyviolet.data.DataNode;
  *
  * @author movillaf
  */
-public class Card extends Node{
+public class Card{
     
     public static int COMMUNITY_CHEST_ID = 1;
     public static int CHANCE_ID = 2;
@@ -51,25 +51,27 @@ public class Card extends Node{
     }
     
     private void readInfo(int id) {
-        String[] cardInfo = ((DataNode) monopolyviolet.data.NIC.INFO_CARDS.get(id-1)).getValue().split(";");
-        for (int i = 0; i < cardInfo.length; i++) {
-            String[] partes = cardInfo[i].split("=");
-            if (partes[0].compareTo("title")==0) {
-                partes[1] = partes[1].substring(1,  partes[1].length()-1);
-                this.title = partes[1];
-            }else if (partes[0].compareTo("description")==0) {
-                partes[1] = partes[1].substring(1,  partes[1].length()-1);
-                this.description = partes[1];
-            }else if (partes[0].compareTo("id")==0) {
-                partes[1] = partes[1].substring(1,  partes[1].length()-1);
-                if (partes[1].compareTo("COMMUNITY")==0) {
+		String value = ((DataNode) monopolyviolet.data.NIC.INFO_CARDS.get(id-1)).getValue();
+        for (int i = 0; i <  value.split(";").length; i++) {
+            if (value.split(";")[i].split("=")[0].compareTo("title")==0) {
+				String wrap =value.split(";")[i].split("=")[1];
+				wrap = wrap.substring(1,  value.split(";")[i].split("=")[1].length()-1);
+                this.title = wrap;
+            }else if (value.split(";")[i].split("=")[0].compareTo("description")==0) {
+				String wrap =value.split(";")[i].split("=")[1];
+				wrap = wrap.substring(1,  value.split(";")[i].split("=")[1].length()-1);
+                this.description = wrap;
+            }else if (value.split(";")[i].split("=")[0].compareTo("id")==0) {
+				String wrap =value.split(";")[i].split("=")[1];
+				wrap = wrap.substring(1,  value.split(";")[i].split("=")[1].length()-1);
+                if (wrap.compareTo("COMMUNITY")==0) {
                     this.cardType = COMMUNITY_CHEST_ID;
-                } else if (partes[1].compareTo("CHANCE")==0) {
+                } else if (wrap.compareTo("CHANCE")==0) {
                     this.cardType = CHANCE_ID;
                 }
-            }else if (partes[0].compareTo("flags")==0) {
-                partes[1] = partes[1].substring(1,  partes[1].length()-1);
-                String flags = partes[1];
+            }else if (value.split(";")[i].split("=")[0].compareTo("flags")==0) {
+				String flags =value.split(";")[i].split("=")[1];
+				flags = flags.substring(1,  value.split(";")[i].split("=")[1].length()-1);
                 if (flags.contains("at")) {
                     this.category = ADVANCE_TO_ID;
                 } else if (flags.contains("ai")) {
@@ -89,8 +91,8 @@ public class Card extends Node{
                 } else if (flags.contains("fj")) {
                      this.category = FREE_JAIL_ID;
                 }
-            }else if (partes[0].compareTo("value")==0) {
-                this.value = partes[1];
+            }else if (value.split(";")[i].split("=")[0].compareTo("value")==0) {
+                this.value = value.split(";")[i].split("=")[1];
             }
         }
     }
