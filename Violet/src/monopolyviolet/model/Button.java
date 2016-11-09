@@ -21,7 +21,7 @@ import java.awt.image.BufferedImage;
  *
  * @author Andres
  */
-public class Button extends Node{
+public class Button {
 	
 	private int x;
 	private int y;

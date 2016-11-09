@@ -32,6 +32,10 @@ public abstract class NIC {
 		 * Main data for Cards.
 		 */
 		public static Node<DataNode> INFO_CARDS = new Node();
+		/**
+		 * Main data for Special Properties.
+		 */
+		public static Node<DataNode> INFO_SPECIALS = new Node();
 	//</editor-fold>
 
 	//<editor-fold defaultstate="collapsed" desc="Static Images">
@@ -71,6 +75,12 @@ public abstract class NIC {
 		for (int i = 0; i < Files.readAllLines(archivo.toPath()).size(); i++) {
 			String value = Files.readAllLines(archivo.toPath()).get(i);
 			INFO_PROPERTIES.add(new DataNode(value));
+		}
+		
+		archivo = new File("db/listSpecials.txt");
+		for (int i = 0; i < Files.readAllLines(archivo.toPath()).size(); i++) {
+			String value = Files.readAllLines(archivo.toPath()).get(i);
+			INFO_SPECIALS.add(new DataNode(value));
 		}
 	}
 	

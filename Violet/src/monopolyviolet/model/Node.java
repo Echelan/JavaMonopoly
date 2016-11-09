@@ -60,11 +60,10 @@ public class Node<E> {
 	public void add(E element) {
 		if (this.value == null) {
 			this.value = element;
-			size = 1;
 		} else {
 			this.lastNode().insertAfter(new Node(element));
-			size = size + 1;
 		}
+		size = size + 1;
 	}
 	
 	public Node<E> next() {
@@ -93,6 +92,13 @@ public class Node<E> {
 	
 	public void remove(int index) {
 		if (index < size) {
+			
+			for (int i = index; i < this.size-1; i++) {
+				this.getNode(i).value = this.getNode(i+1).value;
+			}
+			
+			index = this.size()-1;
+			
 			Node<E> toRemove = this.getNode(index);
 			
 			toRemove.value = null;

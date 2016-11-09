@@ -36,6 +36,7 @@ public class Game extends Scene{
 	private Node<Place> map;
 	private Node<Player> players;
 	private Node<Property> propertyList;
+	private Node<Property> specialList;
 	
 	private BufferedImage mapImage;
 	
@@ -50,6 +51,11 @@ public class Game extends Scene{
 	
 	private int dragStrength = 3;
 	
+	private int cooldown;
+	private int maxCD = 20;
+	
+	private boolean waiting;
+	
 	public Game(Handler main, Node<Player> players) {
 		super(main, "GAME", true);
 		
@@ -57,7 +63,10 @@ public class Game extends Scene{
 		chanceCard = new Node();
 		map = new Node();
 		propertyList = new Node();
+		specialList = new Node();
 		this.players = players;
+		
+		this.cooldown = maxCD;
 		
 		map.setCircular(true);
 		map.setDoubleLink(true);
@@ -70,6 +79,7 @@ public class Game extends Scene{
 		
 		createDecks();
 		createProperties();
+		createSpecials();
 		buildMap();
 		
 		try {
@@ -77,6 +87,30 @@ public class Game extends Scene{
 		} catch(IOException e) {
 			
 		}
+		for (int i = 0; i < players.size(); i++) {
+			this.map.get(0).getPlayersHere().add(players.get(i).getId());
+		}
+		
+		waiting = false;
+	}
+	
+	public void moveToPlayer(int id) {
+		int x = 0;
+		for (int i = 0; i < map.size(); i++) {
+			for (int j = 0; j < map.get(i).getPlayersHere().size(); j++) {
+				boolean foundHim = map.get(i).getPlayersHere().get(j) == id;
+				if (foundHim) {
+					x = i;
+				}
+			}
+		}
+		
+		
+		int xPos = map.get(x).getX();
+		int yPos = map.get(x).getY();
+		
+		xDisplace = xPos*-1;
+		yDisplace = yPos*-1;
 	}
 	
 	private void createDecks() {
@@ -92,14 +126,20 @@ public class Game extends Scene{
 	
 	private void createProperties() {
 		for (int i = 0; i < monopolyviolet.data.NIC.INFO_PROPERTIES.size(); i++) {
-			propertyList.add(new Property(i));
+			propertyList.add(new Property(i,0));
+		}
+	}
+	
+	private void createSpecials() {
+		for (int i = 0; i < monopolyviolet.data.NIC.INFO_SPECIALS.size(); i++) {
+			specialList.add(new Property(i,1));
 		}
 	}
 
 	private void buildMap() {
 		int maxSpace = 40;
 		int counter = 0;
-		
+		int spCounter = 0;
 		int longS = monopolyviolet.model.Place.LONG_SIDE + 5;
 		int shortS = monopolyviolet.model.Place.SHORT_SIDE + 5;
 		
@@ -166,45 +206,59 @@ public class Game extends Scene{
 			if (isCorner || counter >= propertyList.size()) {
 				map.add(new Place(isCorner,name,x,y,quad));
 				if (i/10 == 0) {
-					map.last().setType("GO");
+					map.last().setType(Place.GO_TYPE);
 				} else if (i/10 == 1) {
-					map.last().setType("JAIL");
+					map.last().setType(Place.JAIL_TYPE);
 				} else if (i/10 == 2) {
-					map.last().setType("FREE");
+					map.last().setType(Place.FREE_TYPE);
 				} else if (i/10 == 3) {
-					map.last().setType("GOJAIL");
+					map.last().setType(Place.GOJAIL_TYPE);
 				}
 			} else {
-				name = propertyList.get(counter).getName();
-				map.add(new Place(isCorner,name,x,y,quad));
 				if (i == 2 || i == 17 || i == 33) {
-					map.last().setType("COMMUNITY");
+					map.add(new Place(isCorner,name,x,y,quad));
+					map.last().setType(Place.COMMUNITY_TYPE);
 				} else if (i == 7 || i == 22 || i == 36) {
-					map.last().setType("COMMUNITY");
+					map.add(new Place(isCorner,name,x,y,quad));
+					map.last().setType(Place.CHANCE_TYPE);
 				} else if (i == 4 || i == 38) {
-					map.last().setType("TAX");
+					map.add(new Place(isCorner,name,x,y,quad));
+					map.last().setType(Place.TAX_TYPE);
 				} else if (i%10 == 5) {
-					map.last().setType("RAILROAD");
+					name = specialList.get(spCounter).getName();
+					map.add(new Place(isCorner,name,x,y,quad));
+					map.last().setProperty(specialList.get(spCounter));
+					map.last().setType(Place.RAILROAD_TYPE);
+					spCounter = spCounter + 1;
 				} else if (i == 12) {
-					map.last().setType("ELECTRIC");
+					name = specialList.get(spCounter).getName();
+					map.add(new Place(isCorner,name,x,y,quad));
+					map.last().setProperty(specialList.get(spCounter));
+					map.last().setType(Place.ELECTRIC_TYPE);
+					spCounter = spCounter + 1;
 				} else if (i == 28) {
-					map.last().setType("WATER");
+					name = specialList.get(spCounter).getName();
+					map.add(new Place(isCorner,name,x,y,quad));
+					map.last().setProperty(specialList.get(spCounter));
+					map.last().setType(Place.WATER_TYPE);
+					spCounter = spCounter + 1;
 				} else {
+					name = propertyList.get(counter).getName();
+					map.add(new Place(isCorner,name,x,y,quad));
 					map.last().setProperty(propertyList.get(counter));
+					map.last().setType(Place.PROPERTY_TYPE);
 					counter = counter + 1;
 				}
 			}
 		}
 	}
-
-	@Override
-	protected void clickEvent(int x, int y) {
-		
-	}
-
-	@Override
-	protected void moveEvent(int x, int y) {
-
+	
+	public void setRoll(int id, int roll) {
+		for (int i = 0; i < players.size(); i++) {
+			if (players.get(i).getId() == id) {
+				players.get(i).setRoll(roll);
+			}
+		}
 	}
 
 	private void checkDisplace() {
@@ -227,6 +281,53 @@ public class Game extends Scene{
 		
 	}
 	
+	protected void mapAction(int pID, int mID) {
+		waiting = true;
+		System.out.println(map.get(mID).getName());
+		if (map.get(mID).getType() == Place.PROPERTY_TYPE) {
+			if (map.get(mID).getProperty().getOwner() != -1) {
+				
+			}
+		} else if (map.get(mID).getType() == Place.TAX_TYPE) {
+			main.gameState.add(new PayAmount(main,200,pID,-1));
+		}
+	}
+	
+	public void setWaiting(boolean waiting) {
+		this.waiting = waiting;
+	}
+	
+	protected void sendJail(int pID) {
+		
+		int j = 0;
+		int k = 0;
+		boolean found = false;
+		while (j < map.size()) {
+			k = 0;
+			while (k < map.get(j).getPlayersHere().size() && !found) {
+				if (pID == map.get(j).getPlayersHere().get(k)) {
+					map.get(j).getPlayersHere().remove(k);
+					found = true;
+				}
+				k = k + 1;
+			}
+			if (map.get(j).getType() == Place.JAIL_TYPE) {
+				map.get(j).getPlayersHere().add(pID);
+			}
+			j = j + 1;
+		}
+	}
+	
+	@Override
+	protected void clickEvent(int x, int y) {
+		
+	}
+
+	@Override
+	protected void moveEvent(int x, int y) {
+
+	}
+
 	@Override
 	protected void dragEvent(int x, int y) {
 		xDisplace = xDisplaceLast + ((x-xBegin)*dragStrength);
@@ -257,9 +358,6 @@ public class Game extends Scene{
 		BufferedImage display = new BufferedImage(max, max, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = display.getGraphics();
 		
-//		g.drawImage(ImageIO.read(new File("assets/background.png")), 0, 0, null);
-		
-		
 		g.drawImage(ImageIO.read(new File("assets/title/violetMonopolyLogo.png")), xDisplace + (max/2)-(1292/6), yDisplace + (max/2)-(641/6), 1292/3, 641/3, null);
 		
 		for (int i = 0; i < map.size(); i++) {
@@ -268,39 +366,74 @@ public class Game extends Scene{
 			int yPos = map.get(i).getY();
 			
 			g.drawImage(map.get(i).getDisplay(), xPos, yPos, null);
-			
-			for (int j = 0; j < map.get(i).getPlayersHere().size(); j++) {
-				g.drawImage(players.get(map.get(i).getPlayersHere().get(i)).getPiece(), xPos + 10, yPos + 10, null);
-			}
 		}
-		
 		
 		return display;
 	}
     
+	@Override
 	public BufferedImage getDisplay() throws IOException {
 		BufferedImage display = new BufferedImage(ssX, ssY, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = display.getGraphics();
 		
 		g.drawImage(ImageIO.read(new File("assets/background.png")), 0, 0, null);
 		
-		int max = 865 + monopolyviolet.model.Place.LONG_SIDE + 10;
-		
-		
 		g.drawImage(this.mapImage,xDisplace,yDisplace, null);
-//		g.drawImage(ImageIO.read(new File("assets/title/violetMonopolyLogo.png")), xDisplace + (max/2)-(1292/6), yDisplace + (max/2)-(641/6), 1292/3, 641/3, null);
-//		
-//		for (int i = 0; i < map.size(); i++) {
-//			
-//			int xPos = xDisplace + map.get(i).getX();
-//			int yPos = yDisplace + map.get(i).getY();
-//			
-//			g.drawImage(map.get(i).getDisplay(), xPos, yPos, null);
-//			
-//			for (int j = 0; j < map.get(i).getPlayersHere().size(); j++) {
-//				g.drawImage(players.get(map.get(i).getPlayersHere().get(i)).getPiece(), xPos + 10, yPos + 10, null);
-//			}
-//		}
+		
+		this.cooldown = this.cooldown - 1;
+		
+		for (int i = 0; i < map.size(); i++) {
+			for (int j = 0; j < map.get(i).getPlayersHere().size(); j++) {
+				int xPos = xDisplace + map.get(i).getX()+(j*8);
+				int yPos = yDisplace + map.get(i).getY();
+				for (int k = 0; k < players.size(); k++) {
+					
+					if (players.get(k).getId() == map.get(i).getPlayersHere().get(j)) {
+						g.drawImage(players.get(k).getPiece(), xPos + 10, yPos + 10, null);
+					}
+				}
+				
+			}
+		}
+		
+		
+		if (this.cooldown < 0) {
+			int playerID = -1;
+			int mapID = -1;
+			for (int i = 0; i < players.size(); i++) {
+				int roll = players.get(i).getRoll();
+				playerID = i;
+				if (roll > 0) {
+					int triggeringID = players.get(i).getId();
+					this.cooldown = this.maxCD;
+
+					int j = 0;
+					int k = 0;
+					boolean found = false;
+					while (j < map.size() && !found) {
+						k = 0;
+						while (k < map.get(j).getPlayersHere().size() && !found) {
+							if (triggeringID == map.get(j).getPlayersHere().get(k)) {
+								map.get(j).getPlayersHere().remove(k);
+								map.get(j+1).getPlayersHere().add(triggeringID);
+								if (map.get(j+1).getType() == Place.GO_TYPE) {
+									players.get(i).addFunds(200);
+								}
+								mapID = j+1;
+								players.get(i).setRoll(roll-1);
+								found = true;
+							}
+							k = k + 1;
+						}
+						j = j + 1;
+					}
+					if (roll == 1) {
+						mapAction(playerID,mapID);
+					}
+				}
+				
+			}
+		}
 		
 		
 		return display;

@@ -45,17 +45,24 @@ public class Property {
 	private String rentChanges;
 	private int numHouses;
 	private int owner;
-	private Color color; 
+	private Color ownerColor;
+	private Color color;
 		
-	public Property(int id) {
+	public Property(int id, int special) {
 		this.id = id;
 		this.numHouses = 0;
 		this.owner = -1;
-		readInfo(this.id);
+		this.ownerColor = Color.gray;
+		readInfo(this.id,special==1);
 	}
 	
-	private void readInfo(int id) {
-		String value = ((DataNode) monopolyviolet.data.NIC.INFO_PROPERTIES.get(id)).getValue();
+	private void readInfo(int id, boolean special) {
+		String value;
+		if (special) {
+			value = ((DataNode) monopolyviolet.data.NIC.INFO_SPECIALS.get(id)).getValue();
+		} else {
+			value = ((DataNode) monopolyviolet.data.NIC.INFO_PROPERTIES.get(id)).getValue();
+		}
         for (int i = 0; i < value.split(";").length; i++) {
             if (value.split(";")[i].split("=")[0].compareTo("name")==0) {
 				String wrap =value.split(";")[i].split("=")[1];
@@ -96,6 +103,9 @@ public class Property {
 						break;
 					case "ORANGE":
 						this.color = PROPERTY_ORANGE;
+						break;
+					default:
+						this.color = Color.white;
 						break;
 				}
             }
@@ -198,7 +208,6 @@ public class Property {
 		this.owner = owner;
 	}
 	
-	
 	public BufferedImage getPropertyMap() throws IOException{
 		BufferedImage display = new BufferedImage(154,225, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = display.getGraphics();
@@ -210,13 +219,17 @@ public class Property {
 		g.setColor(this.color);
 		g.fillRect(0, 0, maxX, 60);
 		g.drawImage(ImageIO.read(new File("assets/propertyMap.png")), 0, 0, maxX, maxY, null);
+		
+		int diam = 100;
+		
+		g.setColor(this.ownerColor);
+		g.fillOval((154/2)-(diam/2), (225/2)-(diam/2)+20, diam, diam);
 //		g.setFont(new Font("Arial",Font.BOLD,25));
 //		g.setColor(Color.BLACK);
 //		g.drawString(this.name, (int) (maxX*0.075f), 20);
 		
 		return display;
 	}
-	
 	
 	public BufferedImage getPropertyCard() throws IOException{
 		BufferedImage display = new BufferedImage(246, 360, BufferedImage.TYPE_INT_ARGB);
@@ -242,5 +255,12 @@ public class Property {
 	 */
 	public Color getColor() {
 		return color;
+	}
+
+	/**
+	 * @param ownerColor the ownerColor to set
+	 */
+	public void setOwnerColor(Color ownerColor) {
+		this.ownerColor = ownerColor;
 	}
 }

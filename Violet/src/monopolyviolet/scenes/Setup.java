@@ -204,7 +204,11 @@ public class Setup extends Scene{
 	
 	private void start() {
 		this.dispose();
+		for (int i = 0; i < playerList.size(); i++) {
+			playerList.get(i).setRoll(0);
+		}
 		main.gameState.add(new Game(main,playerList));
+		main.gameState.add(new TurnAnnounce(main,playerList.get(0).getId()));
 	}
 	
 	@Override
@@ -217,19 +221,18 @@ public class Setup extends Scene{
 		g.setFont(new Font("Arial",Font.BOLD,30));
 		g.drawString("Player List",300,50);
 		
-		Node<Button> lookingGlass = buttons;
-		while (lookingGlass != null) {
-			Button thisButton = lookingGlass.get(0);
+		int counter = 0;
+		while (counter < buttons.size()) {
+			Button thisButton = buttons.get(counter);
 			g.drawImage(thisButton.getDisplay(),thisButton.getX(),thisButton.getY(), null);
-			
-			lookingGlass = lookingGlass.next();
+			counter = counter + 1;
 		}
 		
 		for (int i = 0; i < numPlayers; i++) {
 			Player thisPlayer = playerList.get(i);
 			int x = 270;
 			int y = 100 + (80*i) - 5;
-			g.drawImage(thisPlayer.getDieImage(), x, y, null);
+			g.drawImage(thisPlayer.getDieImage(), x, y, 202/4, 202/4, null);
 			g.drawImage(thisPlayer.getPiece(), 50, y, null);
 		}
 		

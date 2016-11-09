@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import monopolyviolet.model.Handler;
-import static monopolyviolet.scenes.Scene.ssX;
 
 /**
  *

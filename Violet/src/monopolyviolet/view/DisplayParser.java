@@ -16,8 +16,6 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import monopolyviolet.model.Handler;
-import monopolyviolet.model.Node;
-import monopolyviolet.scenes.Scene;
 
 /**
  *

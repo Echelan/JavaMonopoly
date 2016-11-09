@@ -25,6 +25,18 @@ import javax.imageio.ImageIO;
  */
 public class Place {
 	
+	public static final int PROPERTY_TYPE = -1;
+	public static final int GO_TYPE = 0;
+	public static final int JAIL_TYPE = 1;
+	public static final int FREE_TYPE = 2;
+	public static final int GOJAIL_TYPE = 3;
+	public static final int COMMUNITY_TYPE = 4;
+	public static final int CHANCE_TYPE = 5;
+	public static final int TAX_TYPE = 6;
+	public static final int RAILROAD_TYPE = 7;
+	public static final int WATER_TYPE = 8;
+	public static final int ELECTRIC_TYPE = 9;
+	
 	private final boolean corner;
 	private final String name;
 	private Property property;
@@ -32,7 +44,7 @@ public class Place {
 	private final int y;
 	private final int side;
 	private Node<Integer> playersHere;
-	private String type;
+	private int type;
 	
 	public static final float RESIZE = 0.5f;
 	public static final int SHORT_SIDE = (int) (154 * RESIZE);
@@ -60,7 +72,6 @@ public class Place {
 	}
 
 	public void setProperty(Property property) {
-		this.setType("PROPERTY");
 		this.property = property;
 	}
 	
@@ -103,13 +114,51 @@ public class Place {
 		
 		if (this.property != null) {
 			g.drawImage(this.property.getPropertyMap(), x, y, SHORT_SIDE, LONG_SIDE, null);
+			
+				int iconDim = 200/4;
+				int iconX = x+(int) (iconDim/3.5);
+				int iconY = y+(int) (iconDim/1.25);
+//				iconDim = iconDim*3/4;
+				if (this.type == PROPERTY_TYPE) {
+					g.drawImage(ImageIO.read(new File("assets/icons/property.png")), iconX, iconY, iconDim, iconDim, null);
+				} else if (this.type == RAILROAD_TYPE) {
+					g.drawImage(ImageIO.read(new File("assets/icons/railroad.png")), iconX, iconY, iconDim, iconDim, null);
+				} else if (this.type == WATER_TYPE) {
+					g.drawImage(ImageIO.read(new File("assets/icons/water.png")), iconX, iconY, iconDim, iconDim, null);
+				} else if (this.type == ELECTRIC_TYPE) {
+					g.drawImage(ImageIO.read(new File("assets/icons/electric.png")), iconX, iconY, iconDim, iconDim, null);
+				}
 		} else {
 			g.setColor(Color.BLACK);
-			g.drawString(this.type,x,y+50);
 			if (this.corner) {
 				g.drawImage(ImageIO.read(new File("assets/cornerBlank.png")), x, y, LONG_SIDE, LONG_SIDE, null);
+				int iconDim = 300/3;
+				int iconX = x + 10;
+				int iconY = y + 10;
+				
+				if (this.type == GO_TYPE) {
+					g.drawImage(ImageIO.read(new File("assets/icons/go.png")), iconX, iconY, iconDim, iconDim, null);
+				} else if (this.type == GOJAIL_TYPE) {
+					g.drawImage(ImageIO.read(new File("assets/icons/gojail.png")), iconX, iconY, iconDim, iconDim, null);
+				} else if (this.type == FREE_TYPE) {
+					g.drawImage(ImageIO.read(new File("assets/icons/parking.png")), iconX, iconY, iconDim, iconDim, null);
+				} else if (this.type == JAIL_TYPE) {
+					g.drawImage(ImageIO.read(new File("assets/icons/jail.png")), iconX, iconY, iconDim, iconDim, null);
+				}
 			} else {
 				g.drawImage(ImageIO.read(new File("assets/blankMap.png")), x, y, SHORT_SIDE, LONG_SIDE, null);
+				
+				int iconDim = 200/3;
+				int iconX = x+(iconDim/10);
+				int iconY = y+(iconDim/3);
+				
+				if (this.type == CHANCE_TYPE) {
+					g.drawImage(ImageIO.read(new File("assets/icons/chance.png")), iconX, iconY, iconDim, iconDim, null);
+				} else if (this.type == COMMUNITY_TYPE) {
+					g.drawImage(ImageIO.read(new File("assets/icons/chest.png")), iconX, iconY, iconDim, iconDim, null);
+				} else if (this.type == TAX_TYPE) {
+					g.drawImage(ImageIO.read(new File("assets/icons/tax.png")), iconX, iconY, iconDim, iconDim, null);
+				}
 			}
 		}
 		
@@ -140,14 +189,14 @@ public class Place {
 	/**
 	 * @return the type
 	 */
-	public String getType() {
+	public int getType() {
 		return type;
 	}
 
 	/**
 	 * @param type the type to set
 	 */
-	public void setType(String type) {
+	public void setType(int type) {
 		this.type = type;
 	}
 	

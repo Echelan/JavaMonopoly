@@ -67,7 +67,7 @@ public class Player extends Node{
 	 * @param numSides Number of sides per die.
 	 * @return Result of dice roll.
 	 */
-	public int roll(int value, int numDice, int numSides) {
+	public static int roll(int value, int numDice, int numSides) {
 		Random rnd = new Random();
 
 		for (int i = 0; i < numDice; i++) {
@@ -88,17 +88,17 @@ public class Player extends Node{
 	}
 	
 	public BufferedImage getDieImage() throws IOException {
-		BufferedImage display = new BufferedImage(202/4, 202/4, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage display = new BufferedImage(202/2, 202/2, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = display.getGraphics();
 		
 		String path = "assets/players/"+this.getId()+"/"+this.getRoll()+".png";
-		g.drawImage(ImageIO.read(new File(path)), 0, 0, 202/4, 202/4, null);
+		g.drawImage(ImageIO.read(new File(path)), 0, 0, 202/2, 202/2, null);
 		
 		return display;
 	}
 	
 	public void throwDie() {
-		this.setRoll(this.roll(0,1,6));
+		this.setRoll(roll(0,1,6));
 	}
 	
 	/**
