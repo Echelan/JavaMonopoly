@@ -154,9 +154,6 @@ public class Setup extends Scene{
 	private void doRolls() {
 		if (numPlayers > 1) {
 			setUpPhase = 1;
-			for (int i = 0; i < numPlayers; i++) {
-				((Player) playerList.get(i)).throwDie();
-			}
 			buttons.get(0).setColorFore(Color.gray);
 			buttons.get(1).setColorFore(Color.black);
 			if (Integer.parseInt(((Button) buttons.last()).getInternalName().split(";")[1]) == numPlayers+1) {
@@ -166,32 +163,33 @@ public class Setup extends Scene{
 	}
 	
 	private void arrange() {
-		Node<Player> arrangedList = new Node();
-		Node<Player> lookingGlass = new Node();
+//		Node<Player> arrangedList = new Node();
+//		Node<Player> lookingGlass = new Node();
+System.out.println("BEGIN HUNGER GAMES");
 		int counter = 0;
-		int max = playerList.size();
-		
-		while (max > 1) {
-			while (counter+1 < max) {
-				if (playerList.get(counter).getRoll() < playerList.get(counter+1).getRoll()) {
-					Player temp = playerList.get(counter);
-					playerList.set(counter,playerList.get(counter+1));
-					playerList.set(counter+1,temp);
-				}
-				counter = counter + 1;
-			}
-			counter = 0;
-			max = max - 1;
-		}
+                int highestRoll = 0;
+                int highestID = 0;
+                
+                for (int i = 0; i < playerList.size(); i++) {
+                    if (highestRoll < playerList.get(i).getRoll()) {
+                        highestRoll = playerList.get(i).getRoll();
+                        highestID = i;
+                    }
+                
+                }
+                
+                playerList.rotate(highestID);
+                
 		
 		int pCount = 0;
 		int bCount = 0;
 		while (bCount < buttons.size()) {
-			
-			if (buttons.get(bCount).getInternalName().split(";")[0].compareTo("PLAYER") == 0) {
-				buttons.get(bCount).setInternalName("PLAYER;"+playerList.get(pCount).getId());
-				buttons.get(bCount).setText("Player "+playerList.get(pCount).getId());
-				pCount = pCount + 1;
+                        Button thisButton = buttons.get(bCount);
+			if (thisButton.getInternalName().split(";")[0].compareTo("PLAYER") == 0) {
+                            Player thisPlayer = playerList.get(pCount);
+                            thisButton.setInternalName("PLAYER;"+thisPlayer.getId());
+                            thisButton.setText("Player "+thisPlayer.getId());
+                            pCount = pCount + 1;
 			}
 			bCount = bCount+1;
 			
@@ -208,7 +206,7 @@ public class Setup extends Scene{
 			playerList.get(i).setRoll(0);
 		}
 		main.gameState.add(new Game(main,playerList));
-		main.gameState.add(new TurnAnnounce(main,playerList.get(0).getId()));
+		main.gameState.add(new TurnAnnounce(main,playerList.get(0)));
 	}
 	
 	@Override
@@ -229,7 +227,11 @@ public class Setup extends Scene{
 		}
 		
 		for (int i = 0; i < numPlayers; i++) {
-			Player thisPlayer = playerList.get(i);
+                    Player thisPlayer = playerList.get(i);
+                    if (setUpPhase == 0) {
+                        thisPlayer.setRoll(Player.roll(0, 1, 6));
+                    }
+			
 			int x = 270;
 			int y = 100 + (80*i) - 5;
 			g.drawImage(thisPlayer.getDieImage(), x, y, 202/4, 202/4, null);

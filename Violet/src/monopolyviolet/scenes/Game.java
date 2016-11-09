@@ -52,9 +52,7 @@ public class Game extends Scene{
 	private int dragStrength = 3;
 	
 	private int cooldown;
-	private int maxCD = 20;
-	
-	private boolean waiting;
+	private int maxCD = 10;
 	
 	public Game(Handler main, Node<Player> players) {
 		super(main, "GAME", true);
@@ -91,23 +89,11 @@ public class Game extends Scene{
 			this.map.get(0).getPlayersHere().add(players.get(i).getId());
 		}
 		
-		waiting = false;
 	}
 	
-	public void moveToPlayer(int id) {
-		int x = 0;
-		for (int i = 0; i < map.size(); i++) {
-			for (int j = 0; j < map.get(i).getPlayersHere().size(); j++) {
-				boolean foundHim = map.get(i).getPlayersHere().get(j) == id;
-				if (foundHim) {
-					x = i;
-				}
-			}
-		}
-		
-		
-		int xPos = map.get(x).getX();
-		int yPos = map.get(x).getY();
+	public void moveToPlayer(Player search) {
+		int xPos = findPlaceWithPlayerWithID(search.getId()).getX();
+		int yPos = findPlaceWithPlayerWithID(search.getId()).getY();
 		
 		xDisplace = xPos*-1;
 		yDisplace = yPos*-1;
@@ -204,118 +190,191 @@ public class Game extends Scene{
 			String name = "Space";
 			boolean isCorner = (i%10 == 0);
 			if (isCorner || counter >= propertyList.size()) {
-				map.add(new Place(isCorner,name,x,y,quad));
+				getMap().add(new Place(isCorner,name,x,y,quad));
 				if (i/10 == 0) {
-					map.last().setType(Place.GO_TYPE);
+					getMap().last().setType(Place.GO_TYPE);
 				} else if (i/10 == 1) {
-					map.last().setType(Place.JAIL_TYPE);
+					getMap().last().setType(Place.JAIL_TYPE);
 				} else if (i/10 == 2) {
-					map.last().setType(Place.FREE_TYPE);
+					getMap().last().setType(Place.FREE_TYPE);
 				} else if (i/10 == 3) {
-					map.last().setType(Place.GOJAIL_TYPE);
+					getMap().last().setType(Place.GOJAIL_TYPE);
 				}
 			} else {
 				if (i == 2 || i == 17 || i == 33) {
-					map.add(new Place(isCorner,name,x,y,quad));
-					map.last().setType(Place.COMMUNITY_TYPE);
+					getMap().add(new Place(isCorner,name,x,y,quad));
+					getMap().last().setType(Place.COMMUNITY_TYPE);
 				} else if (i == 7 || i == 22 || i == 36) {
-					map.add(new Place(isCorner,name,x,y,quad));
-					map.last().setType(Place.CHANCE_TYPE);
+					getMap().add(new Place(isCorner,name,x,y,quad));
+					getMap().last().setType(Place.CHANCE_TYPE);
 				} else if (i == 4 || i == 38) {
-					map.add(new Place(isCorner,name,x,y,quad));
-					map.last().setType(Place.TAX_TYPE);
+					getMap().add(new Place(isCorner,name,x,y,quad));
+					getMap().last().setType(Place.TAX_TYPE);
 				} else if (i%10 == 5) {
 					name = specialList.get(spCounter).getName();
-					map.add(new Place(isCorner,name,x,y,quad));
-					map.last().setProperty(specialList.get(spCounter));
-					map.last().setType(Place.RAILROAD_TYPE);
+					getMap().add(new Place(isCorner,name,x,y,quad));
+					getMap().last().setProperty(specialList.get(spCounter));
+					getMap().last().setType(Place.RAILROAD_TYPE);
 					spCounter = spCounter + 1;
 				} else if (i == 12) {
 					name = specialList.get(spCounter).getName();
-					map.add(new Place(isCorner,name,x,y,quad));
-					map.last().setProperty(specialList.get(spCounter));
-					map.last().setType(Place.ELECTRIC_TYPE);
+					getMap().add(new Place(isCorner,name,x,y,quad));
+					getMap().last().setProperty(specialList.get(spCounter));
+					getMap().last().setType(Place.ELECTRIC_TYPE);
 					spCounter = spCounter + 1;
 				} else if (i == 28) {
 					name = specialList.get(spCounter).getName();
-					map.add(new Place(isCorner,name,x,y,quad));
-					map.last().setProperty(specialList.get(spCounter));
-					map.last().setType(Place.WATER_TYPE);
+					getMap().add(new Place(isCorner,name,x,y,quad));
+					getMap().last().setProperty(specialList.get(spCounter));
+					getMap().last().setType(Place.WATER_TYPE);
 					spCounter = spCounter + 1;
 				} else {
 					name = propertyList.get(counter).getName();
-					map.add(new Place(isCorner,name,x,y,quad));
-					map.last().setProperty(propertyList.get(counter));
-					map.last().setType(Place.PROPERTY_TYPE);
+					getMap().add(new Place(isCorner,name,x,y,quad));
+					getMap().last().setProperty(propertyList.get(counter));
+					getMap().last().setType(Place.PROPERTY_TYPE);
 					counter = counter + 1;
 				}
 			}
 		}
 	}
 	
-	public void setRoll(int id, int roll) {
-		for (int i = 0; i < players.size(); i++) {
-			if (players.get(i).getId() == id) {
-				players.get(i).setRoll(roll);
-			}
-		}
-	}
+        
+        
+        
+    public Player findPlayerWithID(int id) {
+        Player result = null;
+        int i = 0;
+        while (i < players.size() && result == null) {
+            if (players.get(i).getId() == id) {
+                result = players.get(i);
+            }
+            i = i + 1;
+        }
+        return result;
+    }
+    
+    public Place findPlaceWithPlayerWithID(int id) {
+        Place result = null;
+        int j = 0, k = 0;
+        while (j < getMap().size() && result == null) {
+            k = 0;
+            while (k < getMap().get(j).getPlayersHere().size() && result == null) {
+                if (id == getMap().get(j).getPlayersHere().get(k)) {
+                    result = getMap().get(j);
+                }
+                k = k + 1;
+            }
+            j = j + 1;
+        }
+        return result;
+    }
+    
+    
+    public void removePlayerFromPlace(Place place, int playerID) {
+        int k = 0;
+        boolean found = false;
+        while (k < place.getPlayersHere().size() && !found) {
+            if (place.getPlayersHere().get(k) == playerID) {
+                place.getPlayersHere().remove(k);
+                found = true;
+            }
+        }
+    }
+    
+    public void removePlayerFromPlace(int placeID, int playerID) {
+        Place triggeringPlace = findPlaceWithPlayerWithID(playerID);
+        removePlayerFromPlace(triggeringPlace, playerID);
+    }
+    
+    
+    public void removePlayerFromPlace(Place place, Player player) {
+        int id = player.getId();
+        removePlayerFromPlace(place, id);
+    }
+    
+    public void removePlayerFromPlace(int placeID, Player player) {
+        int id = player.getId();
+        removePlayerFromPlace(placeID, id);
+    }
+    
+    
+    public int findPlaceIndexWithPlayerWithID(int id) {
+        int result = -1;
+        int j = 0, k = 0;
+        while (j < getMap().size() && result == -1) {
+            k = 0;
+            while (k < getMap().get(j).getPlayersHere().size() && result == -1) {
+                if (id == getMap().get(j).getPlayersHere().get(k)) {
+                    result = j;
+                }
+                k = k + 1;
+            }
+            j = j + 1;
+        }
+        return result;
+    }
+    
+    public int findPlaceIndexWithType(int type) {
+        int result = -1;
+        int j = 0;
+        while (j < getMap().size() && result == -1) {
+            if (getMap().get(j).getType() == type) {
+                result = j;
+            }
+            j = j + 1;
+        }
+        return result;
+    }
+    
+    public Place findPlaceWithType(int type) {
+        Place result = null;
+        int j = 0;
+        while (j < getMap().size() && result == null) {
+            if (getMap().get(j).getType() == type) {
+                result = getMap().get(j);
+            }
+            j = j + 1;
+        }
+        return result;
+    }
 
-	private void checkDisplace() {
-		int min = -400;
-		int max = 20;
-		
-		if (xDisplace < min)  {
-			xDisplace = min;
-		}
-		if (yDisplace < min)  {
-			yDisplace = min;
-		}
-		
-		if (xDisplace > max) {
-			xDisplace = max;
-		}
-		if (yDisplace > max) {
-			yDisplace = max;
-		}
-		
-	}
+    private void checkDisplace() {
+        int min = -400;
+        int max = 20;
+        
+        if (xDisplace < min)  {
+            xDisplace = min;
+        }
+        if (yDisplace < min)  {
+            yDisplace = min;
+        }
+        
+        if (xDisplace > max) {
+            xDisplace = max;
+        }
+        if (yDisplace > max) {
+            yDisplace = max;
+        }
+    }
 	
-	protected void mapAction(int pID, int mID) {
-		waiting = true;
-		System.out.println(map.get(mID).getName());
-		if (map.get(mID).getType() == Place.PROPERTY_TYPE) {
-			if (map.get(mID).getProperty().getOwner() != -1) {
-				
-			}
-		} else if (map.get(mID).getType() == Place.TAX_TYPE) {
-			main.gameState.add(new PayAmount(main,200,pID,-1));
-		}
-	}
-	
-	public void setWaiting(boolean waiting) {
-		this.waiting = waiting;
+    public void nextTurn() {
+        players.rotate(1);
+        main.gameState.add(new TurnAnnounce(main,players.get(0)));
+    }
+    
+	protected void mapAction(Place place, Player player) {
+            System.out.println(place.getName());
+            if (place.getType() == Place.PROPERTY_TYPE) {
+                main.gameState.add(new PropertyStatus(main,place,player));
+            } else if (place.getType() == Place.TAX_TYPE) {
+                    main.gameState.add(new PayAmount(main,200,player,null));
+            }
 	}
 	
 	protected void sendJail(int pID) {
-		
-		int j = 0;
-		int k = 0;
-		boolean found = false;
-		while (j < map.size()) {
-			k = 0;
-			while (k < map.get(j).getPlayersHere().size() && !found) {
-				if (pID == map.get(j).getPlayersHere().get(k)) {
-					map.get(j).getPlayersHere().remove(k);
-					found = true;
-				}
-				k = k + 1;
-			}
-			if (map.get(j).getType() == Place.JAIL_TYPE) {
-				map.get(j).getPlayersHere().add(pID);
-			}
-			j = j + 1;
-		}
+            removePlayerFromPlace(findPlaceWithPlayerWithID(pID), pID);
+            findPlaceWithType(Place.JAIL_TYPE).getPlayersHere().add(pID);
 	}
 	
 	@Override
@@ -360,12 +419,12 @@ public class Game extends Scene{
 		
 		g.drawImage(ImageIO.read(new File("assets/title/violetMonopolyLogo.png")), xDisplace + (max/2)-(1292/6), yDisplace + (max/2)-(641/6), 1292/3, 641/3, null);
 		
-		for (int i = 0; i < map.size(); i++) {
+		for (int i = 0; i < getMap().size(); i++) {
 			
-			int xPos = map.get(i).getX();
-			int yPos = map.get(i).getY();
+			int xPos = getMap().get(i).getX();
+			int yPos = getMap().get(i).getY();
 			
-			g.drawImage(map.get(i).getDisplay(), xPos, yPos, null);
+			g.drawImage(getMap().get(i).getDisplay(), xPos, yPos, null);
 		}
 		
 		return display;
@@ -382,19 +441,15 @@ public class Game extends Scene{
 		
 		this.cooldown = this.cooldown - 1;
 		
-		for (int i = 0; i < map.size(); i++) {
-			for (int j = 0; j < map.get(i).getPlayersHere().size(); j++) {
-				int xPos = xDisplace + map.get(i).getX()+(j*8);
-				int yPos = yDisplace + map.get(i).getY();
-				for (int k = 0; k < players.size(); k++) {
-					
-					if (players.get(k).getId() == map.get(i).getPlayersHere().get(j)) {
-						g.drawImage(players.get(k).getPiece(), xPos + 10, yPos + 10, null);
-					}
-				}
-				
-			}
-		}
+                
+            for (int i = 0; i < players.size(); i++) {
+                int playerID = players.get(i).getId();
+                int placeID = findPlaceIndexWithPlayerWithID(playerID);
+                    int xPos = xDisplace + getMap().get(placeID).getX()+(playerID*8);
+                    int yPos = yDisplace + getMap().get(placeID).getY();
+                    g.drawImage(players.get(i).getPiece(), xPos + 10, yPos + 10, null);
+            }
+            
 		
 		
 		if (this.cooldown < 0) {
@@ -402,7 +457,7 @@ public class Game extends Scene{
 			int mapID = -1;
 			for (int i = 0; i < players.size(); i++) {
 				int roll = players.get(i).getRoll();
-				playerID = i;
+				playerID = players.get(i).getId();
 				if (roll > 0) {
 					int triggeringID = players.get(i).getId();
 					this.cooldown = this.maxCD;
@@ -410,25 +465,23 @@ public class Game extends Scene{
 					int j = 0;
 					int k = 0;
 					boolean found = false;
-					while (j < map.size() && !found) {
-						k = 0;
-						while (k < map.get(j).getPlayersHere().size() && !found) {
-							if (triggeringID == map.get(j).getPlayersHere().get(k)) {
-								map.get(j).getPlayersHere().remove(k);
-								map.get(j+1).getPlayersHere().add(triggeringID);
-								if (map.get(j+1).getType() == Place.GO_TYPE) {
-									players.get(i).addFunds(200);
-								}
-								mapID = j+1;
-								players.get(i).setRoll(roll-1);
-								found = true;
-							}
-							k = k + 1;
-						}
-						j = j + 1;
-					}
+                                        
+                                        
+                                        int currentID = findPlaceIndexWithPlayerWithID(playerID);
+                                        mapID =  currentID+1;
+                                        if (mapID == getMap().size()) {
+                                            mapID = 0;
+                                        }
+                                        
+                                        removePlayerFromPlace(currentID, playerID);
+                                        getMap().get(mapID).getPlayersHere().add(playerID);
+                                        if (getMap().get(mapID).getType() == Place.GO_TYPE) {
+                                                players.get(i).addFunds(200);
+                                        }
+                                        players.get(i).setRoll(roll-1);
+                                        
 					if (roll == 1) {
-						mapAction(playerID,mapID);
+						mapAction(map.get(mapID),players.get(i));
 					}
 				}
 				
@@ -438,5 +491,12 @@ public class Game extends Scene{
 		
 		return display;
 	}
+
+    /**
+     * @return the map
+     */
+    public Node<Place> getMap() {
+        return map;
+    }
 	
 }

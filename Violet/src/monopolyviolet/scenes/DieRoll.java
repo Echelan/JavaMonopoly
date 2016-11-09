@@ -29,15 +29,17 @@ import static monopolyviolet.scenes.Scene.ssX;
  */
 public class DieRoll extends Scene {
 
-	private int id;
-	private int roll;
+	private Player player;
+	private int roll1;
+	private int roll2;
 	private int stage;
 	
-	public DieRoll(Handler main, int id) {
+	public DieRoll(Handler main, Player player) {
 		super(main, "DICE", false);
 		
-		this.id = id;
+		this.player = player;
 		this.stage = 0;
+                player.setDoubleCount(0);
 	}
 
 	@Override
@@ -45,8 +47,12 @@ public class DieRoll extends Scene {
 		if (stage == 0) {
 			stage = 1;
 		} else {
-			this.dispose();
-			((Game) main.gameState.last()).setRoll(id,roll);
+                    this.dispose();
+                   player.setRoll(roll1+roll2);
+                    if (roll1 == roll2) {
+                        int doubles = player.getDoubleCount();
+                        player.setDoubleCount(doubles+1);
+                    }
 		}
 	}
 
@@ -90,7 +96,8 @@ public class DieRoll extends Scene {
 			g.fillRect(xPos-5,yPos-70,width+30,height-10);
 			g.setColor(Color.BLACK);
 			g.drawString("Click to roll!",xPos,yPos-50);
-			this.roll = Player.roll(0,1,6);
+			this.roll1 = Player.roll(0,1,6);
+			this.roll2 = Player.roll(0,1,6);
 		}
 		
 		width = 202/2;
@@ -98,8 +105,13 @@ public class DieRoll extends Scene {
 		xPos = (ssX/2) - (width/2);
 		yPos = (ssY/2) - (height/2);
 		
-		String path = "assets/players/"+id+"/"+this.roll+".png";
-		g.drawImage(ImageIO.read(new File(path)), xPos, yPos, width, height, null);
+		String path;
+                
+                path = "assets/players/"+player.getId()+"/"+this.roll1+".png";
+		g.drawImage(ImageIO.read(new File(path)), xPos-(width/2)-5, yPos, width, height, null);
+                
+		path = "assets/players/"+player.getId()+"/"+this.roll2+".png";
+		g.drawImage(ImageIO.read(new File(path)), xPos+(width/2)+5, yPos, width, height, null);
 		
 		
 		return display;

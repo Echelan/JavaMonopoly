@@ -18,6 +18,7 @@ import java.io.IOException;
 import monopolyviolet.model.Button;
 import monopolyviolet.model.Handler;
 import monopolyviolet.model.Node;
+import monopolyviolet.model.Player;
 
 /**
  *
@@ -26,12 +27,12 @@ import monopolyviolet.model.Node;
 public class PayAmount extends Scene {
 
 	private int debt;
-	private int payingPlayer;
-	private int paidPlayer;
+	private Player payingPlayer;
+	private Player paidPlayer;
 	private Node<Button> buttons;
 	String selecting;
 	
-	public PayAmount(Handler main, int debt, int payer, int paid) {
+	public PayAmount(Handler main, int debt, Player payer, Player paid) {
 		super(main, "PAY", false);
 		
 		this.debt = debt;

@@ -23,11 +23,14 @@ import javax.imageio.ImageIO;
  *
  * @author movillaf
  */
-public class Player extends Node{
+public class Player {
     
     private int funds;
     private Node<Integer> deeds;
     private Node<Card> hand;
+    private int doubleCount;
+    private boolean rolledDoubles;
+    private boolean jailed;
 	private int roll;
 	private final int id;
 
@@ -35,7 +38,9 @@ public class Player extends Node{
 		this.funds = 1500;
 		this.roll = 0;
 		this.id = id;
-		
+		this.doubleCount = 0;
+                this.rolledDoubles = false;
+                this.jailed = false;
 		this.deeds = new Node();
 		this.hand = new Node();
 		
@@ -95,10 +100,6 @@ public class Player extends Node{
 		g.drawImage(ImageIO.read(new File(path)), 0, 0, 202/2, 202/2, null);
 		
 		return display;
-	}
-	
-	public void throwDie() {
-		this.setRoll(roll(0,1,6));
 	}
 	
 	/**
@@ -163,6 +164,48 @@ public class Player extends Node{
 	public int getId() {
 		return id;
 	}
+
+    /**
+     * @return the doubleCount
+     */
+    public int getDoubleCount() {
+        return doubleCount;
+    }
+
+    /**
+     * @param doubleCount the doubleCount to set
+     */
+    public void setDoubleCount(int doubleCount) {
+        this.doubleCount = doubleCount;
+    }
+
+    /**
+     * @return the rolledDoubles
+     */
+    public boolean isRolledDoubles() {
+        return rolledDoubles;
+    }
+
+    /**
+     * @param rolledDoubles the rolledDoubles to set
+     */
+    public void setRolledDoubles(boolean rolledDoubles) {
+        this.rolledDoubles = rolledDoubles;
+    }
+
+    /**
+     * @return the jailed
+     */
+    public boolean isJailed() {
+        return jailed;
+    }
+
+    /**
+     * @param jailed the jailed to set
+     */
+    public void setJailed(boolean jailed) {
+        this.jailed = jailed;
+    }
     
 	
 }

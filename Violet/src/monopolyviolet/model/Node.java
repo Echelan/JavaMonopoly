@@ -38,6 +38,18 @@ public class Node<E> {
 		this.getNode(index).value = element;
 	}
 	
+        public void rotate(int amount) {
+            if (this.lastNode().linkR != null) {
+                for (int i = 0; i < amount; i++) {
+                    E firstValue = this.get(0);
+                    for (int j = 0; j < this.size()-1; j++) {
+                       this.getNode(j).value = this.getNode(j+1).value;
+                    }
+                    this.lastNode().value = firstValue;
+                }
+            }
+        }
+        
 	public E get(int index) {
 		return this.getNode(index).value;
 	}
@@ -45,13 +57,14 @@ public class Node<E> {
 	public Node<E> getNode(int index) {
 		Node<E> lookingGlass = null;
 		int counter = index;
-		
+                
 		if (counter < this.size()) {
-			lookingGlass = this;
-			while (counter > 0) {
-				lookingGlass = lookingGlass.linkR;
-				counter = counter - 1;
-			}
+                    lookingGlass = this;
+                    while (counter > 0) {
+                        
+                            lookingGlass = lookingGlass.linkR;
+                            counter = counter - 1;
+                    }
 		}
 		
 		return lookingGlass;

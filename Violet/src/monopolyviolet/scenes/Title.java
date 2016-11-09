@@ -71,7 +71,7 @@ public class Title extends Scene {
 		g.fillRect(0, ssY - 100, ssX, 100);
 		g.setColor(Color.white);
 		g.setFont(new Font("Arial", Font.BOLD, 30));
-		g.drawString("Andrés Movilla", 10, ssY - 25);
+		g.drawString("José Luis Martinez & Andrés Movilla", 20, ssY - 25);
 		
 		int logoX = (ssX/2)-(1292/8);
 		int logoW = (1292/4);

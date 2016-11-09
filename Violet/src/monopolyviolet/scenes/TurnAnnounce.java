@@ -18,6 +18,7 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import monopolyviolet.model.Handler;
+import monopolyviolet.model.Player;
 import static monopolyviolet.scenes.Scene.ssX;
 
 /**
@@ -26,19 +27,19 @@ import static monopolyviolet.scenes.Scene.ssX;
  */
 public class TurnAnnounce extends Scene {
 
-	private int id;
+	private Player player;
 	
-	public TurnAnnounce(Handler main, int id) {
+	public TurnAnnounce(Handler main, Player player) {
 		super(main, "TURN", false);
 		
-		this.id = id;
+		this.player = player;
 	}
 
 	@Override
 	protected void clickEvent(int x, int y) {
 		this.dispose();
-		((Game) main.gameState.last()).moveToPlayer(id);
-		main.gameState.add(new DieRoll(main,id));
+		((Game) main.gameState.last()).moveToPlayer(player);
+		main.gameState.add(new DieRoll(main,player));
 	}
 
 	@Override
@@ -86,7 +87,7 @@ public class TurnAnnounce extends Scene {
 		
 		g.setFont(new Font("Arial",Font.BOLD,30));
 		g.setColor(Color.black);
-		g.drawString("Player "+id+"'s turn!", xPos, yPos);
+		g.drawString("Player "+player.getId()+"'s turn!", xPos, yPos);
 		
 		width = 150;
 		xPos = (ssX/2)-(width/2);

@@ -23,7 +23,7 @@ import monopolyviolet.data.DataNode;
  *
  * @author movillaf
  */
-public class Card{
+public class Card {
     
     public static int COMMUNITY_CHEST_ID = 1;
     public static int CHANCE_ID = 2;
