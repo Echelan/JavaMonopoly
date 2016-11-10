@@ -106,6 +106,11 @@ public class Game extends Scene{
             newButton.setInternalName("CENTER");
             buttons.add(newButton);
 
+            newButton = new Button(120, ssY-90, 260, 40);
+            newButton.setText("Properties");
+            newButton.setInternalName("LIST");
+            buttons.add(newButton);
+
             try {
                     this.buildMapDisplay();
             } catch(IOException e) {
@@ -248,15 +253,10 @@ public class Game extends Scene{
                                     getMap().last().setProperty(specialList.get(spCounter));
                                     getMap().last().setType(Place.RAILROAD_TYPE);
                                     spCounter = spCounter + 1;
-                            } else if (i == 12) {
+                            } else if (i == 12 || i == 28) {
                                     getMap().last().setName(specialList.get(spCounter).getName());
                                     getMap().last().setProperty(specialList.get(spCounter));
-                                    getMap().last().setType(Place.ELECTRIC_TYPE);
-                                    spCounter = spCounter + 1;
-                            } else if (i == 28) {
-                                    getMap().last().setName(specialList.get(spCounter).getName());
-                                    getMap().last().setProperty(specialList.get(spCounter));
-                                    getMap().last().setType(Place.WATER_TYPE);
+                                    getMap().last().setType(Place.UTILITY_TYPE);
                                     spCounter = spCounter + 1;
                             } else {
                                     getMap().last().setName(propertyList.get(counter).getName());
@@ -275,9 +275,10 @@ public class Game extends Scene{
 			Place place = map.get(i);
 			
 			if (search.getType() == Place.PROPERTY_TYPE && place.getType() == Place.PROPERTY_TYPE) {
-				if (place.getProperty().getOwner() != search.getProperty().getOwner()) {
-//                                    System.out.println(place.getProperty().getOwner() +" - "+ search.getProperty().getOwner());
-                                    forProps = false;
+                                if (search.getProperty().getColor() == place.getProperty().getColor()) {
+                                    if (place.getProperty().getOwner() != search.getProperty().getOwner()) {
+                                        forProps = false;
+                                    }
 				}
 			} else if (search.getType() == Place.RAILROAD_TYPE && place.getType() == Place.RAILROAD_TYPE) {
 				if (place.getProperty().getOwner() == search.getProperty().getOwner()) {
@@ -285,15 +286,12 @@ public class Game extends Scene{
 						multiple = multiple * 2;
 					}
 				}
-			} else if (search.getType() == Place.ELECTRIC_TYPE || search.getType() == Place.WATER_TYPE) {
-				multiple = players.get(0).getLastRoll();
-				if (place.getType() == Place.ELECTRIC_TYPE || place.getType() == Place.WATER_TYPE) {
-					if (place.getType() != search.getType()) {
-						if (place.getProperty().getOwner() == search.getProperty().getOwner()) {
-							multiple = (int) (multiple * 2.5f);
-						}
-					}
-				}
+			} else if (search.getType() == Place.UTILITY_TYPE && place.getType() == Place.UTILITY_TYPE) {
+                            if (place != search) {
+                                if (place.getProperty().getOwner() == search.getProperty().getOwner()) {
+                                        multiple = 2;
+                                }
+                            }
 			}
 			
 		}
@@ -302,7 +300,51 @@ public class Game extends Scene{
 		}
 		return multiple;
 	}
-	
+
+    public Place findPropertyOwnedByPlayer(int ownerID, int count) {
+		Place result = null;
+		int change = count;
+		int i = 0;
+                
+		while (i < this.map.size() && count != 0) {
+			if (this.map.get(i).getProperty().getOwner() == ownerID) {
+                            result = this.map.get(i);
+                            change = change - 1;
+			}
+			i = i + 1;
+		}
+                
+                if (change > 0) {
+                    result = findPropertyOwnedByPlayer(ownerID, 0);
+                }
+		
+		return result;
+    }
+    
+    public int findPropertyIndexOwnedByPlayer(int ownerID, int count) {
+		int result = 0;
+		int change = count;
+		int i = 0;
+                
+		while (i < this.map.size() && count != 0) {
+			if (this.map.get(i).getProperty().getOwner() == ownerID) {
+                            change = change - 1;
+			}
+			i = i + 1;
+		}
+                
+                if (change > 0) {
+                    result = 0;
+                } else if (change < 0) {
+                    change = change + 1;
+                    result = change * -1;
+                } else {
+                    result = count;
+                }
+		
+		return result;
+    }
+    
     public Player findPlayerWithID(int id) {
         Player result = null;
         int i = 0;
@@ -412,7 +454,7 @@ public class Game extends Scene{
 		if (result == null) {
 			i = 0;
 			while (i < this.specialList.size() && result != null) {
-				if (this.propertyList.get(i).getOwner() == ownerID && this.specialList.get(i).getBuyPrice()/2 >= minimum) {
+				if (this.specialList.get(i).getOwner() == ownerID && this.specialList.get(i).getBuyPrice()/2 >= minimum) {
 					result = this.specialList.get(i);
 				}
 				i = i + 1;
@@ -459,7 +501,7 @@ public class Game extends Scene{
     }
     
 	protected void mapAction(Place place, Player player) {
-		if (place.getType() == Place.PROPERTY_TYPE || place.getType() == Place.ELECTRIC_TYPE || place.getType() == Place.WATER_TYPE || place.getType() == Place.RAILROAD_TYPE) {
+		if (place.getType() == Place.PROPERTY_TYPE || place.getType() == Place.UTILITY_TYPE || place.getType() == Place.RAILROAD_TYPE) {
 			main.gameState.add(new PropertyStatus(main,place,player));
 		} else if (place.getType() == Place.TAX_TYPE) {
 			main.gameState.add(new PayAmount(main, 200, player, null));
@@ -468,6 +510,7 @@ public class Game extends Scene{
 		} else if (place.getType() == Place.CHANCE_TYPE || place.getType() == Place.COMMUNITY_TYPE) {
 //			main.gameState.add(new DrawCard(main));
 		}
+                centerOn(player);
 		waitingEnd = true;
 	}
 	
@@ -602,11 +645,11 @@ public class Game extends Scene{
 			if (counter == 0) {
 				thisButton.setEnabled(cond1 && cond2);
 				
-				if (!cond1) {
-					thisButton.setHovered(false);
-				}
 			} else if (counter == 1) {
                             thisButton.setText(findPlaceWithPlayerWithID(players.get(0).getId()).getName());
+                        }
+                        if (!cond1) {
+                                thisButton.setHovered(false);
                         }
 			counter = counter + 1;
 		}

@@ -34,12 +34,12 @@ public class TurnAnnounce extends Scene {
 		super(main, "TURN", false);
 		
 		this.player = player;
+		((Game) main.gameState.get(main.gameState.size()-1)).centerOn(player);
 	}
 
 	@Override
 	protected void clickEvent(int x, int y) {
 		this.dispose();
-		((Game) main.gameState.last()).centerOn(player);
 		main.gameState.add(new DiceRoll(main,player));
 	}
 
@@ -76,7 +76,7 @@ public class TurnAnnounce extends Scene {
 		height = 80;
 		width = 400;
 		xPos = (ssX/2)-(width/2);
-		yPos = (ssY/2)-(height/2);
+		yPos = (ssY/2)-(height/2) - 200;
 		
 		g.setColor(player.getColor());
 		g.fillRect(xPos-5,yPos-5,width+10,height+10);

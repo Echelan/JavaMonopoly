@@ -34,6 +34,7 @@ public class PropertyStatus extends Scene {
     private Node<Button> buttons;
     private int selected;
 	private int amount;
+        private int monopolyBonus;
         
     public PropertyStatus(Handler main, Place place, Player player) {
         super(main, "PROPERTY", false);
@@ -68,7 +69,11 @@ public class PropertyStatus extends Scene {
 			buttons.add(newButton);
 			
 			this.owner = ((Game) main.gameState.last()).findPlayerWithID(place.getProperty().getOwner());
-			this.amount = place.getProperty().getRent() * ((Game) main.gameState.last()).isMonopoly(place, owner.getId());
+			this.amount = place.getProperty().getRent();
+                        if (place.getType() == Place.UTILITY_TYPE) {
+                            this.amount = this.amount * player.getLastRoll();
+                        }
+                        this.monopolyBonus = ((Game) main.gameState.last()).isMonopoly(place, owner.getId());
 			
 			if (owner == player) {
 				buttons.get(0).setText("Back");
@@ -120,7 +125,7 @@ public class PropertyStatus extends Scene {
 	
 	private void payRent() {
 		
-		main.gameState.add(new PayAmount(main, amount, player, owner));
+		main.gameState.add(new PayAmount(main, amount*monopolyBonus, player, owner));
 
 	}
     
@@ -171,7 +176,7 @@ public class PropertyStatus extends Scene {
 		}
         BufferedImage propertyCard = place.getProperty().getPropertyCard();
 		
-        if (this.amount > this.place.getProperty().getRent()) {
+        if (this.monopolyBonus > 1) {
 			g.setColor(Color.yellow);
 			g.fillRect(ssX-305, (ssY/2)-205, propertyCard.getWidth()+10, propertyCard.getHeight()+10);
 		}

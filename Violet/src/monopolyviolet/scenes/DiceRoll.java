@@ -114,7 +114,7 @@ public class DiceRoll extends Scene {
 		if (!threwDice) {
 			this.roll1 = Player.roll(0,1,6);
 			this.roll2 = Player.roll(0,1,6);
-		
+                        
 			width = 130;
 			height = 30;
 			

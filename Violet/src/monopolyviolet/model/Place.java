@@ -34,8 +34,7 @@ public class Place {
 	public static final int CHANCE_TYPE = 5;
 	public static final int TAX_TYPE = 6;
 	public static final int RAILROAD_TYPE = 7;
-	public static final int WATER_TYPE = 8;
-	public static final int ELECTRIC_TYPE = 9;
+	public static final int UTILITY_TYPE = 8;
 	
 	private final boolean corner;
 	private String name;
@@ -107,10 +106,12 @@ public class Place {
 					g.drawImage(ImageIO.read(new File("assets/icons/property.png")), iconX, iconY, iconDim, iconDim, null);
 				} else if (this.type == RAILROAD_TYPE) {
 					g.drawImage(ImageIO.read(new File("assets/icons/railroad.png")), iconX, iconY, iconDim, iconDim, null);
-				} else if (this.type == WATER_TYPE) {
-					g.drawImage(ImageIO.read(new File("assets/icons/water.png")), iconX, iconY, iconDim, iconDim, null);
-				} else if (this.type == ELECTRIC_TYPE) {
-					g.drawImage(ImageIO.read(new File("assets/icons/electric.png")), iconX, iconY, iconDim, iconDim, null);
+				} else if (this.type == UTILITY_TYPE) {
+                                        if (this.side == 2) {
+                                            g.drawImage(ImageIO.read(new File("assets/icons/electric.png")), iconX, iconY, iconDim, iconDim, null);
+                                        } else {
+                                            g.drawImage(ImageIO.read(new File("assets/icons/water.png")), iconX, iconY, iconDim, iconDim, null);
+                                        }
 				}
 		} else {
 			g.setColor(Color.BLACK);
