@@ -14,6 +14,7 @@ package monopolyviolet.scenes;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -34,241 +35,240 @@ import monopolyviolet.model.Property;
  */
 public class Game extends Scene{
 	
-	private static final int DRAG_STRENGTH = 3;
-	private static final int MAX_CD = 5;
-    
+    private static final int DRAG_STRENGTH = 3;
+    private static final int MAX_CD = 5;
+
     private Node<Card> communityCard;
     private Node<Card> chanceCard;
-	private Node<Place> map;
-	private Node<Player> players;
-	private Node<Property> propertyList;
-	private Node<Property> specialList;
-	
-	private BufferedImage mapImage;
-	
-	private int selected;
-	
-	private boolean waitingEnd;
-	
-	private Node<Button> buttons;
-	
-	private int xDisplace;
-	private int yDisplace;
-	private int xDisplaceLast;
-	private int yDisplaceLast;
-	private int xBegin;
-	private int yBegin;
-	
-	private int cooldown;
-	
-	public Game(Handler main, Node<Player> players) {
-		super(main, "GAME", true);
-		
-		this.players = players;
-		
-		buttons = new Node();
-		communityCard = new Node();
-		chanceCard = new Node();
-		map = new Node();
-		propertyList = new Node();
-		specialList = new Node();
-		
-		map.setCircular(true);
-		map.setDoubleLink(true);
-		
-		communityCard.setCircular(true);
-		communityCard.setDoubleLink(true);
+    private Node<Place> map;
+    private Node<Player> players;
+    private Node<Property> propertyList;
+    private Node<Property> specialList;
 
-		chanceCard.setCircular(true);
-		chanceCard.setDoubleLink(true);
-		
-		this.cooldown = MAX_CD;
-		this.selected = -1;
-		this.yDisplaceLast = 0;
-		this.xDisplaceLast = 0;
-		this.yDisplace = 0;
-		this.xDisplace = 0;
-		this.waitingEnd = false;
-		
-		createDecks();
-		createProperties();
-		createSpecials();
-		buildMap();
-		
-		Button newButton = new Button(ssX-205, ssY-45, 200, 40);
-		newButton.setText("End Turn");
-		newButton.setInternalName("NEXT");
-		buttons.add(newButton);
-		
-//		newButton = new Button(50, 100, 200, 40);
-//		newButton.setTextColor(Color.gray);
-//		newButton.setText("Add Player 1");
-//		newButton.setInternalName("PLAYER;1");
-//		buttons.add(newButton);
-		
-		try {
-			this.buildMapDisplay();
-		} catch(IOException e) {
-		}
-		
-		for (int i = 0; i < players.size(); i++) {
-			this.map.get(0).getPlayersHere().add(players.get(i).getId());
-		}
-		
-	}
-	
-	public void moveToPlayer(Player search) {
-		int xPos = findPlaceWithPlayerWithID(search.getId()).getX();
-		int yPos = findPlaceWithPlayerWithID(search.getId()).getY();
-		
-		xDisplace = xPos*-1;
-		yDisplace = yPos*-1;
-		
-		xDisplace = xDisplace + (ssX/2) - 50;
-		yDisplace = yDisplace + (ssY/2) - 50;
-	}
-	
-	private void createDecks() {
-		for (int i = 0; i < monopolyviolet.data.NIC.INFO_CARDS.size(); i++) {
-			Card tempCard = new Card(i);
-			if (tempCard.getCardType() == Card.COMMUNITY_CHEST_ID) {
-				communityCard.add(tempCard);
-			} else if (tempCard.getCardType() == Card.CHANCE_ID) {
-				chanceCard.add(tempCard);
-			}
-		}
-	}
-	
-	private void createProperties() {
-		for (int i = 0; i < monopolyviolet.data.NIC.INFO_PROPERTIES.size(); i++) {
-			propertyList.add(new Property(i,0));
-		}
-	}
-	
-	private void createSpecials() {
-		for (int i = 0; i < monopolyviolet.data.NIC.INFO_SPECIALS.size(); i++) {
-			specialList.add(new Property(i,1));
-		}
-	}
+    private BufferedImage mapImage;
 
-	private void buildMap() {
-		int maxSpace = 40;
-		int counter = 0;
-		int spCounter = 0;
-		int longS = monopolyviolet.model.Place.LONG_SIDE + 5;
-		int shortS = monopolyviolet.model.Place.SHORT_SIDE + 5;
-		
-		for (int i = 0; i < maxSpace; i++) {
-			int quad = 0;
-			if (-1 < i && i < 10) {
-				quad = 1;
-			} else if (9 < i && i < 20) {
-				quad = 2;
-			} else if (19 < i && i < 30) {
-				quad = 3;
-			} else if (29 < i && i < 40) {
-				quad = 4;
-			}
-			
-			int x = 0;
-			int y = 0;
-			
-			int min = 10;
-			int max = longS + (shortS*9);
-			
-			int constant = min;
-			int variable = 0;
-			if (quad == 1 || quad == 2) {
-				int a = i;
-				a = a%10;
-				
-				if (a > 0) {
-					variable = variable + longS;
-					if (a > 1) {
-						variable = variable + (((i%10)-1)*shortS);
-					}
-				}
+    private int selected;
 
-				if (quad == 1) {
-					y = constant;
-					x = variable + min;
-				} else if (quad == 2) {
-					x = constant + max;
-					y = variable + min;
-				}
-			} else {
-				int a = i;
-				a = a%10;
-				
-				if (a > 0) {
-					variable = variable + shortS;
-					if (a > 1) {
-						variable = variable + (((a%10)-1)*(shortS));
-					}
-				}
-				
-				if (quad == 3) {
-					y = constant + max;
-					x = max - variable + min;
-				} else if (quad == 4) {
-					x = constant;
-					y = max - variable + min;
-				}
-			}
-			
-			String name = "Space";
-			boolean isCorner = (i%10 == 0);
-			if (isCorner || counter >= propertyList.size()) {
-				getMap().add(new Place(isCorner,name,x,y,quad));
-				if (i/10 == 0) {
-					getMap().last().setType(Place.GO_TYPE);
-				} else if (i/10 == 1) {
-					getMap().last().setType(Place.JAIL_TYPE);
-				} else if (i/10 == 2) {
-					getMap().last().setType(Place.FREE_TYPE);
-				} else if (i/10 == 3) {
-					getMap().last().setType(Place.GOJAIL_TYPE);
-				}
-			} else {
-				if (i == 2 || i == 17 || i == 33) {
-					getMap().add(new Place(isCorner,name,x,y,quad));
-					getMap().last().setType(Place.COMMUNITY_TYPE);
-				} else if (i == 7 || i == 22 || i == 36) {
-					getMap().add(new Place(isCorner,name,x,y,quad));
-					getMap().last().setType(Place.CHANCE_TYPE);
-				} else if (i == 4 || i == 38) {
-					getMap().add(new Place(isCorner,name,x,y,quad));
-					getMap().last().setType(Place.TAX_TYPE);
-				} else if (i%10 == 5) {
-					name = specialList.get(spCounter).getName();
-					getMap().add(new Place(isCorner,name,x,y,quad));
-					getMap().last().setProperty(specialList.get(spCounter));
-					getMap().last().setType(Place.RAILROAD_TYPE);
-					spCounter = spCounter + 1;
-				} else if (i == 12) {
-					name = specialList.get(spCounter).getName();
-					getMap().add(new Place(isCorner,name,x,y,quad));
-					getMap().last().setProperty(specialList.get(spCounter));
-					getMap().last().setType(Place.ELECTRIC_TYPE);
-					spCounter = spCounter + 1;
-				} else if (i == 28) {
-					name = specialList.get(spCounter).getName();
-					getMap().add(new Place(isCorner,name,x,y,quad));
-					getMap().last().setProperty(specialList.get(spCounter));
-					getMap().last().setType(Place.WATER_TYPE);
-					spCounter = spCounter + 1;
-				} else {
-					name = propertyList.get(counter).getName();
-					getMap().add(new Place(isCorner,name,x,y,quad));
-					getMap().last().setProperty(propertyList.get(counter));
-					getMap().last().setType(Place.PROPERTY_TYPE);
-					counter = counter + 1;
-				}
-			}
-		}
-	}
-	
-	public int isMonopoly(Place search, int playerID) {
+    private boolean waitingEnd;
+
+    private Node<Button> buttons;
+
+    private int xDisplace;
+    private int yDisplace;
+    private int xDisplaceLast;
+    private int yDisplaceLast;
+    private int xBegin;
+    private int yBegin;
+
+    private int cooldown;
+
+    public Game(Handler main, Node<Player> players) {
+            super(main, "GAME", true);
+
+            this.players = players;
+
+            buttons = new Node();
+            communityCard = new Node();
+            chanceCard = new Node();
+            map = new Node();
+            propertyList = new Node();
+            specialList = new Node();
+
+            map.setCircular(true);
+            map.setDoubleLink(true);
+
+            communityCard.setCircular(true);
+            communityCard.setDoubleLink(true);
+
+            chanceCard.setCircular(true);
+            chanceCard.setDoubleLink(true);
+
+            this.cooldown = MAX_CD;
+            this.selected = -1;
+            this.yDisplaceLast = 0;
+            this.xDisplaceLast = 0;
+            this.yDisplace = 0;
+            this.xDisplace = 0;
+            this.waitingEnd = false;
+
+            createDecks();
+            createProperties();
+            createSpecials();
+            buildMap();
+
+            Button newButton = new Button(ssX-205, ssY-45, 200, 40);
+            newButton.setText("End Turn");
+            newButton.setInternalName("NEXT");
+            buttons.add(newButton);
+
+            newButton = new Button(120, ssY-45, 260, 40);
+            newButton.setText("");
+            newButton.setInternalName("CENTER");
+            buttons.add(newButton);
+
+            try {
+                    this.buildMapDisplay();
+            } catch(IOException e) {
+            }
+
+            for (int i = 0; i < players.size(); i++) {
+                    this.map.get(0).getPlayersHere().add(players.get(i).getId());
+            }
+
+    }
+
+    public void centerOn(Player search) {
+            int xPos = findPlaceWithPlayerWithID(search.getId()).getX();
+            int yPos = findPlaceWithPlayerWithID(search.getId()).getY();
+
+            xDisplace = xPos*-1;
+            yDisplace = yPos*-1;
+
+            xDisplace = xDisplace + (ssX/2) - 50;
+            yDisplace = yDisplace + (ssY/2) - 50;
+    }
+
+    private void createDecks() {
+            for (int i = 0; i < monopolyviolet.data.NIC.INFO_CARDS.size(); i++) {
+                    Card tempCard = new Card(i);
+                    if (tempCard.getCardType() == Card.COMMUNITY_CHEST_ID) {
+                            communityCard.add(tempCard);
+                    } else if (tempCard.getCardType() == Card.CHANCE_ID) {
+                            chanceCard.add(tempCard);
+                    }
+            }
+    }
+
+    private void createProperties() {
+            for (int i = 0; i < monopolyviolet.data.NIC.INFO_PROPERTIES.size(); i++) {
+                    propertyList.add(new Property(i,0));
+            }
+    }
+
+    private void createSpecials() {
+            for (int i = 0; i < monopolyviolet.data.NIC.INFO_SPECIALS.size(); i++) {
+                    specialList.add(new Property(i,1));
+            }
+    }
+
+    private void buildMap() {
+            int maxSpace = 40;
+            int counter = 0;
+            int spCounter = 0;
+            int longS = monopolyviolet.model.Place.LONG_SIDE + 5;
+            int shortS = monopolyviolet.model.Place.SHORT_SIDE + 5;
+
+            for (int i = 0; i < maxSpace; i++) {
+                    int quad = 0;
+                    if (-1 < i && i < 10) {
+                            quad = 1;
+                    } else if (9 < i && i < 20) {
+                            quad = 2;
+                    } else if (19 < i && i < 30) {
+                            quad = 3;
+                    } else if (29 < i && i < 40) {
+                            quad = 4;
+                    }
+
+                    int x = 0;
+                    int y = 0;
+
+                    int min = 10;
+                    int max = longS + (shortS*9);
+
+                    int constant = min;
+                    int variable = 0;
+                    if (quad == 1 || quad == 2) {
+                            int a = i;
+                            a = a%10;
+
+                            if (a > 0) {
+                                    variable = variable + longS;
+                                    if (a > 1) {
+                                            variable = variable + (((i%10)-1)*shortS);
+                                    }
+                            }
+
+                            if (quad == 1) {
+                                    y = constant;
+                                    x = variable + min;
+                            } else if (quad == 2) {
+                                    x = constant + max;
+                                    y = variable + min;
+                            }
+                    } else {
+                            int a = i;
+                            a = a%10;
+
+                            if (a > 0) {
+                                    variable = variable + shortS;
+                                    if (a > 1) {
+                                            variable = variable + (((a%10)-1)*(shortS));
+                                    }
+                            }
+
+                            if (quad == 3) {
+                                    y = constant + max;
+                                    x = max - variable + min;
+                            } else if (quad == 4) {
+                                    x = constant;
+                                    y = max - variable + min;
+                            }
+                    }
+
+                    String name = "Space";
+                    boolean isCorner = (i%10 == 0);
+                    getMap().add(new Place(isCorner,x,y,quad));
+                    if (isCorner || counter >= propertyList.size()) {
+                            if (i/10 == 0) {
+                                    getMap().last().setName("Go!");
+                                    getMap().last().setType(Place.GO_TYPE);
+                            } else if (i/10 == 1) {
+                                    getMap().last().setName("Jail");
+                                    getMap().last().setType(Place.JAIL_TYPE);
+                            } else if (i/10 == 2) {
+                                    getMap().last().setName("Free");
+                                    getMap().last().setType(Place.FREE_TYPE);
+                            } else if (i/10 == 3) {
+                                    getMap().last().setName("Go to jail");
+                                    getMap().last().setType(Place.GOJAIL_TYPE);
+                            }
+                    } else {
+                            if (i == 2 || i == 17 || i == 33) {
+                                    getMap().last().setName("Community Card");
+                                    getMap().last().setType(Place.COMMUNITY_TYPE);
+                            } else if (i == 7 || i == 22 || i == 36) {
+                                    getMap().last().setName("Chance Card");
+                                    getMap().last().setType(Place.CHANCE_TYPE);
+                            } else if (i == 4 || i == 38) {
+                                    getMap().last().setName("Income Tax");
+                                    getMap().last().setType(Place.TAX_TYPE);
+                            } else if (i%10 == 5) {
+                                    getMap().last().setName(specialList.get(spCounter).getName());
+                                    getMap().last().setProperty(specialList.get(spCounter));
+                                    getMap().last().setType(Place.RAILROAD_TYPE);
+                                    spCounter = spCounter + 1;
+                            } else if (i == 12) {
+                                    getMap().last().setName(specialList.get(spCounter).getName());
+                                    getMap().last().setProperty(specialList.get(spCounter));
+                                    getMap().last().setType(Place.ELECTRIC_TYPE);
+                                    spCounter = spCounter + 1;
+                            } else if (i == 28) {
+                                    getMap().last().setName(specialList.get(spCounter).getName());
+                                    getMap().last().setProperty(specialList.get(spCounter));
+                                    getMap().last().setType(Place.WATER_TYPE);
+                                    spCounter = spCounter + 1;
+                            } else {
+                                    getMap().last().setName(propertyList.get(counter).getName());
+                                    getMap().last().setProperty(propertyList.get(counter));
+                                    getMap().last().setType(Place.PROPERTY_TYPE);
+                                    counter = counter + 1;
+                            }
+                    }
+            }
+    }
+
+    public int isMonopoly(Place search, int playerID) {
 		int multiple = 1;
 		boolean forProps = true;
 		for (int i = 0; i < map.size(); i++) {
@@ -276,8 +276,8 @@ public class Game extends Scene{
 			
 			if (search.getType() == Place.PROPERTY_TYPE && place.getType() == Place.PROPERTY_TYPE) {
 				if (place.getProperty().getOwner() != search.getProperty().getOwner()) {
-					System.out.println(place.getProperty().getOwner() +" - "+ search.getProperty().getOwner());
-					forProps = false;
+//                                    System.out.println(place.getProperty().getOwner() +" - "+ search.getProperty().getOwner());
+                                    forProps = false;
 				}
 			} else if (search.getType() == Place.RAILROAD_TYPE && place.getType() == Place.RAILROAD_TYPE) {
 				if (place.getProperty().getOwner() == search.getProperty().getOwner()) {
@@ -398,7 +398,7 @@ public class Game extends Scene{
         return result;
     }
 
-	public Property findSellableProperty(int minimum, int ownerID) {
+    public Property findSellableProperty(int minimum, int ownerID) {
 		Property result = null;
 		
 		int i = 0;
@@ -459,7 +459,6 @@ public class Game extends Scene{
     }
     
 	protected void mapAction(Place place, Player player) {
-		System.out.println(place.getName());
 		if (place.getType() == Place.PROPERTY_TYPE || place.getType() == Place.ELECTRIC_TYPE || place.getType() == Place.WATER_TYPE || place.getType() == Place.RAILROAD_TYPE) {
 			main.gameState.add(new PropertyStatus(main,place,player));
 		} else if (place.getType() == Place.TAX_TYPE) {
@@ -486,6 +485,8 @@ public class Game extends Scene{
 			if (buttons.get(selected).isEnabled()) {
 				if (buttons.get(selected).getInternalName().compareTo("NEXT") == 0){
 					nextTurn();
+                                } else if (buttons.get(selected).getInternalName().compareTo("CENTER") == 0){
+					                               centerOn(players.get(0));
 				}
 			}
 		}
@@ -598,13 +599,15 @@ public class Game extends Scene{
 		}
 		while (counter < buttons.size()) {
 			Button thisButton = buttons.get(counter);
-			if (thisButton.getInternalName().compareTo("NEXT") == 0) {
+			if (counter == 0) {
 				thisButton.setEnabled(cond1 && cond2);
 				
 				if (!cond1) {
 					thisButton.setHovered(false);
 				}
-			}
+			} else if (counter == 1) {
+                            thisButton.setText(findPlaceWithPlayerWithID(players.get(0).getId()).getName());
+                        }
 			counter = counter + 1;
 		}
 		
@@ -626,15 +629,7 @@ public class Game extends Scene{
 			int yPos = yDisplace + getMap().get(placeID).getY();
 			g.drawImage(players.get(i).getPiece(), xPos + 10, yPos + 10, null);
 		}
-        
-		g.setColor(players.get(0).getColor());
-		g.fillRect(5, ssY-45, 110, 40);
-		g.setColor(Color.white);
-		g.fillRect(10, ssY-40, 100, 30);
-		g.setColor(Color.black);
-		g.setFont(new Font("Arial",Font.BOLD,20));
-		g.drawString("$"+players.get(0).getFunds(),15,ssY-15);
-		
+                g.drawImage(genTextRect("$"+players.get(0).getFunds(), 110, 40, 2, new Font("Arial",Font.BOLD,20), players.get(0).getColor(), Color.white, Color.black),5,ssY-45,null);
 		
 		int counter = 0;
 		while (counter < buttons.size()) {

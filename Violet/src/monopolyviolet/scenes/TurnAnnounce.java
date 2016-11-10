@@ -39,7 +39,7 @@ public class TurnAnnounce extends Scene {
 	@Override
 	protected void clickEvent(int x, int y) {
 		this.dispose();
-		((Game) main.gameState.last()).moveToPlayer(player);
+		((Game) main.gameState.last()).centerOn(player);
 		main.gameState.add(new DiceRoll(main,player));
 	}
 

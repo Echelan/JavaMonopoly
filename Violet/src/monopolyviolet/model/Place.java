@@ -38,7 +38,7 @@ public class Place {
 	public static final int ELECTRIC_TYPE = 9;
 	
 	private final boolean corner;
-	private final String name;
+	private String name;
 	private Property property;
 	private final int x;
 	private final int y;
@@ -50,7 +50,7 @@ public class Place {
 	public static final int SHORT_SIDE = (int) (154 * RESIZE);
 	public static final int LONG_SIDE = (int) (225 * RESIZE);
 
-	public Place(boolean corner, String name, int x, int y, int side) {
+	public Place(boolean corner, int x, int y, int side) {
 		this.corner = corner;
 		this.name = name;
 		this.x = x;
@@ -204,4 +204,11 @@ public class Place {
 	}
 	
 	//</editor-fold>
+
+    /**
+     * @param name the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
 }

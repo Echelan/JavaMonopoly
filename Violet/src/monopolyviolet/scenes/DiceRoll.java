@@ -40,7 +40,6 @@ public class DiceRoll extends Scene {
 		
 		this.player = player;
 		this.threwDice = false;
-		player.setDoubleCount(0);
 	}
 
 	@Override
@@ -55,13 +54,15 @@ public class DiceRoll extends Scene {
 
 	private void throwDie() {
 		if (roll1 == roll2) {
-			int doubles = player.getDoubleCount();
-			player.setRolledDoubles(true);
-			player.setDoubleCount(doubles+1);
-		}
+                    int doubles = player.getDoubleCount();
+                    player.setRolledDoubles(true);
+                    player.setDoubleCount(doubles+1);
+		} else {
+                 player.setDoubleCount(0);
+                }
 		if (!player.isJailed()) {
-			player.setRoll(roll1+roll2);
-			player.setLastRoll(player.getRoll());
+                    player.setRoll(roll1+roll2);
+                    player.setLastRoll(player.getRoll());
 		} else if (player.isJailed()) {
 			player.setRolledDoubles(false);
 			if (player.getDoubleCount() > 0) {
@@ -109,7 +110,6 @@ public class DiceRoll extends Scene {
 		int xPos;
 		int yPos;
 		
-		g.setFont(new Font("Arial",Font.BOLD,20));
 		String line;
 		if (!threwDice) {
 			this.roll1 = Player.roll(0,1,6);
@@ -131,17 +131,8 @@ public class DiceRoll extends Scene {
 		
 		xPos = (ssX/2) - (width/2);
 		yPos = (ssY/2) - (height/2) - 80 + 200;
-
-		g.setColor(Color.white);
-		g.fillRect(xPos,yPos,width,height);
-
-
-		g.setColor(Color.BLACK);
-		FontMetrics metrics = g.getFontMetrics(g.getFont());
-		int fontX = (width - metrics.stringWidth(line)) / 2;
-		int fontY = ((height - metrics.getHeight()) / 2) + metrics.getAscent();
-
-		g.drawString(line,xPos+fontX,yPos+fontY);
+                
+		g.drawImage(genTextRect(line, width, height, 0, new Font("Arial",Font.BOLD,20), Color.white, Color.white, Color.black), xPos, yPos, width, height, null);
 		
 		width = 202/2;
 		height = 202/2;

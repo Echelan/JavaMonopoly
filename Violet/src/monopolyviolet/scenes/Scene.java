@@ -12,6 +12,10 @@
  */
 package monopolyviolet.scenes;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import monopolyviolet.control.MouseHandler;
@@ -61,6 +65,27 @@ public abstract class Scene {
 
 	public abstract BufferedImage getDisplay() throws IOException;
 
+        protected BufferedImage genTextRect(String text, int width, int height, int strokeWidth, Font font, Color strokeColor, Color backColor, Color textColor) {
+            
+		BufferedImage display = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		Graphics g = display.getGraphics();
+                
+		g.setColor(strokeColor);
+		g.fillRect(0, 0, width, height);
+		g.setColor(backColor);
+		g.fillRect(strokeWidth, strokeWidth, width-(strokeWidth*2), height-(strokeWidth*2));
+		g.setColor(textColor);
+		g.setFont(font);
+                
+		FontMetrics metrics = g.getFontMetrics(g.getFont());
+		int fontX = (width - metrics.stringWidth(text)) / 2;
+		int fontY = ((height - metrics.getHeight()) / 2) + metrics.getAscent();
+
+		g.drawString(text,fontX,fontY);
+                
+                return display;
+        }
+        
 	/**
 	 * @return the name
 	 */
