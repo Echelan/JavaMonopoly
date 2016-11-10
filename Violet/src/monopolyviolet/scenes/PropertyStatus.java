@@ -41,38 +41,37 @@ public class PropertyStatus extends Scene {
         buttons = new Node();
         
         if (place.getProperty().getOwner() == -1) {
-		Button newButton = new Button(50, 100, 200, 40);
-                if (place.getProperty().getBuyPrice() > player.getFunds()) {
-                    newButton.setColorFore(Color.gray);
-                }
-		newButton.setText("Buy property");
-		newButton.setInternalName("BUY");
-		buttons.add(newButton);
-                
-                newButton = new Button(50, 200, 200, 40);
-		newButton.setText("Back");
-		newButton.setInternalName("BACK");
-		buttons.add(newButton);
+			Button newButton = new Button(50, 100, 200, 40);
+			if (place.getProperty().getBuyPrice() > player.getFunds()) {
+				newButton.setTextColor(Color.gray);
+			}
+			newButton.setText("Buy property");
+			newButton.setInternalName("BUY");
+			buttons.add(newButton);
+
+			newButton = new Button(50, 200, 200, 40);
+			newButton.setText("Back");
+			newButton.setInternalName("BACK");
+			buttons.add(newButton);
         }
     }
 
     @Override
     protected void clickEvent(int x, int y) {
         if (selecting.compareTo("BACK") == 0){
-                resolved();
+			resolved();
         } else if (selecting.compareTo("BUY") == 0){
-            
-                if (place.getProperty().getBuyPrice() > player.getFunds()) {
-                    place.getProperty().setOwner(player.getId());
-                    resolved();
-                }
+			if (place.getProperty().getBuyPrice() > player.getFunds()) {
+				place.getProperty().setOwner(player.getId());
+				resolved();
+			}
         }
         
     }
 
     private void resolved() {
         this.dispose();
-        ((Game) main.gameState.last()).nextTurn();
+//        ((Game) main.gameState.last()).nextTurn();
     }
     
     @Override

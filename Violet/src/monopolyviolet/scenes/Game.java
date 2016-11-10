@@ -12,11 +12,13 @@
  */
 package monopolyviolet.scenes;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import monopolyviolet.model.Button;
 import monopolyviolet.model.Card;
 import monopolyviolet.model.Handler;
 import monopolyviolet.model.Node;
@@ -30,6 +32,8 @@ import monopolyviolet.model.Property;
  * @author movillaf
  */
 public class Game extends Scene{
+	
+	private static final int DRAG_STRENGTH = 3;
     
     private Node<Card> communityCard;
     private Node<Card> chanceCard;
@@ -40,16 +44,16 @@ public class Game extends Scene{
 	
 	private BufferedImage mapImage;
 	
-	private int xDisplace = 0;
-	private int yDisplace = 0;
+	private int selected;
 	
-	private int xDisplaceLast = 0;
-	private int yDisplaceLast = 0;
+	private Node<Button> buttons;
 	
+	private int xDisplace;
+	private int yDisplace;
+	private int xDisplaceLast;
+	private int yDisplaceLast;
 	private int xBegin;
 	private int yBegin;
-	
-	private int dragStrength = 3;
 	
 	private int cooldown;
 	private int maxCD = 10;
@@ -57,14 +61,14 @@ public class Game extends Scene{
 	public Game(Handler main, Node<Player> players) {
 		super(main, "GAME", true);
 		
+		this.players = players;
+		
+		buttons = new Node();
 		communityCard = new Node();
 		chanceCard = new Node();
 		map = new Node();
 		propertyList = new Node();
 		specialList = new Node();
-		this.players = players;
-		
-		this.cooldown = maxCD;
 		
 		map.setCircular(true);
 		map.setDoubleLink(true);
@@ -75,16 +79,34 @@ public class Game extends Scene{
 		chanceCard.setCircular(true);
 		chanceCard.setDoubleLink(true);
 		
+		this.cooldown = maxCD;
+		this.selected = -1;
+		this.yDisplaceLast = 0;
+		this.xDisplaceLast = 0;
+		this.yDisplace = 0;
+		this.xDisplace = 0;
+		
 		createDecks();
 		createProperties();
 		createSpecials();
 		buildMap();
 		
+		Button newButton = new Button(ssX-205, ssY-45, 200, 40);
+		newButton.setText("End Turn");
+		newButton.setInternalName("NEXT");
+		buttons.add(newButton);
+		
+//		newButton = new Button(50, 100, 200, 40);
+//		newButton.setTextColor(Color.gray);
+//		newButton.setText("Add Player 1");
+//		newButton.setInternalName("PLAYER;1");
+//		buttons.add(newButton);
+		
 		try {
 			this.mapImage = this.buildMapDisplay();
 		} catch(IOException e) {
-			
 		}
+		
 		for (int i = 0; i < players.size(); i++) {
 			this.map.get(0).getPlayersHere().add(players.get(i).getId());
 		}
@@ -239,9 +261,6 @@ public class Game extends Scene{
 		}
 	}
 	
-        
-        
-        
     public Player findPlayerWithID(int id) {
         Player result = null;
         int i = 0;
@@ -270,7 +289,6 @@ public class Game extends Scene{
         return result;
     }
     
-    
     public void removePlayerFromPlace(Place place, int playerID) {
         int k = 0;
         boolean found = false;
@@ -287,7 +305,6 @@ public class Game extends Scene{
         removePlayerFromPlace(triggeringPlace, playerID);
     }
     
-    
     public void removePlayerFromPlace(Place place, Player player) {
         int id = player.getId();
         removePlayerFromPlace(place, id);
@@ -298,14 +315,18 @@ public class Game extends Scene{
         removePlayerFromPlace(placeID, id);
     }
     
-    
     public int findPlaceIndexWithPlayerWithID(int id) {
         int result = -1;
         int j = 0, k = 0;
+		System.out.println("Searching for id "+id);
         while (j < getMap().size() && result == -1) {
+			System.out.println("Searching in tile "+j);
             k = 0;
             while (k < getMap().get(j).getPlayersHere().size() && result == -1) {
+				System.out.println("Searching player "+k);
+				System.out.println("Player id "+getMap().get(j).getPlayersHere().get(k));
                 if (id == getMap().get(j).getPlayersHere().get(k)) {
+					System.out.println("Player found.");
                     result = j;
                 }
                 k = k + 1;
@@ -367,8 +388,11 @@ public class Game extends Scene{
             System.out.println(place.getName());
             if (place.getType() == Place.PROPERTY_TYPE) {
                 main.gameState.add(new PropertyStatus(main,place,player));
-            } else if (place.getType() == Place.TAX_TYPE) {
-                    main.gameState.add(new PayAmount(main,200,player,null));
+			} else {
+				System.out.println("I got nothin'");
+//				nextTurn();
+//            } else if (place.getType() == Place.TAX_TYPE) {
+//                    main.gameState.add(new PayAmount(main,200,player,null));
             }
 	}
 	
@@ -379,18 +403,37 @@ public class Game extends Scene{
 	
 	@Override
 	protected void clickEvent(int x, int y) {
-		
+		if (selected != -1); {
+			if (buttons.get(selected).isEnabled()) {
+				if (buttons.get(selected).getInternalName().compareTo("NEXT") == 0){
+					nextTurn();
+				}
+			}
+		}
 	}
 
 	@Override
 	protected void moveEvent(int x, int y) {
-
+		int placement = -1;
+		int counter = 0;
+		
+		while (counter < buttons.size()) {
+			if (buttons.get(counter).isContained(x, y)) {
+				placement = counter;
+				buttons.get(counter).setHovered(true);
+			} else {
+				buttons.get(counter).setHovered(false);
+			}
+			counter = counter + 1;
+		}
+		
+		selected = placement;
 	}
 
 	@Override
 	protected void dragEvent(int x, int y) {
-		xDisplace = xDisplaceLast + ((x-xBegin)*dragStrength);
-		yDisplace = yDisplaceLast + ((y-yBegin)*dragStrength);
+		xDisplace = xDisplaceLast + ((x-xBegin)*DRAG_STRENGTH);
+		yDisplace = yDisplaceLast + ((y-yBegin)*DRAG_STRENGTH);
 		checkDisplace();
 	}
 
@@ -404,8 +447,8 @@ public class Game extends Scene{
 
 	@Override
 	protected void releaseEvent(int x, int y) {
-		xDisplace = xDisplaceLast + ((x-xBegin)*dragStrength);
-		yDisplace = yDisplaceLast + ((y-yBegin)*dragStrength);
+		xDisplace = xDisplaceLast + ((x-xBegin)*DRAG_STRENGTH);
+		yDisplace = yDisplaceLast + ((y-yBegin)*DRAG_STRENGTH);
 		checkDisplace();
 		xBegin = 0;
 		yBegin = 0;
@@ -430,6 +473,58 @@ public class Game extends Scene{
 		return display;
 	}
     
+	private void refresh() {
+		
+		this.cooldown = this.cooldown - 1;
+		
+		if (this.cooldown < 0) {
+			for (int i = 0; i < players.size(); i++) {
+				int roll = players.get(i).getRoll();
+				int playerID = players.get(i).getId();
+				if (roll > 0) {
+					this.cooldown = this.maxCD;
+					
+					int currentID = findPlaceIndexWithPlayerWithID(playerID);
+					System.out.println(currentID);
+					int mapID =  currentID+1;
+					if (mapID == getMap().size()) {
+						mapID = 0;
+					}
+
+					removePlayerFromPlace(currentID, playerID);
+					getMap().get(mapID).getPlayersHere().add(playerID);
+					if (getMap().get(mapID).getType() == Place.GO_TYPE) {
+						players.get(i).addFunds(200);
+					}
+					players.get(i).setRoll(roll-1);
+                                        
+					if (roll == 1) {
+						mapAction(map.get(mapID),players.get(i));
+					}
+				}
+			}
+		}
+		
+		int counter = 0;
+		boolean cond1 = main.gameState.last() == this;
+		boolean cond2 = this.cooldown < 0;
+		if (!cond1) {
+			selected = -1;
+		}
+		while (counter < buttons.size()) {
+			Button thisButton = buttons.get(counter);
+			if (thisButton.getInternalName().compareTo("NEXT") == 0) {
+				thisButton.setEnabled(cond1 && cond2);
+				
+				if (!cond1) {
+					thisButton.setHovered(false);
+				}
+			}
+			counter = counter + 1;
+		}
+		
+	}
+	
 	@Override
 	public BufferedImage getDisplay() throws IOException {
 		BufferedImage display = new BufferedImage(ssX, ssY, BufferedImage.TYPE_INT_ARGB);
@@ -439,55 +534,23 @@ public class Game extends Scene{
 		
 		g.drawImage(this.mapImage,xDisplace,yDisplace, null);
 		
-		this.cooldown = this.cooldown - 1;
-		
-                
-            for (int i = 0; i < players.size(); i++) {
-                int playerID = players.get(i).getId();
-                int placeID = findPlaceIndexWithPlayerWithID(playerID);
-                    int xPos = xDisplace + getMap().get(placeID).getX()+(playerID*8);
-                    int yPos = yDisplace + getMap().get(placeID).getY();
-                    g.drawImage(players.get(i).getPiece(), xPos + 10, yPos + 10, null);
-            }
+		for (int i = 0; i < players.size(); i++) {
+			int playerID = players.get(i).getId();
+			int placeID = findPlaceIndexWithPlayerWithID(playerID);
+			int xPos = xDisplace + getMap().get(placeID).getX()+(playerID*8);
+			int yPos = yDisplace + getMap().get(placeID).getY();
+			g.drawImage(players.get(i).getPiece(), xPos + 10, yPos + 10, null);
+		}
             
 		
-		
-		if (this.cooldown < 0) {
-			int playerID = -1;
-			int mapID = -1;
-			for (int i = 0; i < players.size(); i++) {
-				int roll = players.get(i).getRoll();
-				playerID = players.get(i).getId();
-				if (roll > 0) {
-					int triggeringID = players.get(i).getId();
-					this.cooldown = this.maxCD;
-
-					int j = 0;
-					int k = 0;
-					boolean found = false;
-                                        
-                                        
-                                        int currentID = findPlaceIndexWithPlayerWithID(playerID);
-                                        mapID =  currentID+1;
-                                        if (mapID == getMap().size()) {
-                                            mapID = 0;
-                                        }
-                                        
-                                        removePlayerFromPlace(currentID, playerID);
-                                        getMap().get(mapID).getPlayersHere().add(playerID);
-                                        if (getMap().get(mapID).getType() == Place.GO_TYPE) {
-                                                players.get(i).addFunds(200);
-                                        }
-                                        players.get(i).setRoll(roll-1);
-                                        
-					if (roll == 1) {
-						mapAction(map.get(mapID),players.get(i));
-					}
-				}
-				
-			}
+		int counter = 0;
+		while (counter < buttons.size()) {
+			Button thisButton = buttons.get(counter);
+			g.drawImage(thisButton.getDisplay(),thisButton.getX(),thisButton.getY(), null);
+			counter = counter + 1;
 		}
 		
+		refresh();
 		
 		return display;
 	}

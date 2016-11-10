@@ -118,31 +118,29 @@ public class Property {
 	 * @return the rent
 	 */
 	public int getRentValue(int houses) {
-		int value = this.rent;
-		int change = 1;
+		float value = this.rent;
+		float change = 1;
+		if (houses>0) {
+			change = Float.parseFloat(this.rentChanges.split(",")[houses-1]);
+		}
 		switch (houses) {
 			case 1:
-				change = Integer.parseInt(this.rentChanges.split(",")[0]);
 				value = value * change;
 			break;
 			case 2:
-				change = Integer.parseInt(this.rentChanges.split(",")[1]);
 				value = getRentValue(1) * change;
 			break;
 			case 3:
-				change = Integer.parseInt(this.rentChanges.split(",")[2]);
 				value = getRentValue(2) * change;
 			break;
 			case 4:
-				change = Integer.parseInt(this.rentChanges.split(",")[3]);
 				value = (getRentValue(3)-getRentValue(1)) * change;
 			break;
 			case 5:
-				change = Integer.parseInt(this.rentChanges.split(",")[4]);
 				value = (getRentValue(3)+getRentValue(4)) * change;
 			break;
 		}
-		return value;
+		return (int) Math.floor(value);
 	}
 	
 	/**
@@ -224,9 +222,6 @@ public class Property {
 		
 		g.setColor(this.ownerColor);
 		g.fillOval((154/2)-(diam/2), (225/2)-(diam/2)+20, diam, diam);
-//		g.setFont(new Font("Arial",Font.BOLD,25));
-//		g.setColor(Color.BLACK);
-//		g.drawString(this.name, (int) (maxX*0.075f), 20);
 		
 		return display;
 	}
@@ -245,7 +240,21 @@ public class Property {
 		g.setFont(new Font("Arial",Font.BOLD,20));
 		g.setColor(Color.BLACK);
 		g.drawString(this.name, (int) (maxX*0.075f), 50);
+		int x = (int) (maxX*0.08f);
+		g.setFont(new Font("Arial",Font.PLAIN,15));
+		g.drawString("Buy Price: $"+this.buyPrice, x, 115);
+		g.drawString("Building Cost: $"+this.buildingCost, x, 140);
 		
+		int yStart = 180;
+		for (int i = 0; i < 6; i++) {
+			String description = "Rent with "+(i)+" houses: $";
+			if (i == 0) {
+				description = "Rent: $";
+			} else if (i == 5) {
+				description = "Rent with a hotel: $";
+			}
+			g.drawString(description+this.getRentValue(i), x, yStart+(i*25));
+		}
 		
 		return display;
 	}

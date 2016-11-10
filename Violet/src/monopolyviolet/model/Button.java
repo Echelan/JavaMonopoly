@@ -28,15 +28,19 @@ public class Button {
 	private String text;
 	private int width;
 	private int height;
-	private Color colorBack;
-	private Color colorFore;
-	private Color colorSel;
+	private Color fillColor;
+	private Color textColor;
+	private Color strokeColor;
+	private Color selectionFillColor;
+	private Color selectionTextColor;
+	private boolean enabled;
 	private Font font;
 	private boolean rounded;
 	private boolean hovered;
 	private String internalName;
 			
 	public Button(int x, int y, int width, int height) {
+		this.enabled = true;
 		this.x = x;
 		this.y = y;
 		this.width = width;
@@ -45,9 +49,11 @@ public class Button {
 		this.rounded = false;
 		this.hovered = false;
 		this.font = new Font("Arial",Font.PLAIN,20);
-		this.colorBack = Color.white;
-		this.colorFore = Color.black;
-		this.colorSel = Color.black;
+		this.fillColor = Color.white;
+		this.textColor = Color.black;
+		this.strokeColor = Color.black;
+		this.selectionFillColor = Color.gray;
+		this.selectionTextColor = Color.white;
 		this.internalName = "button";
 	}
 	
@@ -65,28 +71,36 @@ public class Button {
 		BufferedImage display = new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = display.getGraphics();
 		
-		g.setColor(colorBack);
-		if (this.rounded) {
-			g.fillRoundRect(0, 0, width, height, width/20, height/20);
-		} else {
-			g.fillRect(0, 0, width, height);
+		if (this.enabled) {
+			g.setColor(strokeColor);
+			if (this.rounded) {
+				g.fillRoundRect(0, 0, width, height, width/20, height/20);
+			} else {
+				g.fillRect(0, 0, width, height);
+			}
 		}
 		
-		g.setColor(colorFore);
+		if (this.hovered) {
+			g.setColor(selectionFillColor);
+		} else {
+			g.setColor(fillColor);
+		}
+		int shorten = 3;
+		if (this.rounded) {
+			g.fillRoundRect(shorten, shorten, width-(shorten*2), height-(shorten*2), width/20, height/20);
+		} else {
+			g.fillRect(shorten, shorten, width-(shorten*2), height-(shorten*2));
+		}
+		
+		if (this.hovered) {
+			g.setColor(selectionTextColor);
+		} else {
+			g.setColor(textColor);
+		}
 		g.setFont(font);
 		int fontX = (this.width / 2) - ((font.getSize()/2) * (text.length() / 2));
 		int fontY = (this.height / 2) + (font.getSize() / 2);
 		g.drawString(text, fontX, fontY);
-		
-		if (this.hovered) {
-			int shorten = 4;
-			g.setColor(colorSel);
-			if (this.rounded) {
-				g.drawRoundRect(shorten, shorten, width-(shorten*2), height-(shorten*2), width/20, height/20);
-			} else {
-				g.drawRect(shorten, shorten, width-(shorten*2), height-(shorten*2));
-			}
-		}
 		
 		return display;
 	}
@@ -117,13 +131,6 @@ public class Button {
 	 */
 	public void setY(int y) {
 		this.y = y;
-	}
-
-	/**
-	 * @return the text
-	 */
-	public String getText() {
-		return text;
 	}
 
 	/**
@@ -162,38 +169,17 @@ public class Button {
 	}
 
 	/**
-	 * @return the colorBack
+	 * @param fillColor the fillColor to set
 	 */
-	public Color getColorBack() {
-		return colorBack;
+	public void setFillColor(Color fillColor) {
+		this.fillColor = fillColor;
 	}
 
 	/**
-	 * @param colorBack the colorBack to set
+	 * @param textColor the textColor to set
 	 */
-	public void setColorBack(Color colorBack) {
-		this.colorBack = colorBack;
-	}
-
-	/**
-	 * @return the colorFore
-	 */
-	public Color getColorFore() {
-		return colorFore;
-	}
-
-	/**
-	 * @param colorFore the colorFore to set
-	 */
-	public void setColorFore(Color colorFore) {
-		this.colorFore = colorFore;
-	}
-
-	/**
-	 * @return the font
-	 */
-	public Font getFont() {
-		return font;
+	public void setTextColor(Color textColor) {
+		this.textColor = textColor;
 	}
 
 	/**
@@ -204,24 +190,10 @@ public class Button {
 	}
 
 	/**
-	 * @return the rounded
-	 */
-	public boolean isRounded() {
-		return rounded;
-	}
-
-	/**
 	 * @param rounded the rounded to set
 	 */
 	public void setRounded(boolean rounded) {
 		this.rounded = rounded;
-	}
-
-	/**
-	 * @return the hovered
-	 */
-	public boolean isHovered() {
-		return hovered;
 	}
 
 	/**
@@ -244,8 +216,41 @@ public class Button {
 	public void setInternalName(String internalName) {
 		this.internalName = internalName;
 	}
-	
-	
-	
+
+	/**
+	 * @param strokeColor the strokeColor to set
+	 */
+	public void setStrokeColor(Color strokeColor) {
+		this.strokeColor = strokeColor;
+	}
+
+	/**
+	 * @param selectionFillColor the selectionFillColor to set
+	 */
+	public void setSelectionFillColor(Color selectionFillColor) {
+		this.selectionFillColor = selectionFillColor;
+	}
+
+	/**
+	 * @return the enabled
+	 */
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	/**
+	 * @param enabled the enabled to set
+	 */
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+
+	/**
+	 * @param selectionTextColor the selectionTextColor to set
+	 */
+	public void setSelectionTextColor(Color selectionTextColor) {
+		this.selectionTextColor = selectionTextColor;
+	}
+
 	
 }

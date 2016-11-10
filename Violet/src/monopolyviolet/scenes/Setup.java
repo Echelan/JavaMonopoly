@@ -12,7 +12,6 @@
  */
 package monopolyviolet.scenes;
 
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -32,9 +31,8 @@ public class Setup extends Scene{
 
 	private Node<Player> playerList;
 	private int numPlayers;
-	private int maxPlayers;
-	private int setUpPhase;
-	private String selecting;
+	private final int maxPlayers;
+	private int selected;
 	private Node<Button> buttons;
 	
 	public Setup(Handler main) {
@@ -44,33 +42,31 @@ public class Setup extends Scene{
 		playerList = new Node();
 		playerList.setCircular(true);
 		
-		selecting = "";
-		setUpPhase = 0;
+		selected = -1;
 		maxPlayers = 6;
 		numPlayers = 0;
 		
 		Button newButton = new Button(400, 100, 150, 40);
-		newButton.setColorFore(Color.gray);
 		newButton.setText("Roll dice");
 		newButton.setInternalName("ROLLS");
+		newButton.setEnabled(false);
 		buttons.add(newButton);
 		
 		newButton = new Button(400, 200, 150, 40);
-		newButton.setColorFore(Color.gray);
 		newButton.setText("Arrange");
 		newButton.setInternalName("ARRANGE");
+		newButton.setEnabled(false);
 		buttons.add(newButton);
 		
 		newButton = new Button(400, 300, 150, 40);
-		newButton.setColorFore(Color.gray);
 		newButton.setText("Start!");
 		newButton.setInternalName("START");
+		newButton.setEnabled(false);
 		buttons.add(newButton);
 		
 		newButton = new Button(50, 100, 200, 40);
-		newButton.setColorFore(Color.gray);
 		newButton.setText("Add Player 1");
-		newButton.setInternalName("PLAYER;1");
+		newButton.setInternalName("PLAYER");
 		buttons.add(newButton);
 	}
 
@@ -80,31 +76,29 @@ public class Setup extends Scene{
 			
 		numPlayers = numPlayers + 1;
 		
-		buttons.last().setColorFore(Color.black);
+		buttons.last().setEnabled(false);
 		buttons.last().setText("Player "+numPlayers);
 		
 		if (numPlayers < maxPlayers) {
 			Button newButton = new Button(50, 100 + (80*numPlayers), 200, 40);
-			newButton.setColorFore(Color.gray);
 			newButton.setText("Add Player "+(numPlayers+1));
-			newButton.setInternalName("PLAYER;"+(numPlayers+1));
+			newButton.setInternalName("PLAYER");
 			buttons.add(newButton);
 		}
 		
 		if (numPlayers > 1) {
-			buttons.get(0).setColorFore(Color.black);
+			buttons.get(0).setEnabled(true);
 		}
 	}
-	
 
 	@Override
 	protected void moveEvent(int x, int y) {
-		String placement = "";
+		int placement = -1;
 		int counter = 0;
 		
 		while (counter < buttons.size()) {
 			if (buttons.get(counter).isContained(x, y)) {
-				placement = buttons.get(counter).getInternalName();
+				placement = counter;
 				buttons.get(counter).setHovered(true);
 			} else {
 				buttons.get(counter).setHovered(false);
@@ -112,7 +106,7 @@ public class Setup extends Scene{
 			counter = counter + 1;
 		}
 		
-		selecting = placement;
+		selected = placement;
 	}
 
 	@Override
@@ -132,72 +126,65 @@ public class Setup extends Scene{
 	
 	@Override
 	protected void clickEvent(int x, int y) {
-		if (setUpPhase == 0) {
-			if (selecting.split(";")[0].compareTo("PLAYER") == 0) {
-				if (Integer.parseInt(selecting.split(";")[1]) == numPlayers+1) {
+		if (selected != -1) {
+			if (buttons.get(selected).isEnabled()) {
+				String internalName = buttons.get(selected).getInternalName();
+				
+				if (internalName.compareTo("ARRANGE") == 0) {
+					arrange();
+				} else if (internalName.compareTo("ROLLS") == 0) {
+					doRolls();
+				} else if (internalName.compareTo("START") == 0) {
+					start();
+				} else if (internalName.compareTo("PLAYER") == 0) {
 					addPlayer();
 				}
-			} else if (selecting.compareTo("ROLLS") == 0){
-				doRolls();
-			}
-		} else if (setUpPhase == 1) {
-			if (selecting.compareTo("ARRANGE") == 0){
-				arrange();
-			}
-		} else if (setUpPhase == 2) {
-			if (selecting.compareTo("START") == 0){
-				start();
+				
 			}
 		}
 	}
 
 	private void doRolls() {
 		if (numPlayers > 1) {
-			setUpPhase = 1;
-			buttons.get(0).setColorFore(Color.gray);
-			buttons.get(1).setColorFore(Color.black);
-			if (Integer.parseInt(((Button) buttons.last()).getInternalName().split(";")[1]) == numPlayers+1) {
+			buttons.get(0).setEnabled(false);
+			buttons.get(1).setEnabled(true);
+			if (numPlayers < maxPlayers) {
 				buttons.remove(buttons.size() - 1);
 			}
 		}
 	}
 	
 	private void arrange() {
-//		Node<Player> arrangedList = new Node();
-//		Node<Player> lookingGlass = new Node();
-System.out.println("BEGIN HUNGER GAMES");
-		int counter = 0;
-                int highestRoll = 0;
-                int highestID = 0;
-                
-                for (int i = 0; i < playerList.size(); i++) {
-                    if (highestRoll < playerList.get(i).getRoll()) {
-                        highestRoll = playerList.get(i).getRoll();
-                        highestID = i;
-                    }
-                
-                }
-                
-                playerList.rotate(highestID);
+		int highestRoll = 0;
+		int highestID = 0;
+
+		for (int i = 0; i < playerList.size(); i++) {
+			if (highestRoll < playerList.get(i).getRoll()) {
+				highestRoll = playerList.get(i).getRoll();
+				highestID = i;
+			}
+
+		}
+
+		playerList.rotate(highestID);
                 
 		
 		int pCount = 0;
 		int bCount = 0;
 		while (bCount < buttons.size()) {
-                        Button thisButton = buttons.get(bCount);
+			Button thisButton = buttons.get(bCount);
 			if (thisButton.getInternalName().split(";")[0].compareTo("PLAYER") == 0) {
-                            Player thisPlayer = playerList.get(pCount);
-                            thisButton.setInternalName("PLAYER;"+thisPlayer.getId());
-                            thisButton.setText("Player "+thisPlayer.getId());
-                            pCount = pCount + 1;
+				Player thisPlayer = playerList.get(pCount);
+				thisButton.setInternalName("PLAYER;"+thisPlayer.getId());
+				thisButton.setText("Player "+thisPlayer.getId());
+				pCount = pCount + 1;
 			}
 			bCount = bCount+1;
 			
 		}
 		
-		setUpPhase = 2;
-		buttons.get(1).setColorFore(Color.gray);
-		buttons.get(2).setColorFore(Color.black);
+		buttons.get(1).setEnabled(false);
+		buttons.get(2).setEnabled(true);
 	}
 	
 	private void start() {
@@ -227,10 +214,11 @@ System.out.println("BEGIN HUNGER GAMES");
 		}
 		
 		for (int i = 0; i < numPlayers; i++) {
-                    Player thisPlayer = playerList.get(i);
-                    if (setUpPhase == 0) {
-                        thisPlayer.setRoll(Player.roll(0, 1, 6));
-                    }
+			Player thisPlayer = playerList.get(i);
+			
+			if (!buttons.get(1).isEnabled() && !buttons.get(2).isEnabled()) {
+				thisPlayer.setRoll(Player.roll(0, 1, 6));
+			}
 			
 			int x = 270;
 			int y = 100 + (80*i) - 5;
