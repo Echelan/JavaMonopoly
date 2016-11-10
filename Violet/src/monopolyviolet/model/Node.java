@@ -34,42 +34,18 @@ public class Node<E> {
 		this.size = 0;
 	}
 	
-	public void set(int index, E element) {
-		this.getNode(index).value = element;
-	}
-	
-        public void rotate(int amount) {
-            if (this.lastNode().linkR != null) {
-                for (int i = 0; i < amount; i++) {
-                    E firstValue = this.get(0);
-                    for (int j = 0; j < this.size()-1; j++) {
-                       this.getNode(j).value = this.getNode(j+1).value;
-                    }
-                    this.lastNode().value = firstValue;
-                }
-            }
-        }
-        
-	public E get(int index) {
-		return this.getNode(index).value;
-	}
-	
-	public Node<E> getNode(int index) {
-		Node<E> lookingGlass = null;
-		int counter = index;
-                
-		if (counter < this.size()) {
-                    lookingGlass = this;
-                    while (counter > 0) {
-                        
-                            lookingGlass = lookingGlass.linkR;
-                            counter = counter - 1;
-                    }
+	public void rotate(int amount) {
+		if (this.lastNode().linkR != null) {
+			for (int i = 0; i < amount; i++) {
+				E firstValue = this.get(0);
+				for (int j = 0; j < this.size()-1; j++) {
+				   this.getNode(j).value = this.getNode(j+1).value;
+				}
+				this.lastNode().value = firstValue;
+			}
 		}
-		
-		return lookingGlass;
 	}
-	
+    
 	public void add(E element) {
 		if (this.value == null) {
 			this.value = element;
@@ -85,10 +61,6 @@ public class Node<E> {
 	
 	public Node<E> prev() {
 		return this.linkR;
-	}
-	
-	public boolean isEmpty() {
-		return size == 0;
 	}
 	
 	public int size() {
@@ -139,6 +111,31 @@ public class Node<E> {
 		}
 	}
 
+	public void insertAfter(Node<E> element) {
+		element.linkL = null;
+		element.linkR = null;
+		
+		if (this.linkL != null) { // if list is circular
+			element.linkL = this;
+		}
+		
+		element.linkR = this.linkR;
+		
+		if (this.linkR != null) { // if not at the end of list
+			if (this.linkR.linkL != null) { // if list is circular
+				this.linkR.linkL = element;
+			}
+		}
+		
+		this.linkR = element;
+	}
+	
+	//<editor-fold defaultstate="collapsed" desc="Getters & Setters">
+	
+	public boolean isEmpty() {
+		return size == 0;
+	}
+	
 	public void setCircular(boolean value) {
 		if (value) {
 			this.lastNode().linkR = this;
@@ -164,22 +161,27 @@ public class Node<E> {
 		}
 	}
 	
-	public void insertAfter(Node<E> element) {
-		element.linkL = null;
-		element.linkR = null;
-		
-		if (this.linkL != null) { // if list is circular
-			element.linkL = this;
-		}
-		
-		element.linkR = this.linkR;
-		
-		if (this.linkR != null) { // if not at the end of list
-			if (this.linkR.linkL != null) { // if list is circular
-				this.linkR.linkL = element;
-			}
-		}
-		
-		this.linkR = element;
+	public E get(int index) {
+		return this.getNode(index).value;
 	}
+	
+	public Node<E> getNode(int index) {
+		Node<E> lookingGlass = null;
+		int counter = index;
+                
+		if (counter < this.size()) {
+                    lookingGlass = this;
+                    while (counter > 0) {
+                        
+                            lookingGlass = lookingGlass.linkR;
+                            counter = counter - 1;
+                    }
+		}
+		
+		return lookingGlass;
+	}
+	
+	//</editor-fold>
+	
+	
 }

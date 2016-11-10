@@ -12,10 +12,55 @@
  */
 package monopolyviolet.scenes;
 
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import monopolyviolet.model.Handler;
+import static monopolyviolet.scenes.Scene.ssX;
+
 /**
  *
  * @author Andres
  */
-public class DrawCard {
+public class DrawCard extends Scene {
+
+	public DrawCard(Handler main) {
+		super(main, "CARD", false);
+	}
+
+	@Override
+	protected void clickEvent(int x, int y) {
+		this.dispose();
+//		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	protected void moveEvent(int x, int y) {
+//		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	protected void dragEvent(int x, int y) {
+//		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	protected void pressEvent(int x, int y) {
+//		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	protected void releaseEvent(int x, int y) {
+//		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	public BufferedImage getDisplay() throws IOException {
+		BufferedImage display = new BufferedImage(ssX, ssY, BufferedImage.TYPE_INT_ARGB);
+		Graphics g = display.getGraphics();
+		
+
+		return display;
+	}
 	
 }

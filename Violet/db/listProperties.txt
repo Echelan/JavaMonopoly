@@ -7,7 +7,7 @@ id=6;name="St. Charles Place";price=140;rent=10;buildingCost=100;rentChange=5,3,
 id=7;name="States Avenue";price=140;rent=10;buildingCost=100;rentChange=5,3,3,1.5625,0.698;color="PINK"
 id=8;name="Virginia Avenue";price=160;rent=12;buildingCost=100;rentChange=5,3,2.78,1.59,0.75;color="PINK"
 id=9;name="St. James Place";price=180;rent=14;buildingCost=100;rentChange=5,2.86,2.75,1.5625,0.73;color="LIME"
-id=10;name="Tennesee Avenue";price=180;rent=14;buildingCost=100;rentChange=5,2.86,2.75,1.5625,0.73;color="LIME"
+id=10;name="Tennessee Avenue";price=180;rent=14;buildingCost=100;rentChange=5,2.86,2.75,1.5625,0.73;color="LIME"
 id=11;name="New York Avenue";price=200;rent=16;buildingCost=100;rentChange=5,2.75,2.728,1.538,0.7145;color="LIME"
 id=12;name="Kentucky Avenue";price=220;rent=18;buildingCost=150;rentChange=5,2.78,2.8,1.434,0.6665;color="RED"
 id=13;name="Indiana Avenue";price=220;rent=18;buildingCost=150;rentChange=5,2.78,2.8,1.434,0.6665;color="RED"

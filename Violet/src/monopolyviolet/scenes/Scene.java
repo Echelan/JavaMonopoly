@@ -22,7 +22,6 @@ import monopolyviolet.model.Handler;
  * @author Andres
  */
 public abstract class Scene {
-	
 
 	protected static final int ssX = (int) (monopolyviolet.model.Handler.SCREEN_SIZE_X);
 	protected static final int ssY = (int) (monopolyviolet.model.Handler.SCREEN_SIZE_Y);
@@ -35,7 +34,7 @@ public abstract class Scene {
 		this.name = name;
 		this.full = full;
 	}
-
+	
 	public void receiveAction(int action, int x, int y) {
 		if (action == MouseHandler.EVENT_CLICK) {
 			clickEvent(x,y);

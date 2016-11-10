@@ -14,6 +14,7 @@ package monopolyviolet.scenes;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -39,7 +40,7 @@ public class TurnAnnounce extends Scene {
 	protected void clickEvent(int x, int y) {
 		this.dispose();
 		((Game) main.gameState.last()).moveToPlayer(player);
-		main.gameState.add(new DieRoll(main,player));
+		main.gameState.add(new DiceRoll(main,player));
 	}
 
 	@Override
@@ -72,27 +73,38 @@ public class TurnAnnounce extends Scene {
 		int xPos;
 		int yPos;
 		
-		height = 100;
-		width = 300;
+		height = 80;
+		width = 400;
 		xPos = (ssX/2)-(width/2);
 		yPos = (ssY/2)-(height/2);
 		
+		g.setColor(player.getColor());
+		g.fillRect(xPos-5,yPos-5,width+10,height+10);
 		
+		g.setColor(Color.white);
 		g.fillRect(xPos,yPos,width,height);
 		
-		height = -30;
-		width = 200;
-		xPos = (ssX/2)-(width/2);
-		yPos = (ssY/2)-(height/2);
-		
-		g.setFont(new Font("Arial",Font.BOLD,30));
 		g.setColor(Color.black);
-		g.drawString("Player "+player.getId()+"'s turn!", xPos, yPos);
+		g.setFont(new Font("Arial",Font.BOLD,30));
 		
-		width = 150;
-		xPos = (ssX/2)-(width/2);
+		String line = player.getName()+"'s turn!";
+		
+		FontMetrics metrics = g.getFontMetrics(g.getFont());
+		int fontX = xPos+(width - metrics.stringWidth(line)) / 2;
+		int fontY = yPos+((height - metrics.getHeight()) / 2) + metrics.getAscent();
+		
+		g.drawString(line, fontX, fontY);
+		
+		
 		g.setFont(new Font("Arial",Font.PLAIN,20));
-		g.drawString("Click to continue",xPos,yPos+30);
+		
+		line = "Click to continue";
+		
+		metrics = g.getFontMetrics(g.getFont());
+		fontX = xPos+(width - metrics.stringWidth(line)) / 2;
+		fontY = yPos+((height - metrics.getHeight()) / 2) + metrics.getAscent();
+		
+		g.drawString(line,fontX,fontY+30);
 		
 		return display;
 	}

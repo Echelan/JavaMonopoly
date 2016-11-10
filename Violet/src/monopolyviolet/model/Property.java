@@ -14,6 +14,7 @@ package monopolyviolet.model;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -37,7 +38,7 @@ public class Property {
 	public static Color PROPERTY_LIME = Color.getHSBColor(65/360f,74/100f,79/100f);
 	public static Color PROPERTY_ORANGE = Color.getHSBColor(35.1f/360f,100/100f,100/100f);
 	
-	private int id;
+	private final int id;
 	private String name;
 	private int buyPrice;
 	private int rent;
@@ -47,12 +48,16 @@ public class Property {
 	private int owner;
 	private Color ownerColor;
 	private Color color;
+	private String ownerName;
+	private boolean mortgaged;
 		
 	public Property(int id, int special) {
+		this.mortgaged = false;
 		this.id = id;
 		this.numHouses = 0;
 		this.owner = -1;
 		this.ownerColor = Color.gray;
+		this.ownerName = "";
 		readInfo(this.id,special==1);
 	}
 	
@@ -112,44 +117,136 @@ public class Property {
         }
 	}
 	
-	/**
-	 * 
-	 * @param houses
-	 * @return the rent
-	 */
-	public int getRentValue(int houses) {
-		float value = this.rent;
-		float change = 1;
-		if (houses>0) {
-			change = Float.parseFloat(this.rentChanges.split(",")[houses-1]);
-		}
-		switch (houses) {
-			case 1:
-				value = value * change;
-			break;
-			case 2:
-				value = getRentValue(1) * change;
-			break;
-			case 3:
-				value = getRentValue(2) * change;
-			break;
-			case 4:
-				value = (getRentValue(3)-getRentValue(1)) * change;
-			break;
-			case 5:
-				value = (getRentValue(3)+getRentValue(4)) * change;
-			break;
-		}
-		return (int) Math.floor(value);
+	public void resetOwner() {
+		this.owner = -1;
+		this.ownerColor = Color.gray;
+		this.ownerName = "";
 	}
 	
-	/**
-	 * @return the mortgage
-	 */
-	public int getMortgage() {
-		return this.rent/2;
+	public BufferedImage getPropertyMap() throws IOException {
+		BufferedImage display = new BufferedImage(154,225, BufferedImage.TYPE_INT_ARGB);
+		Graphics g = display.getGraphics();
+		
+		int maxX = 154;
+		int maxY = 225;
+		
+		g.fillRect(0, 0, maxX, maxY);
+		g.setColor(this.color);
+		g.fillRect(0, 0, maxX, 60);
+		g.drawImage(ImageIO.read(new File("assets/propertyMap.png")), 0, 0, maxX, maxY, null);
+		
+		int diam = 100;
+		
+		g.setColor(this.ownerColor);
+		g.fillOval((154/2)-(diam/2), (225/2)-(diam/2)+20, diam, diam);
+		
+		return display;
+	}
+	
+	public BufferedImage getPropertyCard() throws IOException {
+		BufferedImage display = new BufferedImage(246, 360, BufferedImage.TYPE_INT_ARGB);
+		Graphics g = (Graphics2D) display.getGraphics();
+		
+		int maxX = 246;
+		int maxY = 360;
+		
+		g.fillRect(0, 0, maxX, maxY);
+		g.setColor(this.color);
+		g.fillRect(0, 0, maxX, 75);
+		g.drawImage(ImageIO.read(new File("assets/propertyCard.png")), 0, 0, maxX, maxY, null);
+		
+		
+		g.setFont(new Font("Arial",Font.BOLD,20));
+		FontMetrics metrics = g.getFontMetrics(g.getFont());
+		int fontX = (246 - metrics.stringWidth(this.name)) / 2;
+		int fontY = ((75 - metrics.getHeight()) / 2) + metrics.getAscent();
+		
+		g.setColor(Color.BLACK);
+		g.drawString(this.name, fontX,fontY);
+		
+		if (this.mortgaged) {
+			String line = "Mortgaged!";
+			g.setFont(new Font("Arial",Font.BOLD,15));
+			metrics = g.getFontMetrics(g.getFont());
+			fontX = (246 - metrics.stringWidth(line)) / 2;
+			fontY = ((75 - metrics.getHeight()) / 2) + metrics.getAscent();
+
+			g.setColor(Color.red);
+			g.drawString(line, fontX, fontY+20);
+		}
+		
+		int x = (int) (maxX*0.08f);
+		g.setFont(new Font("Arial",Font.PLAIN,15));
+		g.drawString("Buy Price: $"+this.buyPrice, x, 115);
+		
+		if (this.buildingCost != 0) {
+			g.drawString("Building Cost: $"+this.buildingCost, x, 140);
+
+			int yStart = 180;
+			for (int i = 0; i < 6; i++) {
+				String description = "Rent with "+(i)+" houses: $";
+				if (i == 0) {
+					description = "Rent: $";
+				} else if (i == 5) {
+					description = "Rent with a hotel: $";
+				}
+				if (i == numHouses) {
+					g.setFont(new Font("Arial",Font.BOLD,15));
+				} else {
+					g.setFont(new Font("Arial",Font.PLAIN,15));
+				}
+				g.drawString(description+this.getRentValue(i), x, yStart+(i*25));
+			}
+		} else {
+			
+			int yStart = 180;
+			int i = 0;
+			String description = "Rent: $";
+			
+			g.drawString(description+this.getRentValue(i), x, yStart+(i*25));
+			
+		}
+		
+		String description = "No owner";
+		if (this.owner != -1) {
+			g.setColor(this.ownerColor);
+			description = "Current owner: "+this.ownerName;
+		}
+		g.drawString(description, x, 330);
+		
+		return display;
 	}
 
+	//<editor-fold defaultstate="collapsed" desc="Getters & Setters">
+	
+	/**
+	 * @return the color
+	 */
+	public Color getColor() {
+		return color;
+	}
+
+	/**
+	 * @param ownerColor the ownerColor to set
+	 */
+	public void setOwnerColor(Color ownerColor) {
+		this.ownerColor = ownerColor;
+	}
+
+	/**
+	 * @return the ownerName
+	 */
+	public String getOwnerName() {
+		return ownerName;
+	}
+
+	/**
+	 * @param ownerName the ownerName to set
+	 */
+	public void setOwnerName(String ownerName) {
+		this.ownerName = ownerName;
+	}
+	
 	/**
 	 * @return the name
 	 */
@@ -206,70 +303,58 @@ public class Property {
 		this.owner = owner;
 	}
 	
-	public BufferedImage getPropertyMap() throws IOException{
-		BufferedImage display = new BufferedImage(154,225, BufferedImage.TYPE_INT_ARGB);
-		Graphics g = display.getGraphics();
-		
-		int maxX = 154;
-		int maxY = 225;
-		
-		g.fillRect(0, 0, maxX, maxY);
-		g.setColor(this.color);
-		g.fillRect(0, 0, maxX, 60);
-		g.drawImage(ImageIO.read(new File("assets/propertyMap.png")), 0, 0, maxX, maxY, null);
-		
-		int diam = 100;
-		
-		g.setColor(this.ownerColor);
-		g.fillOval((154/2)-(diam/2), (225/2)-(diam/2)+20, diam, diam);
-		
-		return display;
+	/**
+	 * @return the mortgage
+	 */
+	public int getMortgage() {
+		return this.rent/2;
+	}
+
+	/**
+	 * 
+	 * @param houses
+	 * @return the rent
+	 */
+	public int getRentValue(int houses) {
+		float value = this.rent;
+		float change = 1;
+		if (houses>0) {
+			change = Float.parseFloat(this.rentChanges.split(",")[houses-1]);
+		}
+		switch (houses) {
+			case 1:
+				value = value * change;
+			break;
+			case 2:
+				value = getRentValue(1) * change;
+			break;
+			case 3:
+				value = getRentValue(2) * change;
+			break;
+			case 4:
+				value = (getRentValue(3)-getRentValue(1)) * change;
+			break;
+			case 5:
+				value = (getRentValue(3)+getRentValue(4)) * change;
+			break;
+		}
+		return (int) Math.floor(value);
 	}
 	
-	public BufferedImage getPropertyCard() throws IOException{
-		BufferedImage display = new BufferedImage(246, 360, BufferedImage.TYPE_INT_ARGB);
-		Graphics g = (Graphics2D) display.getGraphics();
-		
-		int maxX = 246;
-		int maxY = 360;
-		
-		g.fillRect(0, 0, maxX, maxY);
-		g.setColor(this.color);
-		g.fillRect(0, 0, maxX, 75);
-		g.drawImage(ImageIO.read(new File("assets/propertyCard.png")), 0, 0, maxX, maxY, null);
-		g.setFont(new Font("Arial",Font.BOLD,20));
-		g.setColor(Color.BLACK);
-		g.drawString(this.name, (int) (maxX*0.075f), 50);
-		int x = (int) (maxX*0.08f);
-		g.setFont(new Font("Arial",Font.PLAIN,15));
-		g.drawString("Buy Price: $"+this.buyPrice, x, 115);
-		g.drawString("Building Cost: $"+this.buildingCost, x, 140);
-		
-		int yStart = 180;
-		for (int i = 0; i < 6; i++) {
-			String description = "Rent with "+(i)+" houses: $";
-			if (i == 0) {
-				description = "Rent: $";
-			} else if (i == 5) {
-				description = "Rent with a hotel: $";
-			}
-			g.drawString(description+this.getRentValue(i), x, yStart+(i*25));
-		}
-		
-		return display;
+	/**
+	 * @return the mortgaged
+	 */
+	public boolean isMortgaged() {
+		return mortgaged;
 	}
 
 	/**
-	 * @return the color
+	 * @param mortgaged the mortgaged to set
 	 */
-	public Color getColor() {
-		return color;
+	public void setMortgaged(boolean mortgaged) {
+		this.mortgaged = mortgaged;
 	}
+	
+	//</editor-fold>
 
-	/**
-	 * @param ownerColor the ownerColor to set
-	 */
-	public void setOwnerColor(Color ownerColor) {
-		this.ownerColor = ownerColor;
-	}
 }

@@ -19,6 +19,7 @@ import monopolyviolet.model.Button;
 import monopolyviolet.model.Handler;
 import monopolyviolet.model.Node;
 import monopolyviolet.model.Player;
+import monopolyviolet.model.Property;
 
 /**
  *
@@ -26,47 +27,88 @@ import monopolyviolet.model.Player;
  */
 public class PayAmount extends Scene {
 
-	private int debt;
-	private Player payingPlayer;
-	private Player paidPlayer;
+	private final int debt;
+	private final Player payingPlayer;
+	private final Player paidPlayer;
 	private Node<Button> buttons;
-	String selecting;
+	private Property propertyToSell;
+	private int selected;
 	
-	public PayAmount(Handler main, int debt, Player payer, Player paid) {
+	public PayAmount(Handler main, int debt, Player payingPlayer, Player paidPlayer) {
 		super(main, "PAY", false);
-		
-		this.debt = debt;
-		this.paidPlayer = paid;
-		this.payingPlayer = payer;
-		this.selecting = "";
 		
 		this.buttons = new Node();
 		
-		Button newButton = new Button(150,180,150,50);
-		newButton.setText("Pay "+debt);
+		this.debt = debt;
+		this.paidPlayer = paidPlayer;
+		this.payingPlayer = payingPlayer;
+		this.selected = -1;
+		
+		Button newButton = new Button((ssX-240)/2,(ssY-140),240,80);
+		newButton.setText("Pay $"+debt);
 		newButton.setInternalName("PAY");
 		buttons.add(newButton);
+		
+		if (this.payingPlayer.getFunds() < debt) {
+			propertyToSell = ((Game) main.gameState.get(main.gameState.size()-2)).findSellableProperty(debt, this.payingPlayer.getId());
+			if (propertyToSell != null) {
+				newButton.setInternalName("SELL");
+				newButton.setInternalName("Sell "+propertyToSell.getName());
+			}
+		}
+		
+		
 	}
 
 	@Override
 	protected void clickEvent(int x, int y) {
-		if (selecting.compareTo("ROLLS") == 0){
-			doPayment();
+		if (selected != -1) {
+			if (buttons.get(selected).isEnabled()) {
+				String internalName = buttons.get(selected).getInternalName();
+				
+				if (internalName.compareTo("PAY") == 0) {
+					doPayment();
+				} else if (internalName.compareTo("SELL") == 0) {
+					sellProperty();
+				}
+				
+			}
 		}
 	}
 	
+	private void sellProperty() {
+		propertyToSell.resetOwner();
+		payingPlayer.addFunds(propertyToSell.getBuyPrice()/2);
+		propertyToSell = null;
+		try {
+			((Game) main.gameState.last()).buildMapDisplay();
+		} catch (IOException ex) {
+		}
+		buttons.get(0).setText("Pay $"+debt);
+		buttons.get(0).setInternalName("PAY");
+	}
+	
 	private void doPayment() {
+		payingPlayer.removeFunds(debt);
+		if (paidPlayer != null) {
+			paidPlayer.addFunds(debt);
+		}
 		
+		this.dispose();
+		
+		if (payingPlayer.getFunds() < 0) {
+			payingPlayer.setBankrupt(true);
+		}
 	}
 
 	@Override
 	protected void moveEvent(int x, int y) {
-		String placement = "";
+		int placement = -1;
 		int counter = 0;
 		
 		while (counter < buttons.size()) {
 			if (buttons.get(counter).isContained(x, y)) {
-				placement = buttons.get(counter).getInternalName();
+				placement = counter;
 				buttons.get(counter).setHovered(true);
 			} else {
 				buttons.get(counter).setHovered(false);
@@ -74,7 +116,7 @@ public class PayAmount extends Scene {
 			counter = counter + 1;
 		}
 		
-		selecting = placement;
+		selected = placement;
 	}
 
 	@Override
@@ -101,6 +143,7 @@ public class PayAmount extends Scene {
 		while (counter < buttons.size()) {
 			Button thisButton = buttons.get(counter);
 			g.drawImage(thisButton.getDisplay(),thisButton.getX(),thisButton.getY(), null);
+			counter = counter + 1;
 		}
 		
 		return display;

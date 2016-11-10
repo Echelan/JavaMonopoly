@@ -14,6 +14,7 @@ package monopolyviolet.scenes;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -27,35 +28,57 @@ import static monopolyviolet.scenes.Scene.ssX;
  *
  * @author Andres
  */
-public class DieRoll extends Scene {
+public class DiceRoll extends Scene {
 
 	private Player player;
 	private int roll1;
 	private int roll2;
-	private int stage;
+	private boolean threwDice;
 	
-	public DieRoll(Handler main, Player player) {
+	public DiceRoll(Handler main, Player player) {
 		super(main, "DICE", false);
 		
 		this.player = player;
-		this.stage = 0;
-                player.setDoubleCount(0);
+		this.threwDice = false;
+		player.setDoubleCount(0);
 	}
 
 	@Override
 	protected void clickEvent(int x, int y) {
-		if (stage == 0) {
-			stage = 1;
+		if (!threwDice) {
+			threwDice = true;
 		} else {
-                    this.dispose();
-                   player.setRoll(roll1+roll2);
-                    if (roll1 == roll2) {
-                        int doubles = player.getDoubleCount();
-                        player.setDoubleCount(doubles+1);
-                    }
+			this.dispose();
+			throwDie();
 		}
 	}
 
+	private void throwDie() {
+		if (roll1 == roll2) {
+			int doubles = player.getDoubleCount();
+			player.setRolledDoubles(true);
+			player.setDoubleCount(doubles+1);
+		}
+		if (!player.isJailed()) {
+			player.setRoll(roll1+roll2);
+			player.setLastRoll(player.getRoll());
+		} else if (player.isJailed()) {
+			player.setRolledDoubles(false);
+			if (player.getDoubleCount() > 0) {
+				player.setRoll(roll1+roll2);
+				player.setLastRoll(player.getRoll());
+				player.setJailed(false);
+			} else {
+				player.reduceSentence();
+				if (!player.isJailed()) {
+					player.setRoll(roll1+roll2);
+					player.setLastRoll(player.getRoll());
+					main.gameState.add(new PayAmount(main,50,player,null));
+				}
+			}
+		}
+	}
+	
 	@Override
 	protected void moveEvent(int x, int y) {
 //		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -85,29 +108,49 @@ public class DieRoll extends Scene {
 		int height;
 		int xPos;
 		int yPos;
-		width = 100;
-		height = 50;
-		xPos = (ssX/2) - (width/2);
-		yPos = (ssY/2) - (height/2);
 		
-		if (stage == 0) {
-			g.setColor(Color.white);
-			g.setFont(new Font("Arial",Font.BOLD,20));
-			g.fillRect(xPos-5,yPos-70,width+30,height-10);
-			g.setColor(Color.BLACK);
-			g.drawString("Click to roll!",xPos,yPos-50);
+		g.setFont(new Font("Arial",Font.BOLD,20));
+		String line;
+		if (!threwDice) {
 			this.roll1 = Player.roll(0,1,6);
 			this.roll2 = Player.roll(0,1,6);
+		
+			width = 130;
+			height = 30;
+			
+			line = "Click to roll!";
+			
+		} else {
+		
+			width = 170;
+			height = 30;
+			
+			line = "Click to continue";
+			
 		}
+		
+		xPos = (ssX/2) - (width/2);
+		yPos = (ssY/2) - (height/2) - 80 + 200;
+
+		g.setColor(Color.white);
+		g.fillRect(xPos,yPos,width,height);
+
+
+		g.setColor(Color.BLACK);
+		FontMetrics metrics = g.getFontMetrics(g.getFont());
+		int fontX = (width - metrics.stringWidth(line)) / 2;
+		int fontY = ((height - metrics.getHeight()) / 2) + metrics.getAscent();
+
+		g.drawString(line,xPos+fontX,yPos+fontY);
 		
 		width = 202/2;
 		height = 202/2;
 		xPos = (ssX/2) - (width/2);
-		yPos = (ssY/2) - (height/2);
+		yPos = (ssY/2) - (height/2) + 200;
 		
 		String path;
                 
-                path = "assets/players/"+player.getId()+"/"+this.roll1+".png";
+		path = "assets/players/"+player.getId()+"/"+this.roll1+".png";
 		g.drawImage(ImageIO.read(new File(path)), xPos-(width/2)-5, yPos, width, height, null);
                 
 		path = "assets/players/"+player.getId()+"/"+this.roll2+".png";

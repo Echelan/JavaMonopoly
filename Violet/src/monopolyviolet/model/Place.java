@@ -59,22 +59,6 @@ public class Place {
 		playersHere = new Node();
 	}
 
-	public boolean isCorner() {
-		return corner;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public Property getProperty() {
-		return property;
-	}
-
-	public void setProperty(Property property) {
-		this.property = property;
-	}
-	
 	public BufferedImage getDisplay() throws IOException {
 		int maxX;
 		int maxY;
@@ -165,13 +149,16 @@ public class Place {
 		return display;
 	}
 
+	
+	//<editor-fold defaultstate="collapsed" desc="Getters & Setters">
+	
 	/**
 	 * @return the playersHere
 	 */
 	public Node<Integer> getPlayersHere() {
 		return playersHere;
 	}
-
+	
 	/**
 	 * @return the x
 	 */
@@ -200,4 +187,21 @@ public class Place {
 		this.type = type;
 	}
 	
+	public boolean isCorner() {
+		return corner;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public Property getProperty() {
+		return property;
+	}
+
+	public void setProperty(Property property) {
+		this.property = property;
+	}
+	
+	//</editor-fold>
 }

@@ -14,6 +14,7 @@ package monopolyviolet.model;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
@@ -57,16 +58,6 @@ public class Button {
 		this.internalName = "button";
 	}
 	
-	public boolean isContained(int x, int y) {
-		boolean value = false;
-		if (this.x < x && x < this.x+this.width) {
-			if (this.y < y && y < this.y+this.height) {
-				value = true;
-			}
-		}
-		return value;
-	}
-	
 	public BufferedImage getDisplay() {
 		BufferedImage display = new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = display.getGraphics();
@@ -85,6 +76,7 @@ public class Button {
 		} else {
 			g.setColor(fillColor);
 		}
+		
 		int shorten = 3;
 		if (this.rounded) {
 			g.fillRoundRect(shorten, shorten, width-(shorten*2), height-(shorten*2), width/20, height/20);
@@ -97,12 +89,27 @@ public class Button {
 		} else {
 			g.setColor(textColor);
 		}
+		
+		FontMetrics metrics = g.getFontMetrics(font);
+		int fontX = (this.width - metrics.stringWidth(text)) / 2;
+		int fontY = ((this.height - metrics.getHeight()) / 2) + metrics.getAscent();
+		
 		g.setFont(font);
-		int fontX = (this.width / 2) - ((font.getSize()/2) * (text.length() / 2));
-		int fontY = (this.height / 2) + (font.getSize() / 2);
 		g.drawString(text, fontX, fontY);
 		
 		return display;
+	}
+	
+	//<editor-fold defaultstate="collapsed" desc="Getters & Setters">
+	
+	public boolean isContained(int x, int y) {
+		boolean value = false;
+		if (this.x < x && x < this.x+this.width) {
+			if (this.y < y && y < this.y+this.height) {
+				value = true;
+			}
+		}
+		return value;
 	}
 	
 	/**
@@ -251,6 +258,7 @@ public class Button {
 	public void setSelectionTextColor(Color selectionTextColor) {
 		this.selectionTextColor = selectionTextColor;
 	}
-
+	
+	//</editor-fold>
 	
 }

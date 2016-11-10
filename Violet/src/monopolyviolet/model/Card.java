@@ -97,7 +97,23 @@ public class Card {
         }
     }
 
-    /**
+	public BufferedImage getPropertyMap(int rotation) throws IOException {
+		BufferedImage tempStitched = new BufferedImage(507,310, BufferedImage.TYPE_INT_ARGB);
+		Graphics g = tempStitched.getGraphics();
+		
+		int maxX = 507;
+		int maxY = 310;
+		
+		g.fillRect(0, 0, maxX, maxY);
+		g.drawImage(ImageIO.read(new File("assets/card.png")), maxX, maxY, 0, 0, null);
+		g.drawString(this.title,maxX/2,20);
+		
+		return tempStitched;
+	}
+	
+	//<editor-fold defaultstate="collapsed" desc="Getters & Setters">
+	
+	/**
      * @return the title
      */
     public String getTitle() {
@@ -132,17 +148,6 @@ public class Card {
         return value;
     }
     
-	public BufferedImage getPropertyMap(int rotation) throws IOException{
-		BufferedImage tempStitched = new BufferedImage(507,310, BufferedImage.TYPE_INT_ARGB);
-		Graphics g = tempStitched.getGraphics();
-		
-		int maxX = 507;
-		int maxY = 310;
-		
-		g.fillRect(0, 0, maxX, maxY);
-		g.drawImage(ImageIO.read(new File("assets/card.png")), maxX, maxY, 0, 0, null);
-		g.drawString(this.title,maxX/2,20);
-		
-		return tempStitched;
-	}
+	//</editor-fold>
+	
 }

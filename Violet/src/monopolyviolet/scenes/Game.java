@@ -13,6 +13,7 @@
 package monopolyviolet.scenes;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -34,6 +35,7 @@ import monopolyviolet.model.Property;
 public class Game extends Scene{
 	
 	private static final int DRAG_STRENGTH = 3;
+	private static final int MAX_CD = 5;
     
     private Node<Card> communityCard;
     private Node<Card> chanceCard;
@@ -46,6 +48,8 @@ public class Game extends Scene{
 	
 	private int selected;
 	
+	private boolean waitingEnd;
+	
 	private Node<Button> buttons;
 	
 	private int xDisplace;
@@ -56,7 +60,6 @@ public class Game extends Scene{
 	private int yBegin;
 	
 	private int cooldown;
-	private int maxCD = 10;
 	
 	public Game(Handler main, Node<Player> players) {
 		super(main, "GAME", true);
@@ -79,12 +82,13 @@ public class Game extends Scene{
 		chanceCard.setCircular(true);
 		chanceCard.setDoubleLink(true);
 		
-		this.cooldown = maxCD;
+		this.cooldown = MAX_CD;
 		this.selected = -1;
 		this.yDisplaceLast = 0;
 		this.xDisplaceLast = 0;
 		this.yDisplace = 0;
 		this.xDisplace = 0;
+		this.waitingEnd = false;
 		
 		createDecks();
 		createProperties();
@@ -103,7 +107,7 @@ public class Game extends Scene{
 //		buttons.add(newButton);
 		
 		try {
-			this.mapImage = this.buildMapDisplay();
+			this.buildMapDisplay();
 		} catch(IOException e) {
 		}
 		
@@ -119,6 +123,9 @@ public class Game extends Scene{
 		
 		xDisplace = xPos*-1;
 		yDisplace = yPos*-1;
+		
+		xDisplace = xDisplace + (ssX/2) - 50;
+		yDisplace = yDisplace + (ssY/2) - 50;
 	}
 	
 	private void createDecks() {
@@ -261,6 +268,41 @@ public class Game extends Scene{
 		}
 	}
 	
+	public int isMonopoly(Place search, int playerID) {
+		int multiple = 1;
+		boolean forProps = true;
+		for (int i = 0; i < map.size(); i++) {
+			Place place = map.get(i);
+			
+			if (search.getType() == Place.PROPERTY_TYPE && place.getType() == Place.PROPERTY_TYPE) {
+				if (place.getProperty().getOwner() != search.getProperty().getOwner()) {
+					System.out.println(place.getProperty().getOwner() +" - "+ search.getProperty().getOwner());
+					forProps = false;
+				}
+			} else if (search.getType() == Place.RAILROAD_TYPE && place.getType() == Place.RAILROAD_TYPE) {
+				if (place.getProperty().getOwner() == search.getProperty().getOwner()) {
+					if (place != search) {
+						multiple = multiple * 2;
+					}
+				}
+			} else if (search.getType() == Place.ELECTRIC_TYPE || search.getType() == Place.WATER_TYPE) {
+				multiple = players.get(0).getLastRoll();
+				if (place.getType() == Place.ELECTRIC_TYPE || place.getType() == Place.WATER_TYPE) {
+					if (place.getType() != search.getType()) {
+						if (place.getProperty().getOwner() == search.getProperty().getOwner()) {
+							multiple = (int) (multiple * 2.5f);
+						}
+					}
+				}
+			}
+			
+		}
+		if (search.getType() == Place.PROPERTY_TYPE && forProps == true) {
+			multiple = 2;
+		}
+		return multiple;
+	}
+	
     public Player findPlayerWithID(int id) {
         Player result = null;
         int i = 0;
@@ -297,6 +339,7 @@ public class Game extends Scene{
                 place.getPlayersHere().remove(k);
                 found = true;
             }
+			k = k + 1;
         }
     }
     
@@ -318,15 +361,10 @@ public class Game extends Scene{
     public int findPlaceIndexWithPlayerWithID(int id) {
         int result = -1;
         int j = 0, k = 0;
-		System.out.println("Searching for id "+id);
         while (j < getMap().size() && result == -1) {
-			System.out.println("Searching in tile "+j);
             k = 0;
             while (k < getMap().get(j).getPlayersHere().size() && result == -1) {
-				System.out.println("Searching player "+k);
-				System.out.println("Player id "+getMap().get(j).getPlayersHere().get(k));
                 if (id == getMap().get(j).getPlayersHere().get(k)) {
-					System.out.println("Player found.");
                     result = j;
                 }
                 k = k + 1;
@@ -360,9 +398,33 @@ public class Game extends Scene{
         return result;
     }
 
+	public Property findSellableProperty(int minimum, int ownerID) {
+		Property result = null;
+		
+		int i = 0;
+		while (i < this.propertyList.size() && result != null) {
+			if (this.propertyList.get(i).getOwner() == ownerID && this.propertyList.get(i).getBuyPrice()/2 >= minimum) {
+				result = this.propertyList.get(i);
+			}
+			i = i + 1;
+		}
+		
+		if (result == null) {
+			i = 0;
+			while (i < this.specialList.size() && result != null) {
+				if (this.propertyList.get(i).getOwner() == ownerID && this.specialList.get(i).getBuyPrice()/2 >= minimum) {
+					result = this.specialList.get(i);
+				}
+				i = i + 1;
+			}
+		}
+		
+		return result;
+	}
+	
     private void checkDisplace() {
-        int min = -400;
-        int max = 20;
+        int min = -900;
+        int max = 500;
         
         if (xDisplace < min)  {
             xDisplace = min;
@@ -380,30 +442,47 @@ public class Game extends Scene{
     }
 	
     public void nextTurn() {
-        players.rotate(1);
-        main.gameState.add(new TurnAnnounce(main,players.get(0)));
+		boolean playerWon = false;
+		if (!players.get(0).isRolledDoubles()) {
+			int curPlayerID = players.get(0).getId();
+			do {
+				players.rotate(1);
+			} while (players.get(0).isBankrupt());
+			playerWon = curPlayerID == players.get(0).getId();
+		} else {
+			players.get(0).setRolledDoubles(false);
+		}
+		waitingEnd = false;
+		if (!playerWon) {
+			main.gameState.add(new TurnAnnounce(main,players.get(0)));
+		}
     }
     
 	protected void mapAction(Place place, Player player) {
-            System.out.println(place.getName());
-            if (place.getType() == Place.PROPERTY_TYPE) {
-                main.gameState.add(new PropertyStatus(main,place,player));
-			} else {
-				System.out.println("I got nothin'");
-//				nextTurn();
-//            } else if (place.getType() == Place.TAX_TYPE) {
-//                    main.gameState.add(new PayAmount(main,200,player,null));
-            }
+		System.out.println(place.getName());
+		if (place.getType() == Place.PROPERTY_TYPE || place.getType() == Place.ELECTRIC_TYPE || place.getType() == Place.WATER_TYPE || place.getType() == Place.RAILROAD_TYPE) {
+			main.gameState.add(new PropertyStatus(main,place,player));
+		} else if (place.getType() == Place.TAX_TYPE) {
+			main.gameState.add(new PayAmount(main, 200, player, null));
+		} else if (place.getType() == Place.GOJAIL_TYPE) {
+			sendJail(player.getId());
+		} else if (place.getType() == Place.CHANCE_TYPE || place.getType() == Place.COMMUNITY_TYPE) {
+//			main.gameState.add(new DrawCard(main));
+		}
+		waitingEnd = true;
 	}
 	
 	protected void sendJail(int pID) {
-            removePlayerFromPlace(findPlaceWithPlayerWithID(pID), pID);
-            findPlaceWithType(Place.JAIL_TYPE).getPlayersHere().add(pID);
+		findPlayerWithID(pID).setJailed(true);
+		findPlayerWithID(pID).setRolledDoubles(false);
+		findPlayerWithID(pID).setDoubleCount(0);
+		removePlayerFromPlace(findPlaceWithPlayerWithID(pID), pID);
+		findPlaceWithType(Place.JAIL_TYPE).getPlayersHere().add(pID);
 	}
 	
 	@Override
 	protected void clickEvent(int x, int y) {
-		if (selected != -1); {
+		if (selected != -1) {
 			if (buttons.get(selected).isEnabled()) {
 				if (buttons.get(selected).getInternalName().compareTo("NEXT") == 0){
 					nextTurn();
@@ -454,13 +533,13 @@ public class Game extends Scene{
 		yBegin = 0;
 	}
 	
-	private BufferedImage buildMapDisplay() throws IOException {
+	public void buildMapDisplay() throws IOException {
 		int max = 865 + monopolyviolet.model.Place.LONG_SIDE + 10;
 		
 		BufferedImage display = new BufferedImage(max, max, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = display.getGraphics();
 		
-		g.drawImage(ImageIO.read(new File("assets/title/violetMonopolyLogo.png")), xDisplace + (max/2)-(1292/6), yDisplace + (max/2)-(641/6), 1292/3, 641/3, null);
+		g.drawImage(ImageIO.read(new File("assets/title/violetMonopolyLogo.png")), (max/2)-(1292/6), (max/2)-(641/6), 1292/3, 641/3, null);
 		
 		for (int i = 0; i < getMap().size(); i++) {
 			
@@ -470,22 +549,27 @@ public class Game extends Scene{
 			g.drawImage(getMap().get(i).getDisplay(), xPos, yPos, null);
 		}
 		
-		return display;
+		this.mapImage = display;
 	}
     
 	private void refresh() {
 		
+		boolean cond1 = main.gameState.last() == this;
+		
 		this.cooldown = this.cooldown - 1;
 		
 		if (this.cooldown < 0) {
-			for (int i = 0; i < players.size(); i++) {
+			
+			int i = 0;
+			if (players.get(i).getDoubleCount() > 2) {
+				sendJail(players.get(i).getId());
+			} else {
 				int roll = players.get(i).getRoll();
 				int playerID = players.get(i).getId();
 				if (roll > 0) {
-					this.cooldown = this.maxCD;
-					
+					this.cooldown = this.MAX_CD;
+
 					int currentID = findPlaceIndexWithPlayerWithID(playerID);
-					System.out.println(currentID);
 					int mapID =  currentID+1;
 					if (mapID == getMap().size()) {
 						mapID = 0;
@@ -497,16 +581,17 @@ public class Game extends Scene{
 						players.get(i).addFunds(200);
 					}
 					players.get(i).setRoll(roll-1);
-                                        
-					if (roll == 1) {
-						mapAction(map.get(mapID),players.get(i));
-					}
+
+				}
+
+				if (this.cooldown < 0 && cond1 && !waitingEnd) {
+					this.cooldown = this.MAX_CD;
+					mapAction(findPlaceWithPlayerWithID(playerID),players.get(i));
 				}
 			}
 		}
 		
 		int counter = 0;
-		boolean cond1 = main.gameState.last() == this;
 		boolean cond2 = this.cooldown < 0;
 		if (!cond1) {
 			selected = -1;
@@ -541,7 +626,15 @@ public class Game extends Scene{
 			int yPos = yDisplace + getMap().get(placeID).getY();
 			g.drawImage(players.get(i).getPiece(), xPos + 10, yPos + 10, null);
 		}
-            
+        
+		g.setColor(players.get(0).getColor());
+		g.fillRect(5, ssY-45, 110, 40);
+		g.setColor(Color.white);
+		g.fillRect(10, ssY-40, 100, 30);
+		g.setColor(Color.black);
+		g.setFont(new Font("Arial",Font.BOLD,20));
+		g.drawString("$"+players.get(0).getFunds(),15,ssY-15);
+		
 		
 		int counter = 0;
 		while (counter < buttons.size()) {

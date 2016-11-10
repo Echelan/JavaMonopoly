@@ -13,6 +13,7 @@
 package monopolyviolet.scenes;
 
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -22,6 +23,7 @@ import monopolyviolet.model.Button;
 import monopolyviolet.model.Handler;
 import monopolyviolet.model.Node;
 import monopolyviolet.model.Player;
+import static monopolyviolet.scenes.Scene.ssX;
 
 /**
  *
@@ -77,7 +79,7 @@ public class Setup extends Scene{
 		numPlayers = numPlayers + 1;
 		
 		buttons.last().setEnabled(false);
-		buttons.last().setText("Player "+numPlayers);
+		buttons.last().setText(playerList.last().getName());
 		
 		if (numPlayers < maxPlayers) {
 			Button newButton = new Button(50, 100 + (80*numPlayers), 200, 40);
@@ -176,7 +178,7 @@ public class Setup extends Scene{
 			if (thisButton.getInternalName().split(";")[0].compareTo("PLAYER") == 0) {
 				Player thisPlayer = playerList.get(pCount);
 				thisButton.setInternalName("PLAYER;"+thisPlayer.getId());
-				thisButton.setText("Player "+thisPlayer.getId());
+				thisButton.setText(thisPlayer.getName());
 				pCount = pCount + 1;
 			}
 			bCount = bCount+1;
@@ -204,7 +206,13 @@ public class Setup extends Scene{
 		g.drawImage(ImageIO.read(new File("assets/title/background.png")), 0, 0, ssX, ssY, null);
 		
 		g.setFont(new Font("Arial",Font.BOLD,30));
-		g.drawString("Player List",300,50);
+		
+		String line = "Player List";
+		FontMetrics metrics = g.getFontMetrics(g.getFont());
+		int fontX = (ssX - metrics.stringWidth(line)) / 2;
+		int fontY = ((100 - metrics.getHeight()) / 2) + metrics.getAscent();
+			
+		g.drawString(line,fontX,fontY);
 		
 		int counter = 0;
 		while (counter < buttons.size()) {

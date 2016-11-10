@@ -14,6 +14,7 @@ package monopolyviolet.scenes;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -85,7 +86,14 @@ public class Title extends Scene {
 		}
 		if (blinkRate > 5) {
 			g.setFont(new Font("Arial", Font.BOLD, 40));
-			g.drawString("Click to Start",(ssX/2)-110, 250);
+			
+			String line = "Click to Start";
+			
+			FontMetrics metrics = g.getFontMetrics(g.getFont());
+			int fontX = (ssX - metrics.stringWidth(line)) / 2;
+			int fontY = ((100 - metrics.getHeight()) / 2) + metrics.getAscent();
+		
+			g.drawString(line,fontX,fontY+(ssY/2));
 		}
 		
 		return display;

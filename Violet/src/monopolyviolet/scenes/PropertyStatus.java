@@ -29,68 +29,118 @@ import monopolyviolet.model.Player;
 public class PropertyStatus extends Scene {
 
     private Player player;
+	private Player owner;
     private Place place;
     private Node<Button> buttons;
-    private String selecting;
+    private int selected;
+	private int amount;
         
     public PropertyStatus(Handler main, Place place, Player player) {
         super(main, "PROPERTY", false);
         this.place = place;
         this.player = player;
-        this.selecting = "";
+        this.selected = -1;
         buttons = new Node();
-        
+		
         if (place.getProperty().getOwner() == -1) {
-			Button newButton = new Button(50, 100, 200, 40);
+			Button newButton;
+			
+			newButton = new Button(50, 210, 200, 40);
 			if (place.getProperty().getBuyPrice() > player.getFunds()) {
 				newButton.setTextColor(Color.gray);
 			}
 			newButton.setText("Buy property");
 			newButton.setInternalName("BUY");
+			newButton.setEnabled(player.getFunds() >= place.getProperty().getBuyPrice());
 			buttons.add(newButton);
 
-			newButton = new Button(50, 200, 200, 40);
+			newButton = new Button(50, 280, 200, 40);
 			newButton.setText("Back");
 			newButton.setInternalName("BACK");
 			buttons.add(newButton);
-        }
+			
+        } else if (!place.getProperty().isMortgaged()) {
+			Button newButton;
+			
+			newButton = new Button(50, 280, 200, 40);
+			newButton.setText("Pay Rent");
+			newButton.setInternalName("RENT");
+			buttons.add(newButton);
+			
+			this.owner = ((Game) main.gameState.last()).findPlayerWithID(place.getProperty().getOwner());
+			this.amount = place.getProperty().getRent() * ((Game) main.gameState.last()).isMonopoly(place, owner.getId());
+			
+			if (owner == player) {
+				buttons.get(0).setText("Back");
+				buttons.get(0).setInternalName("BACK");
+			}
+			
+		} else {
+			Button newButton;
+			
+			newButton = new Button(50, 280, 200, 40);
+			newButton.setText("Back");
+			newButton.setInternalName("BACK");
+			buttons.add(newButton);
+		}
     }
 
     @Override
     protected void clickEvent(int x, int y) {
-        if (selecting.compareTo("BACK") == 0){
-			resolved();
-        } else if (selecting.compareTo("BUY") == 0){
-			if (place.getProperty().getBuyPrice() > player.getFunds()) {
-				place.getProperty().setOwner(player.getId());
-				resolved();
+		if (selected != -1) {
+			if (buttons.get(selected).isEnabled()) {
+				String internalName = buttons.get(selected).getInternalName();
+				
+				if (internalName.compareTo("BACK") == 0) {
+					this.dispose();
+					
+				} else if (internalName.compareTo("BUY") == 0) {
+					this.dispose();
+					buyProperty();
+				} else if (internalName.compareTo("RENT") == 0) {
+					this.dispose();
+					payRent();
+				}
 			}
-        }
-        
+		}
     }
+	
+	private void buyProperty() {
+		
+		player.removeFunds(place.getProperty().getBuyPrice());
+		place.getProperty().setOwnerName(player.getName());
+		place.getProperty().setOwner(player.getId());
+		place.getProperty().setOwnerColor(player.getColor());
 
-    private void resolved() {
-        this.dispose();
-//        ((Game) main.gameState.last()).nextTurn();
-    }
+		try {
+			((Game) main.gameState.last()).buildMapDisplay();
+		} catch (IOException ex) {
+		}
+	}
+	
+	private void payRent() {
+		
+		main.gameState.add(new PayAmount(main, amount, player, owner));
+
+	}
     
     @Override
     protected void moveEvent(int x, int y) {
 
-        String placement = "";
+        int placement = -1;
         int counter = 0;
 
         while (counter < buttons.size()) {
-                if (buttons.get(counter).isContained(x, y)) {
-                        placement = buttons.get(counter).getInternalName();
-                        buttons.get(counter).setHovered(true);
-                } else {
-                        buttons.get(counter).setHovered(false);
-                }
-                counter = counter + 1;
+			if (buttons.get(counter).isContained(x, y)) {
+				placement = counter;
+				buttons.get(counter).setHovered(true);
+			} else {
+				buttons.get(counter).setHovered(false);
+			}
+			counter = counter + 1;
         }
 
-        selecting = placement;
+        selected = placement;
     }
 
     @Override
@@ -119,9 +169,14 @@ public class PropertyStatus extends Scene {
 			g.drawImage(thisButton.getDisplay(),thisButton.getX(),thisButton.getY(), null);
 			counter = counter + 1;
 		}
-                
-        g.drawImage(place.getProperty().getPropertyCard(), ssX-300, (ssY/2)-150, null);
-        
+        BufferedImage propertyCard = place.getProperty().getPropertyCard();
+		
+        if (this.amount > this.place.getProperty().getRent()) {
+			g.setColor(Color.yellow);
+			g.fillRect(ssX-305, (ssY/2)-205, propertyCard.getWidth()+10, propertyCard.getHeight()+10);
+		}
+		
+        g.drawImage(propertyCard, ssX-300, (ssY/2)-200, null);
         
         return display;
     }

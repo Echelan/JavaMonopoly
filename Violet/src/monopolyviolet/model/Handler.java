@@ -30,7 +30,6 @@ public class Handler {
 		
 		gameState = new Node();
 		
-//		gameState.add(new monopolyviolet.scenes.Title(this));
 		gameState.add(new monopolyviolet.scenes.Title(this));
 		
 		gw.startCanvasThread();
