@@ -68,12 +68,14 @@ public class PropertyStatus extends Scene {
 			newButton.setInternalName("RENT");
 			buttons.add(newButton);
 			
-			this.owner = ((Game) main.gameState.last()).findPlayerWithID(place.getProperty().getOwner());
+			Game game = (Game) main.gameState.last();
+			
+			this.owner = game.findPlayerWithID(place.getProperty().getOwner());
 			this.amount = place.getProperty().getRent();
-                        if (place.getType() == Place.UTILITY_TYPE) {
-                            this.amount = this.amount * player.getLastRoll();
-                        }
-                        this.monopolyBonus = ((Game) main.gameState.last()).isMonopoly(place, owner.getId());
+			if (place.getType() == Place.UTILITY_TYPE) {
+				this.amount = this.amount * player.getLastRoll();
+			}
+			this.monopolyBonus = game.isMonopoly(place, owner.getId());
 			
 			if (owner == player) {
 				buttons.get(0).setText("Back");
@@ -150,17 +152,17 @@ public class PropertyStatus extends Scene {
 
     @Override
     protected void dragEvent(int x, int y) {
-//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
     }
 
     @Override
     protected void pressEvent(int x, int y) {
-//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
     }
 
     @Override
     protected void releaseEvent(int x, int y) {
-//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
     }
 
     @Override
@@ -174,14 +176,10 @@ public class PropertyStatus extends Scene {
 			g.drawImage(thisButton.getDisplay(),thisButton.getX(),thisButton.getY(), null);
 			counter = counter + 1;
 		}
+		
         BufferedImage propertyCard = place.getProperty().getPropertyCard();
 		
-        if (this.monopolyBonus > 1) {
-			g.setColor(Color.yellow);
-			g.fillRect(ssX-305, (ssY/2)-205, propertyCard.getWidth()+10, propertyCard.getHeight()+10);
-		}
-		
-        g.drawImage(propertyCard, ssX-300, (ssY/2)-200, null);
+        g.drawImage(propertyCard, ssX-300, (ssY-propertyCard.getHeight())/2, null);
         
         return display;
     }

@@ -36,6 +36,7 @@ public class GameDisplay extends Canvas implements Runnable {
 		MouseHandler mh = new MouseHandler();
 		addMouseListener(mh);
 		addMouseMotionListener(mh);
+		addMouseWheelListener(mh);
 	}
 
 	@Override

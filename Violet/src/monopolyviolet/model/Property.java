@@ -143,6 +143,18 @@ public class Property {
 		return display;
 	}
 	
+	public boolean isMonopoly() {
+		monopolyviolet.scenes.Game game = null;
+		
+		for (int i = 0; i < Handler.gameState.size(); i++) {
+			if (Handler.gameState.get(i) instanceof monopolyviolet.scenes.Game) {
+				game = (monopolyviolet.scenes.Game) Handler.gameState.get(i);
+			}
+		}
+		
+		return (game.isMonopoly(this, this.owner) != 1 && this.owner != -1);
+	}
+	
 	public BufferedImage getPropertyCard() throws IOException {
 		BufferedImage display = new BufferedImage(246, 360, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = (Graphics2D) display.getGraphics();
@@ -155,7 +167,6 @@ public class Property {
 		g.fillRect(0, 0, maxX, 75);
 		g.drawImage(ImageIO.read(new File("assets/propertyCard.png")), 0, 0, maxX, maxY, null);
 		
-		
 		g.setFont(new Font("Arial",Font.BOLD,20));
 		FontMetrics metrics = g.getFontMetrics(g.getFont());
 		int fontX = (246 - metrics.stringWidth(this.name)) / 2;
@@ -163,6 +174,17 @@ public class Property {
 		
 		g.setColor(Color.BLACK);
 		g.drawString(this.name, fontX,fontY);
+		
+		if (this.isMonopoly()) {
+			String line = "Monopoly";
+			g.setFont(new Font("Arial",Font.PLAIN,20));
+			metrics = g.getFontMetrics(g.getFont());
+			fontX = (246 - metrics.stringWidth(line)) / 2;
+			fontY = ((75 - metrics.getHeight()) / 2) + metrics.getAscent();
+
+			g.setColor(Color.green);
+			g.drawString(line, fontX, fontY-20);
+		}
 		
 		if (this.mortgaged) {
 			String line = "Mortgaged!";
@@ -174,6 +196,8 @@ public class Property {
 			g.setColor(Color.red);
 			g.drawString(line, fontX, fontY+20);
 		}
+		
+		g.setColor(Color.black);
 		
 		int x = (int) (maxX*0.08f);
 		g.setFont(new Font("Arial",Font.PLAIN,15));
@@ -308,6 +332,17 @@ public class Property {
 	 */
 	public int getMortgage() {
 		return this.rent/2;
+	}
+	
+	/**
+	 * @return the mortgage interest
+	 */
+	public int getMortgageInterest() {
+		float value = this.rent;
+		value = value / 2f;
+		value = value * 1.1f;
+		
+		return (int) value;
 	}
 
 	/**

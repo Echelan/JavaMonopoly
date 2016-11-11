@@ -48,48 +48,54 @@ public class Setup extends Scene{
 		maxPlayers = 6;
 		numPlayers = 0;
 		
-		Button newButton = new Button(400, 100, 150, 40);
+		Button newButton = new Button(ssX-210, ssY-110, 180, 80);
 		newButton.setText("Roll dice");
 		newButton.setInternalName("ROLLS");
 		newButton.setEnabled(false);
 		buttons.add(newButton);
 		
-		newButton = new Button(400, 200, 150, 40);
-		newButton.setText("Arrange");
-		newButton.setInternalName("ARRANGE");
-		newButton.setEnabled(false);
-		buttons.add(newButton);
-		
-		newButton = new Button(400, 300, 150, 40);
-		newButton.setText("Start!");
-		newButton.setInternalName("START");
-		newButton.setEnabled(false);
-		buttons.add(newButton);
-		
-		newButton = new Button(50, 100, 200, 40);
+		newButton = new Button(50, 100, 200, 60);
 		newButton.setText("Add Player 1");
-		newButton.setInternalName("PLAYER");
+		newButton.setInternalName("ADD;1");
 		buttons.add(newButton);
 	}
 
-	private void addPlayer() {
+	private void addPlayers() {
 		
 		playerList.add(new Player(numPlayers+1));
 			
 		numPlayers = numPlayers + 1;
 		
-		buttons.last().setEnabled(false);
 		buttons.last().setText(playerList.last().getName());
+		buttons.last().setInternalName("PLAYER;"+numPlayers);
 		
 		if (numPlayers < maxPlayers) {
-			Button newButton = new Button(50, 100 + (80*numPlayers), 200, 40);
+			Button newButton = new Button(50, 100 + (80*numPlayers), 200, 60);
 			newButton.setText("Add Player "+(numPlayers+1));
-			newButton.setInternalName("PLAYER");
+			newButton.setInternalName("ADD;"+(numPlayers+1));
 			buttons.add(newButton);
 		}
 		
 		if (numPlayers > 1) {
 			buttons.get(0).setEnabled(true);
+		}
+	}
+
+	private void removePlayers() {
+		
+		playerList.remove(playerList.size()-1);
+			
+		numPlayers = numPlayers - 1;
+		
+		if (buttons.last().getInternalName().split(";")[0].compareTo("ADD") == 0) {
+			buttons.remove(buttons.size()-1);
+		}
+		
+		buttons.last().setText("Add Player "+(numPlayers+1));
+		buttons.last().setInternalName("ADD;"+(numPlayers+1));
+		
+		if (numPlayers < 2) {
+			buttons.get(0).setEnabled(false);
 		}
 	}
 
@@ -132,14 +138,14 @@ public class Setup extends Scene{
 			if (buttons.get(selected).isEnabled()) {
 				String internalName = buttons.get(selected).getInternalName();
 				
-				if (internalName.compareTo("ARRANGE") == 0) {
-					arrange();
-				} else if (internalName.compareTo("ROLLS") == 0) {
+				if (internalName.compareTo("ROLLS") == 0) {
 					doRolls();
 				} else if (internalName.compareTo("START") == 0) {
 					start();
-				} else if (internalName.compareTo("PLAYER") == 0) {
-					addPlayer();
+				} else if (internalName.split(";")[0].compareTo("PLAYER") == 0) {
+					removePlayers();
+				} else if (internalName.split(";")[0].compareTo("ADD") == 0) {
+					addPlayers();
 				}
 				
 			}
@@ -148,11 +154,12 @@ public class Setup extends Scene{
 
 	private void doRolls() {
 		if (numPlayers > 1) {
-			buttons.get(0).setEnabled(false);
-			buttons.get(1).setEnabled(true);
+			buttons.get(0).setInternalName("START");
+			buttons.get(0).setText("Start!");
 			if (numPlayers < maxPlayers) {
 				buttons.remove(buttons.size() - 1);
 			}
+			arrange();
 		}
 	}
 	
@@ -184,9 +191,6 @@ public class Setup extends Scene{
 			bCount = bCount+1;
 			
 		}
-		
-		buttons.get(1).setEnabled(false);
-		buttons.get(2).setEnabled(true);
 	}
 	
 	private void start() {
@@ -224,14 +228,14 @@ public class Setup extends Scene{
 		for (int i = 0; i < numPlayers; i++) {
 			Player thisPlayer = playerList.get(i);
 			
-			if (!buttons.get(1).isEnabled() && !buttons.get(2).isEnabled()) {
+			if (buttons.get(0).getInternalName().compareTo("START") != 0) {
 				thisPlayer.setRoll(Player.roll(0, 1, 6));
 			}
 			
 			int x = 270;
-			int y = 100 + (80*i) - 5;
+			int y = 100 + (80*i) + 5;
 			g.drawImage(thisPlayer.getDieImage(), x, y, 202/4, 202/4, null);
-			g.drawImage(thisPlayer.getPiece(), 50, y, null);
+			g.drawImage(thisPlayer.getPiece(), 30, y, null);
 		}
 		
 		return display;

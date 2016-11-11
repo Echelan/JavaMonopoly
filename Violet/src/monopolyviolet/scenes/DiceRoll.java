@@ -14,7 +14,6 @@ package monopolyviolet.scenes;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -22,7 +21,6 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import monopolyviolet.model.Handler;
 import monopolyviolet.model.Player;
-import static monopolyviolet.scenes.Scene.ssX;
 
 /**
  *
@@ -53,16 +51,22 @@ public class DiceRoll extends Scene {
 	}
 
 	private void throwDie() {
+		
 		if (roll1 == roll2) {
-                    int doubles = player.getDoubleCount();
-                    player.setRolledDoubles(true);
-                    player.setDoubleCount(doubles+1);
+			int doubles = player.getDoubleCount();
+			player.setRolledDoubles(true);
+			player.setDoubleCount(doubles+1);
 		} else {
-                 player.setDoubleCount(0);
-                }
+			player.setDoubleCount(0);
+		}
+		
 		if (!player.isJailed()) {
-                    player.setRoll(roll1+roll2);
-                    player.setLastRoll(player.getRoll());
+			player.setRoll(roll1+roll2);
+			player.setLastRoll(player.getRoll());
+			
+			if (player.getDoubleCount() > 2) {
+				((Game) main.gameState.last()).sendJail(player.getId());
+			}
 		} else if (player.isJailed()) {
 			player.setRolledDoubles(false);
 			if (player.getDoubleCount() > 0) {
@@ -78,6 +82,7 @@ public class DiceRoll extends Scene {
 				}
 			}
 		}
+		
 	}
 	
 	@Override
@@ -130,14 +135,14 @@ public class DiceRoll extends Scene {
 		}
 		
 		xPos = (ssX/2) - (width/2);
-		yPos = (ssY/2) - (height/2) - 80 + 200;
+		yPos = (ssY/2) - (height/2) - 80 + 100;
                 
-		g.drawImage(genTextRect(line, width, height, 0, new Font("Arial",Font.BOLD,20), Color.white, Color.white, Color.black), xPos, yPos, width, height, null);
+		g.drawImage(genTextRect(line, width, height, 1, new Font("Arial",Font.BOLD,20), Color.black, Color.white, Color.black), xPos, yPos, width, height, null);
 		
 		width = 202/2;
 		height = 202/2;
 		xPos = (ssX/2) - (width/2);
-		yPos = (ssY/2) - (height/2) + 200;
+		yPos = (ssY/2) - (height/2) + 100;
 		
 		String path;
                 

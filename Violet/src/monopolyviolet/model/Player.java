@@ -51,8 +51,10 @@ public class Player {
 	private final String name;
 	private final Color color;
 	private boolean bankrupt;
+	private boolean ai;
 
 	public Player(int id) {
+		this.ai = false;
 		this.lastRoll = 0;
 		this.bankrupt = false;
 		this.funds = 1500;
@@ -292,5 +294,19 @@ public class Player {
 	 */
 	public void setLastRoll(int lastRoll) {
 		this.lastRoll = lastRoll;
+	}
+
+	/**
+	 * @return the ai
+	 */
+	public boolean isAi() {
+		return ai;
+	}
+
+	/**
+	 * @param ai the ai to set
+	 */
+	public void setAi(boolean ai) {
+		this.ai = ai;
 	}
 }

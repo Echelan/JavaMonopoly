@@ -150,6 +150,9 @@ public class Place {
 		return display;
 	}
 
+	public boolean hasProperty() {
+		return this.type == PROPERTY_TYPE || this.type == RAILROAD_TYPE || this.type == UTILITY_TYPE;
+	}
 	
 	//<editor-fold defaultstate="collapsed" desc="Getters & Setters">
 	
@@ -204,12 +207,13 @@ public class Place {
 		this.property = property;
 	}
 	
-	//</editor-fold>
-
     /**
      * @param name the name to set
      */
     public void setName(String name) {
         this.name = name;
     }
+	
+	//</editor-fold>
+	
 }

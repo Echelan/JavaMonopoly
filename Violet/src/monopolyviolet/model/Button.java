@@ -29,6 +29,7 @@ public class Button {
 	private String text;
 	private int width;
 	private int height;
+	private int strokeWidth;
 	private Color fillColor;
 	private Color textColor;
 	private Color strokeColor;
@@ -56,6 +57,7 @@ public class Button {
 		this.selectionFillColor = Color.gray;
 		this.selectionTextColor = Color.white;
 		this.internalName = "button";
+		this.strokeWidth = 3;
 	}
 	
 	public BufferedImage getDisplay() {
@@ -77,11 +79,10 @@ public class Button {
 			g.setColor(fillColor);
 		}
 		
-		int shorten = 3;
 		if (this.rounded) {
-			g.fillRoundRect(shorten, shorten, width-(shorten*2), height-(shorten*2), width/20, height/20);
+			g.fillRoundRect(strokeWidth, strokeWidth, width-(strokeWidth*2), height-(strokeWidth*2), width/20, height/20);
 		} else {
-			g.fillRect(shorten, shorten, width-(shorten*2), height-(shorten*2));
+			g.fillRect(strokeWidth, strokeWidth, width-(strokeWidth*2), height-(strokeWidth*2));
 		}
 		
 		if (this.hovered) {
@@ -260,5 +261,12 @@ public class Button {
 	}
 	
 	//</editor-fold>
+
+	/**
+	 * @param strokeWidth the strokeWidth to set
+	 */
+	public void setStrokeWidth(int strokeWidth) {
+		this.strokeWidth = strokeWidth;
+	}
 	
 }

@@ -44,7 +44,7 @@ public class PayAmount extends Scene {
 		this.payingPlayer = payingPlayer;
 		this.selected = -1;
 		
-		Button newButton = new Button((ssX-240)/2,(ssY-140),240,80);
+		Button newButton = new Button((ssX-240)/2,(ssY-180),240,80);
 		newButton.setText("Pay $"+debt);
 		newButton.setInternalName("PAY");
 		buttons.add(newButton);

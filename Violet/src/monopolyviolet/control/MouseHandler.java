@@ -14,6 +14,7 @@ package monopolyviolet.control;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import monopolyviolet.model.Handler;
 import monopolyviolet.scenes.Scene;
 
@@ -74,6 +75,13 @@ public class MouseHandler extends MouseAdapter {
 		
 		wrapper(action,x,y);
 	}
+
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent e) {
+		Handler.modZoom(e.getUnitsToScroll());
+	}
+	
+	
 	
 	private void wrapper(int action, int x, int y) {
 		if (Handler.gameState.last() != null) {

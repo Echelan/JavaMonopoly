@@ -170,12 +170,12 @@ public class Node<E> {
 		int counter = index;
                 
 		if (counter < this.size()) {
-                    lookingGlass = this;
-                    while (counter > 0) {
-                        
-                            lookingGlass = lookingGlass.linkR;
-                            counter = counter - 1;
-                    }
+			lookingGlass = this;
+			while (counter > 0) {
+
+				lookingGlass = lookingGlass.linkR;
+				counter = counter - 1;
+			}
 		}
 		
 		return lookingGlass;

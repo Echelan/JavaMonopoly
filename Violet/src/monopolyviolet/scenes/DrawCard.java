@@ -15,7 +15,9 @@ package monopolyviolet.scenes;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import monopolyviolet.model.Button;
 import monopolyviolet.model.Handler;
+import monopolyviolet.model.Node;
 import static monopolyviolet.scenes.Scene.ssX;
 
 /**
@@ -24,34 +26,53 @@ import static monopolyviolet.scenes.Scene.ssX;
  */
 public class DrawCard extends Scene {
 
+	private Node<Button> buttons;
+	private int selected;
+	
 	public DrawCard(Handler main) {
 		super(main, "CARD", false);
+		
+		selected = -1;
+		buttons = new Node();
 	}
 
 	@Override
 	protected void clickEvent(int x, int y) {
 		this.dispose();
-//		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
 
 	@Override
 	protected void moveEvent(int x, int y) {
-//		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
+        int placement = -1;
+        int counter = 0;
+
+        while (counter < buttons.size()) {
+			if (buttons.get(counter).isContained(x, y)) {
+				placement = counter;
+				buttons.get(counter).setHovered(true);
+			} else {
+				buttons.get(counter).setHovered(false);
+			}
+			counter = counter + 1;
+        }
+
+        selected = placement;
 	}
 
 	@Override
 	protected void dragEvent(int x, int y) {
-//		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		
 	}
 
 	@Override
 	protected void pressEvent(int x, int y) {
-//		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
 	}
 
 	@Override
 	protected void releaseEvent(int x, int y) {
-//		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
 	}
 
 	@Override
