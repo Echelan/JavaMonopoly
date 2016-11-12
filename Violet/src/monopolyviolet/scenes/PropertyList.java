@@ -33,16 +33,17 @@ public class PropertyList extends Scene {
     private int currentIndex;
 	private int selected;
     private Node<Button> buttons;
-    
+    private int remDebt;
+    private int totalDebt;
     private Player player;
-    
-    
-    public PropertyList(Handler main, Player player) {
+	
+    public PropertyList(Handler main, Player player, int debt) {
         super(main, "LIST", false);
         
         this.player = player;
         this.selected = -1;
-		
+		this.totalDebt = debt;
+		this.remDebt = this.totalDebt-player.getFunds();
 		buttons = new Node();
 		
         findCurrent();
@@ -51,8 +52,8 @@ public class PropertyList extends Scene {
     }
     
     private void findCurrent() {
-        this.currentIndex = ((Game) main.gameState.get(main.gameState.size()-2)).findPropertyIndexOwnedByPlayer(player.getId(), this.currentIndex);
-        this.currentProperty = ((Game) main.gameState.get(main.gameState.size()-2)).findPropertyOwnedByPlayer(player.getId(), this.currentIndex);
+        this.currentIndex = main.findPropertyIndexOwnedByPlayer(player.getId(), this.currentIndex);
+        this.currentProperty = main.findPropertyOwnedByPlayer(player.getId(), this.currentIndex);
     }
 
     @Override
@@ -110,6 +111,10 @@ public class PropertyList extends Scene {
 	
 	private void updateButtons() {
 		
+		this.remDebt = this.totalDebt-player.getFunds();
+		
+		buttons.get(0).setEnabled(this.remDebt <= 0);
+		
 		if (currentProperty == null) {
 			removeButtons();
 		} else {
@@ -117,7 +122,7 @@ public class PropertyList extends Scene {
 			boolean canSell = currentProperty.getProperty().getNumHouses() == 0;
 			buttons.get(bIndex).setEnabled(canSell);
 
-			bIndex = bIndex+1;
+			bIndex = 2;
 			boolean mortgaged = true;
 			String state = "Get ";
 			if (currentProperty.getProperty().isMortgaged()) {
@@ -127,14 +132,14 @@ public class PropertyList extends Scene {
 			buttons.get(bIndex).setEnabled(mortgaged);
 			buttons.get(bIndex).setText(state+"Mortgage");
 
-			bIndex = bIndex+1;
+			bIndex = 3;
 			boolean canBuy = currentProperty.getProperty().getNumHouses()<5;
 			canBuy = canBuy && currentProperty.getProperty().getBuildingCost() <= player.getFunds();
 			canBuy = canBuy && currentProperty.getProperty().getBuildingCost() > 0;
 			canBuy = canBuy && currentProperty.getProperty().isMonopoly();
 			buttons.get(bIndex).setEnabled(canBuy);
 
-			bIndex = bIndex+1;
+			bIndex = 4;
 			buttons.get(bIndex).setEnabled(currentProperty.getProperty().getNumHouses()>0);
 		}
 	}
@@ -162,6 +167,7 @@ public class PropertyList extends Scene {
 		Button newButton;
 		
 		newButton = new Button(firstX, lastY, width, height+20);
+		newButton.setEnabled(this.remDebt <= 0);
 		newButton.setText("Back to Map");	
 		newButton.setInternalName("BACK");
 		buttons.add(newButton);
@@ -190,6 +196,7 @@ public class PropertyList extends Scene {
 			boolean canBuy = currentProperty.getProperty().getNumHouses()<5;
 			canBuy = canBuy && currentProperty.getProperty().getBuildingCost() >= player.getFunds();
 			canBuy = canBuy && currentProperty.getProperty().isMonopoly();
+			canBuy = canBuy && currentProperty.getProperty().getNumHouses() < main.getMinimumHouses(currentProperty);
 			newButton.setEnabled(canBuy);
 			newButton.setText("Buy House");
 			newButton.setInternalName("BUYH");
@@ -215,11 +222,11 @@ public class PropertyList extends Scene {
 	}
 	
 	private void sellProperty() {
-		player.removeFunds(currentProperty.getProperty().getBuyPrice()/2);
+		player.addFunds(currentProperty.getProperty().getBuyPrice()/2);
 		currentProperty.getProperty().resetOwner();
 		nextProperty();
 		try {
-			((Game) main.gameState.get(main.gameState.size()-2)).buildMapDisplay();
+			main.getGame().buildMapDisplay();
 		} catch (IOException ex) {
 		}
 		
@@ -279,6 +286,20 @@ public class PropertyList extends Scene {
     public BufferedImage getDisplay() throws IOException {
 		BufferedImage display = new BufferedImage(ssX, ssY, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = display.getGraphics();
+		
+		if (this.remDebt > 0) {
+			String text = "You must get $"+this.remDebt;
+			int width = 250;
+			int height = 60;
+			int strokeWidth = 2;
+			Font font = new Font("Arial",Font.BOLD,20);
+			Color strokeColor = Color.black;
+			Color fillColor = Color.white;
+			Color textColor = Color.black;
+			int x = (ssX-width)/2;
+			int y = 30;
+			g.drawImage(genTextRect(text, width, height, strokeWidth, font, strokeColor, fillColor, textColor), x, y, null);
+		}
 		
 		if (currentProperty != null) {
 			BufferedImage propertyCard = currentProperty.getProperty().getPropertyCard();

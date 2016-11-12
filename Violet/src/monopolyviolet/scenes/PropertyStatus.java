@@ -34,7 +34,6 @@ public class PropertyStatus extends Scene {
     private Node<Button> buttons;
     private int selected;
 	private int amount;
-        private int monopolyBonus;
         
     public PropertyStatus(Handler main, Place place, Player player) {
         super(main, "PROPERTY", false);
@@ -68,14 +67,11 @@ public class PropertyStatus extends Scene {
 			newButton.setInternalName("RENT");
 			buttons.add(newButton);
 			
-			Game game = (Game) main.gameState.last();
-			
-			this.owner = game.findPlayerWithID(place.getProperty().getOwner());
+			this.owner = main.findPlayerWithID(place.getProperty().getOwner());
 			this.amount = place.getProperty().getRent();
 			if (place.getType() == Place.UTILITY_TYPE) {
 				this.amount = this.amount * player.getLastRoll();
 			}
-			this.monopolyBonus = game.isMonopoly(place, owner.getId());
 			
 			if (owner == player) {
 				buttons.get(0).setText("Back");
@@ -120,14 +116,14 @@ public class PropertyStatus extends Scene {
 		place.getProperty().setOwnerColor(player.getColor());
 
 		try {
-			((Game) main.gameState.last()).buildMapDisplay();
+			main.getGame().buildMapDisplay();
 		} catch (IOException ex) {
 		}
 	}
 	
 	private void payRent() {
 		
-		main.gameState.add(new PayAmount(main, amount*monopolyBonus, player, owner));
+		main.gameState.add(new HandleAmount(main, amount*place.getProperty().getMonopolyBonus(), player, owner, true));
 
 	}
     

@@ -19,6 +19,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import monopolyviolet.model.Card;
 import monopolyviolet.model.Handler;
 import monopolyviolet.model.Player;
 
@@ -65,20 +66,37 @@ public class DiceRoll extends Scene {
 			player.setLastRoll(player.getRoll());
 			
 			if (player.getDoubleCount() > 2) {
-				((Game) main.gameState.last()).sendJail(player.getId());
+				main.sendJail(player.getId());
 			}
 		} else if (player.isJailed()) {
-			player.setRolledDoubles(false);
-			if (player.getDoubleCount() > 0) {
+			boolean freeJail = false;
+			if (player.getHand().size() > 0) {
+				freeJail = player.getHand().get(0).getActionCode() == Card.FREE_JAIL_ID;
+			}
+			if ( freeJail ) {
 				player.setRoll(roll1+roll2);
 				player.setLastRoll(player.getRoll());
 				player.setJailed(false);
+				Card tempCard = player.getHand().get(0);
+				player.getHand().remove(0);
+				if (tempCard.getCardType() == Card.COMMUNITY_CHEST_ID) {
+					main.getCommunityCard().add(tempCard);
+				} else if (tempCard.getCardType() == Card.CHANCE_ID) {
+					main.getChanceCard().add(tempCard);
+				}
 			} else {
-				player.reduceSentence();
-				if (!player.isJailed()) {
+				player.setRolledDoubles(false);
+				if (player.getDoubleCount() > 0) {
 					player.setRoll(roll1+roll2);
 					player.setLastRoll(player.getRoll());
-					main.gameState.add(new PayAmount(main,50,player,null));
+					player.setJailed(false);
+				} else {
+					player.reduceSentence();
+					if (!player.isJailed()) {
+						player.setRoll(roll1+roll2);
+						player.setLastRoll(player.getRoll());
+						main.gameState.add(new HandleAmount(main, 50, player, null, true));
+					}
 				}
 			}
 		}
@@ -119,7 +137,7 @@ public class DiceRoll extends Scene {
 		if (!threwDice) {
 			this.roll1 = Player.roll(0,1,6);
 			this.roll2 = Player.roll(0,1,6);
-                        
+
 			width = 130;
 			height = 30;
 			

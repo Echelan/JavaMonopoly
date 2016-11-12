@@ -20,7 +20,6 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import monopolyviolet.model.Handler;
 import monopolyviolet.model.Player;
-import static monopolyviolet.scenes.Scene.ssX;
 
 /**
  *
@@ -34,7 +33,7 @@ public class TurnAnnounce extends Scene {
 		super(main, "TURN", false);
 		
 		this.player = player;
-		((Game) main.gameState.get(main.gameState.size()-1)).centerOn(player);
+		main.getGame().centerOn(player);
 	}
 
 	@Override
@@ -45,22 +44,22 @@ public class TurnAnnounce extends Scene {
 
 	@Override
 	protected void moveEvent(int x, int y) {
-//		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
 	}
 
 	@Override
 	protected void dragEvent(int x, int y) {
-//		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
 	}
 
 	@Override
 	protected void pressEvent(int x, int y) {
-//		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
 	}
 
 	@Override
 	protected void releaseEvent(int x, int y) {
-//		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
 	}
 
 	@Override

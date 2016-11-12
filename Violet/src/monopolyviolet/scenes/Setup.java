@@ -31,7 +31,6 @@ import static monopolyviolet.scenes.Scene.ssX;
  */
 public class Setup extends Scene{
 
-	private Node<Player> playerList;
 	private int numPlayers;
 	private final int maxPlayers;
 	private int selected;
@@ -41,8 +40,6 @@ public class Setup extends Scene{
 		super(main, "SETUP", true);
 		
 		buttons = new Node();
-		playerList = new Node();
-		playerList.setCircular(true);
 		
 		selected = -1;
 		maxPlayers = 6;
@@ -62,11 +59,11 @@ public class Setup extends Scene{
 
 	private void addPlayers() {
 		
-		playerList.add(new Player(numPlayers+1));
+		main.getPlayers().add(new Player(numPlayers+1));
 			
 		numPlayers = numPlayers + 1;
 		
-		buttons.last().setText(playerList.last().getName());
+		buttons.last().setText(main.getPlayers().last().getName());
 		buttons.last().setInternalName("PLAYER;"+numPlayers);
 		
 		if (numPlayers < maxPlayers) {
@@ -83,7 +80,7 @@ public class Setup extends Scene{
 
 	private void removePlayers() {
 		
-		playerList.remove(playerList.size()-1);
+		main.getPlayers().remove(main.getPlayers().size()-1);
 			
 		numPlayers = numPlayers - 1;
 		
@@ -167,15 +164,15 @@ public class Setup extends Scene{
 		int highestRoll = 0;
 		int highestID = 0;
 
-		for (int i = 0; i < playerList.size(); i++) {
-			if (highestRoll < playerList.get(i).getRoll()) {
-				highestRoll = playerList.get(i).getRoll();
+		for (int i = 0; i < main.getPlayers().size(); i++) {
+			if (highestRoll < main.getPlayers().get(i).getRoll()) {
+				highestRoll = main.getPlayers().get(i).getRoll();
 				highestID = i;
 			}
 
 		}
 
-		playerList.rotate(highestID);
+		main.getPlayers().rotate(highestID);
                 
 		
 		int pCount = 0;
@@ -183,7 +180,7 @@ public class Setup extends Scene{
 		while (bCount < buttons.size()) {
 			Button thisButton = buttons.get(bCount);
 			if (thisButton.getInternalName().split(";")[0].compareTo("PLAYER") == 0) {
-				Player thisPlayer = playerList.get(pCount);
+				Player thisPlayer = main.getPlayers().get(pCount);
 				thisButton.setInternalName("PLAYER;"+thisPlayer.getId());
 				thisButton.setText(thisPlayer.getName());
 				pCount = pCount + 1;
@@ -195,11 +192,11 @@ public class Setup extends Scene{
 	
 	private void start() {
 		this.dispose();
-		for (int i = 0; i < playerList.size(); i++) {
-			playerList.get(i).setRoll(0);
+		for (int i = 0; i < main.getPlayers().size(); i++) {
+			main.getPlayers().get(i).setRoll(0);
 		}
-		main.gameState.add(new Game(main,playerList));
-		main.gameState.add(new TurnAnnounce(main,playerList.get(0)));
+		main.gameState.add(new Game(main));
+		main.gameState.add(new TurnAnnounce(main,main.getPlayers().get(0)));
 	}
 	
 	@Override
@@ -226,7 +223,7 @@ public class Setup extends Scene{
 		}
 		
 		for (int i = 0; i < numPlayers; i++) {
-			Player thisPlayer = playerList.get(i);
+			Player thisPlayer = main.getPlayers().get(i);
 			
 			if (buttons.get(0).getInternalName().compareTo("START") != 0) {
 				thisPlayer.setRoll(Player.roll(0, 1, 6));

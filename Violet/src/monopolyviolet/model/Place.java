@@ -150,10 +150,6 @@ public class Place {
 		return display;
 	}
 
-	public boolean hasProperty() {
-		return this.type == PROPERTY_TYPE || this.type == RAILROAD_TYPE || this.type == UTILITY_TYPE;
-	}
-	
 	//<editor-fold defaultstate="collapsed" desc="Getters & Setters">
 	
 	/**
@@ -161,6 +157,24 @@ public class Place {
 	 */
 	public Node<Integer> getPlayersHere() {
 		return playersHere;
+	}
+	
+	public boolean hasProperty() {
+		return this.type == PROPERTY_TYPE || this.type == RAILROAD_TYPE || this.type == UTILITY_TYPE;
+	}
+	
+	public boolean hasPlayer(int playerID) {
+		boolean found = false;
+		int i = 0;
+		
+		while (i < playersHere.size() && !found) {
+			if (playersHere.get(i) == playerID) {
+				found = true;
+			}
+			i = i + 1;
+		}
+		
+		return found;
 	}
 	
 	/**

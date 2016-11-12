@@ -12,12 +12,14 @@
  */
 package monopolyviolet.model;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
-import monopolyviolet.data.DataNode;
 
 /**
  *
@@ -25,6 +27,9 @@ import monopolyviolet.data.DataNode;
  */
 public class Card {
     
+	public static Color COMMUNITY_CHEST_COLOR = Color.getHSBColor(210/360f, 39.6f/100f, 85.1f/100f);
+	public static Color CHANCE_COLOR = Color.getHSBColor(0/360f, 39.6f/100f, 85.1f/100f);
+	
     public static int COMMUNITY_CHEST_ID = 1;
     public static int CHANCE_ID = 2;
     
@@ -42,8 +47,8 @@ public class Card {
     private String title;
     private String description;
     private int cardType;
-    private int category;
-	
+    private int actionCode;
+	private Color color;
     private String value;
     
     public Card(int id) {
@@ -51,62 +56,105 @@ public class Card {
     }
     
     private void readInfo(int id) {
-		String value = ((DataNode) monopolyviolet.data.NIC.INFO_CARDS.get(id-1)).getValue();
-        for (int i = 0; i <  value.split(";").length; i++) {
-            if (value.split(";")[i].split("=")[0].compareTo("title")==0) {
-				String wrap =value.split(";")[i].split("=")[1];
-				wrap = wrap.substring(1,  value.split(";")[i].split("=")[1].length()-1);
+		String cardInfo = monopolyviolet.data.NIC.INFO_CARDS.get(id);
+        for (int i = 0; i <  cardInfo.split(";").length; i++) {
+            if (cardInfo.split(";")[i].split("=")[0].compareTo("title")==0) {
+				String wrap =cardInfo.split(";")[i].split("=")[1];
+				wrap = wrap.substring(1,  wrap.length()-1);
                 this.title = wrap;
-            }else if (value.split(";")[i].split("=")[0].compareTo("description")==0) {
-				String wrap =value.split(";")[i].split("=")[1];
-				wrap = wrap.substring(1,  value.split(";")[i].split("=")[1].length()-1);
+            }else if (cardInfo.split(";")[i].split("=")[0].compareTo("description")==0) {
+				String wrap =cardInfo.split(";")[i].split("=")[1];
+				wrap = wrap.substring(1,  wrap.length()-1);
                 this.description = wrap;
-            }else if (value.split(";")[i].split("=")[0].compareTo("id")==0) {
-				String wrap =value.split(";")[i].split("=")[1];
-				wrap = wrap.substring(1,  value.split(";")[i].split("=")[1].length()-1);
+            }else if (cardInfo.split(";")[i].split("=")[0].compareTo("id")==0) {
+				String wrap =cardInfo.split(";")[i].split("=")[1];
+				wrap = wrap.substring(1,  wrap.length()-1);
                 if (wrap.compareTo("COMMUNITY")==0) {
                     this.cardType = COMMUNITY_CHEST_ID;
+					this.color = COMMUNITY_CHEST_COLOR;
                 } else if (wrap.compareTo("CHANCE")==0) {
                     this.cardType = CHANCE_ID;
+					this.color = CHANCE_COLOR;
                 }
-            }else if (value.split(";")[i].split("=")[0].compareTo("flags")==0) {
-				String flags =value.split(";")[i].split("=")[1];
-				flags = flags.substring(1,  value.split(";")[i].split("=")[1].length()-1);
+            }else if (cardInfo.split(";")[i].split("=")[0].compareTo("flags")==0) {
+				String flags =cardInfo.split(";")[i].split("=")[1];
+				flags = flags.substring(1,  flags.length()-1);
                 if (flags.contains("at")) {
-                    this.category = ADVANCE_TO_ID;
+                    this.actionCode = ADVANCE_TO_ID;
                 } else if (flags.contains("ai")) {
-                     this.category = ADVANCE_TO_ID;
+                     this.actionCode = ADVANCE_TO_ID;
                 } else if (flags.contains("a")) {
-                     this.category = ADVANCE_ID;
+                     this.actionCode = ADVANCE_ID;
                 } else if (flags.contains("cp")) {
-                     this.category = COLLECT_ID+PER_PLAYER_ID;
+                     this.actionCode = COLLECT_ID+PER_PLAYER_ID;
                 } else if (flags.contains("c")) {
-                     this.category = COLLECT_ID;
+                     this.actionCode = COLLECT_ID;
                 } else if (flags.contains("pi")) {
-                     this.category = PAY_ID+PER_ITEM_ID;
+                     this.actionCode = PAY_ID+PER_ITEM_ID;
                 } else if (flags.contains("pp")) {
-                     this.category = PAY_ID+PER_PLAYER_ID;
+                     this.actionCode = PAY_ID+PER_PLAYER_ID;
                 } else if (flags.contains("p")) {
-                     this.category = PAY_ID;
+                     this.actionCode = PAY_ID;
                 } else if (flags.contains("fj")) {
-                     this.category = FREE_JAIL_ID;
+                     this.actionCode = FREE_JAIL_ID;
                 }
-            }else if (value.split(";")[i].split("=")[0].compareTo("value")==0) {
-                this.value = value.split(";")[i].split("=")[1];
+            }else if (cardInfo.split(";")[i].split("=")[0].compareTo("value")==0) {
+				String value = cardInfo.split(";")[i].split("=")[1];
+                this.value = value.substring(1,  value.length()-1);
             }
         }
     }
 
-	public BufferedImage getPropertyMap(int rotation) throws IOException {
+	public BufferedImage getCardDisplay() throws IOException {
 		BufferedImage tempStitched = new BufferedImage(507,310, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = tempStitched.getGraphics();
 		
 		int maxX = 507;
 		int maxY = 310;
 		
+		g.setColor(color);
 		g.fillRect(0, 0, maxX, maxY);
-		g.drawImage(ImageIO.read(new File("assets/card.png")), maxX, maxY, 0, 0, null);
+		
+		g.fillRect(0, 0, maxX, maxY);
+		g.drawImage(ImageIO.read(new File("assets/card.png")), 0, 0, null);
 		g.drawString(this.title,maxX/2,20);
+		
+		g.setColor(Color.black);
+		g.setFont(new Font("Arial",Font.BOLD,25));
+		FontMetrics metrics = g.getFontMetrics(g.getFont());
+		int fontX = (507 - metrics.stringWidth(title)) / 2;
+		int fontY = ((80 - metrics.getHeight()) / 2) + metrics.getAscent();
+		g.drawString(title, fontX, fontY);
+		
+		g.setFont(new Font("Arial",Font.PLAIN,20));
+		metrics = g.getFontMetrics(g.getFont());
+		
+		if (metrics.stringWidth(description) > 300) {
+			int max = (int) Math.ceil(metrics.stringWidth(description)/400);
+			int startIndex = 0;
+			int endIndex = 0;
+			
+			for (int i = 0; i < max+1; i++) {
+				String line = description.substring(startIndex,endIndex);
+				while (metrics.stringWidth(line) < 400 && endIndex < description.length()) {
+					endIndex = endIndex+1;
+					line = description.substring(startIndex, endIndex);
+				}
+				line = description.substring(startIndex, endIndex);
+				
+				fontX = (507 - metrics.stringWidth(line)) / 2;
+				fontY = ((75 - metrics.getHeight()) / 2) + metrics.getAscent();
+
+				g.drawString(line, fontX, fontY+80+(30*(i+1)));
+				startIndex = endIndex;
+			}
+			
+		} else {
+			fontX = (507 - metrics.stringWidth(description)) / 2;
+			fontY = ((75 - metrics.getHeight()) / 2) + metrics.getAscent();
+
+			g.drawString(description, fontX, fontY+80);
+		}
 		
 		return tempStitched;
 	}
@@ -128,18 +176,18 @@ public class Card {
     }
 
     /**
-     * @return the cardType
+     * @return the actionCode - action codes
      */
-    public int getCardType() {
-        return cardType;
+    public int getActionCode() {
+        return actionCode;
     }
-
-    /**
-     * @return the category
-     */
-    public int getCategory() {
-        return category;
-    }
+	
+	/**
+	 * @return the cardType - Community / Chance
+	 */
+	public int getCardType() {
+		return cardType;
+	}
 
     /**
      * @return the value
@@ -148,6 +196,13 @@ public class Card {
         return value;
     }
     
+	/**
+	 * @return the color
+	 */
+	public Color getColor() {
+		return color;
+	}
+
 	//</editor-fold>
-	
+
 }

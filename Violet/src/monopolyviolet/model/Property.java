@@ -21,7 +21,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
-import monopolyviolet.data.DataNode;
 
 /**
  *
@@ -50,28 +49,30 @@ public class Property {
 	private Color color;
 	private String ownerName;
 	private boolean mortgaged;
+	private int monopolyBonus;
 		
-	public Property(int id, int special) {
+	public Property(int id, boolean special) {
+		this.monopolyBonus = 1;
 		this.mortgaged = false;
 		this.id = id;
 		this.numHouses = 0;
 		this.owner = -1;
 		this.ownerColor = Color.gray;
 		this.ownerName = "";
-		readInfo(this.id,special==1);
+		readInfo(this.id,special);
 	}
 	
 	private void readInfo(int id, boolean special) {
 		String value;
 		if (special) {
-			value = ((DataNode) monopolyviolet.data.NIC.INFO_SPECIALS.get(id)).getValue();
+			value = monopolyviolet.data.NIC.INFO_SPECIALS.get(id);
 		} else {
-			value = ((DataNode) monopolyviolet.data.NIC.INFO_PROPERTIES.get(id)).getValue();
+			value = monopolyviolet.data.NIC.INFO_PROPERTIES.get(id);
 		}
         for (int i = 0; i < value.split(";").length; i++) {
             if (value.split(";")[i].split("=")[0].compareTo("name")==0) {
 				String wrap =value.split(";")[i].split("=")[1];
-				wrap = wrap.substring(1,  value.split(";")[i].split("=")[1].length()-1);
+				wrap = wrap.substring(1,  wrap.length()-1);
 				this.name = wrap;
             }else if (value.split(";")[i].split("=")[0].compareTo("price")==0) {
 				this.buyPrice = Integer.parseInt(value.split(";")[i].split("=")[1]);
@@ -83,7 +84,7 @@ public class Property {
 				this.rentChanges = value.split(";")[i].split("=")[1];
             }else if (value.split(";")[i].split("=")[0].compareTo("color")==0) {
 				String wrap =value.split(";")[i].split("=")[1];
-				wrap = wrap.substring(1,  value.split(";")[i].split("=")[1].length()-1);
+				wrap = wrap.substring(1,  wrap.length()-1);
 				switch (wrap) {
 					case "PINK":
 						this.color = PROPERTY_PINK;
@@ -141,18 +142,6 @@ public class Property {
 		g.fillOval((154/2)-(diam/2), (225/2)-(diam/2)+20, diam, diam);
 		
 		return display;
-	}
-	
-	public boolean isMonopoly() {
-		monopolyviolet.scenes.Game game = null;
-		
-		for (int i = 0; i < Handler.gameState.size(); i++) {
-			if (Handler.gameState.get(i) instanceof monopolyviolet.scenes.Game) {
-				game = (monopolyviolet.scenes.Game) Handler.gameState.get(i);
-			}
-		}
-		
-		return (game.isMonopoly(this, this.owner) != 1 && this.owner != -1);
 	}
 	
 	public BufferedImage getPropertyCard() throws IOException {
@@ -242,6 +231,27 @@ public class Property {
 	}
 
 	//<editor-fold defaultstate="collapsed" desc="Getters & Setters">
+	
+	/**
+	 * @return the monopoly
+	 */
+	public boolean isMonopoly() {
+		return getMonopolyBonus() != 1;
+	}
+
+	/**
+	 * @return the monopolyBonus
+	 */
+	public int getMonopolyBonus() {
+		return monopolyBonus;
+	}
+
+	/**
+	 * @param monopolyBonus the monopolyBonus to set
+	 */
+	public void setMonopolyBonus(int monopolyBonus) {
+		this.monopolyBonus = monopolyBonus;
+	}
 	
 	/**
 	 * @return the color
@@ -391,5 +401,6 @@ public class Property {
 	}
 	
 	//</editor-fold>
+
 
 }
