@@ -37,9 +37,11 @@ public class PropertyList extends Scene {
     private int totalDebt;
     private Player player;
 	private boolean softPayment;
+	private boolean waitingHouseBuyToggle;
 	
     public PropertyList(Handler main, Player player, int debt, boolean softPayment) {
         super(main, "LIST", false);
+		this.waitingHouseBuyToggle = false;
 		
 		this.softPayment = softPayment;
         this.player = player;
@@ -55,6 +57,7 @@ public class PropertyList extends Scene {
 	
     public PropertyList(Handler main, Player player, int debt) {
         super(main, "LIST", false);
+		this.waitingHouseBuyToggle = false;
 		
 		this.softPayment = true;
         this.player = player;
@@ -112,13 +115,28 @@ public class PropertyList extends Scene {
 		main.gameState.add(new HandleAmount(main, currentProperty.getProperty().getBuildingCost()/2, player, null, false));
 		currentProperty.getProperty().setNumHouses(currentProperty.getProperty().getNumHouses()-1);
 		
+		try {
+			main.getGame().buildMapDisplay();
+		} catch (IOException ex) {
+		}
+		
 		updateButtons();
+	}
+	
+	public void boughtHouse() {
+		if (waitingHouseBuyToggle) {
+			currentProperty.getProperty().setNumHouses(currentProperty.getProperty().getNumHouses()+1);
+
+			try {
+				main.getGame().buildMapDisplay();
+			} catch (IOException ex) {
+			}
+		}
 	}
 	
 	private void buyHouse() {
 		main.gameState.add(new HandleAmount(main, currentProperty.getProperty().getBuildingCost(), player, null, true, true));
-		currentProperty.getProperty().setNumHouses(currentProperty.getProperty().getNumHouses()+1);
-		
+		waitingHouseBuyToggle = true;
 		updateButtons();
 	}
 	
@@ -266,11 +284,13 @@ public class PropertyList extends Scene {
 		main.gameState.add(new HandleAmount(main, currentProperty.getProperty().getBuyPrice()/2, player, null, false));
 		currentProperty.getProperty().resetOwner();
 		nextProperty();
+		
 		try {
 			main.getGame().buildMapDisplay();
 		} catch (IOException ex) {
 		}
 		main.refreshMonopolies();
+		
 		updateButtons();
 	}
 	
@@ -342,6 +362,10 @@ public class PropertyList extends Scene {
 			g.drawImage(genTextRect(text, width, height, strokeWidth, font, strokeColor, fillColor, textColor), x, y, null);
 		}
 
+		if (waitingHouseBuyToggle) {
+			waitingHouseBuyToggle = false;
+		}
+		
 		if (currentProperty != null) {
 			BufferedImage propertyCard = currentProperty.getProperty().getPropertyCard();
 			g.drawImage(propertyCard, ssX-10-propertyCard.getWidth(), ((ssY-propertyCard.getHeight())/2)-50, null);

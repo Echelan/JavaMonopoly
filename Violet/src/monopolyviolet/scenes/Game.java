@@ -18,6 +18,7 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Random;
 import javax.imageio.ImageIO;
 import monopolyviolet.model.Button;
 import monopolyviolet.model.Handler;
@@ -43,7 +44,7 @@ public class Game extends Scene{
 	private boolean updatable;
 
     private Node<Button> buttons;
-
+	private boolean dragging;
     private int xDisplace;
     private int yDisplace;
     private int xDisplaceLast;
@@ -94,24 +95,26 @@ public class Game extends Scene{
     }
 
     public void centerOn(Player search) {
-		int xPos = (int) ((main.findPlaceWithPlayerWithID(search.getId()).getX()+(search.getId()*8)) * Handler.ZOOM);
-		int yPos = (int) (main.findPlaceWithPlayerWithID(search.getId()).getY() * Handler.ZOOM);
+		if (!this.dragging) {
+			int xPos = (int) ((main.findPlaceWithPlayerWithID(search.getId()).getX()+(search.getId()*8)) * Handler.ZOOM);
+			int yPos = (int) (main.findPlaceWithPlayerWithID(search.getId()).getY() * Handler.ZOOM);
 
-		xPos = xPos * -1;
-		yPos = yPos * -1;
-		
-		xPos = xPos + (ssX/2) - 35;
-		yPos = yPos + (ssY/2) - 120;
-		
-		boolean longCondition = main.findPlaceWithPlayerWithID(search.getId()).hasProperty();
-		longCondition = longCondition && search == main.getPlayers().get(0);
-		longCondition = longCondition && search.getRoll() == 0;
-		if ( longCondition ) {
-			buttons.get(1).setInternalName("REOPEN");
+			xPos = xPos * -1;
+			yPos = yPos * -1;
+
+			xPos = xPos + (ssX/2) - 35;
+			yPos = yPos + (ssY/2) - 120;
+
+			boolean longCondition = main.findPlaceWithPlayerWithID(search.getId()).hasProperty();
+			longCondition = longCondition && search == main.getPlayers().get(0);
+			longCondition = longCondition && search.getRoll() == 0;
+			if ( longCondition ) {
+				buttons.get(1).setInternalName("REOPEN");
+			}
+
+			xDisplace = xPos;
+			yDisplace = yPos;
 		}
-		
-		xDisplace = xPos;
-		yDisplace = yPos;
     }
 
 	protected void mapAction(Place place, Player player) {
@@ -122,10 +125,20 @@ public class Game extends Scene{
 		} else if (place.getType() == Place.GOJAIL_TYPE) {
 			main.sendJail(player.getId());
 		} else if (place.getType() == Place.CHANCE_TYPE) {
-			main.getChanceCard().rotate(1);
+			int rotations = new Random().nextInt(5);
+			do {
+				main.getChanceCard().rotate(1);
+				rotations = rotations - 1;
+			} while (rotations > 0);
+			
 			main.gameState.add(new DrawCard(main,player,main.getChanceCard().get(0)));
 		} else if (place.getType() == Place.COMMUNITY_TYPE) {
-			main.getCommunityCard().rotate(1);
+			int rotations = new Random().nextInt(5);
+			do {
+				main.getCommunityCard().rotate(1);
+				rotations = rotations - 1;
+			} while (rotations > 0);
+			
 			main.gameState.add(new DrawCard(main,player,main.getCommunityCard().get(0)));
 		}
 		centerOn(player);
@@ -197,6 +210,7 @@ public class Game extends Scene{
 	
 	@Override
 	protected void dragEvent(int x, int y) {
+		this.dragging = true;
 		xDisplace = xDisplaceLast + ((x-xBegin)*DRAG_STRENGTH);
 		yDisplace = yDisplaceLast + ((y-yBegin)*DRAG_STRENGTH);
 		buttons.get(1).setInternalName("CENTER");
@@ -205,6 +219,7 @@ public class Game extends Scene{
 
 	@Override
 	protected void pressEvent(int x, int y) {
+		this.dragging = true;
 		xDisplaceLast = xDisplace;
 		yDisplaceLast = yDisplace;
 		xBegin = x;
@@ -213,6 +228,7 @@ public class Game extends Scene{
 
 	@Override
 	protected void releaseEvent(int x, int y) {
+		this.dragging = false;
 		xDisplace = xDisplaceLast + ((x-xBegin)*DRAG_STRENGTH);
 		yDisplace = yDisplaceLast + ((y-yBegin)*DRAG_STRENGTH);
 		checkDisplace();
@@ -345,7 +361,19 @@ public class Game extends Scene{
 			g.drawImage(main.getPlayers().get(i).getPiece(), xPos + 10, yPos + 10, (int) (main.getPlayers().get(i).getPiece().getWidth()*Handler.ZOOM), (int)(main.getPlayers().get(i).getPiece().getHeight()*Handler.ZOOM),null);
 		}
 		
-		if (!main.getPlayers().get(0).isBankrupt()) {
+		if (main.getPlayers().get(0).isBankrupt()) {
+			String text = "You are bankrupt.";
+			int width = 300;
+			int height = 70;
+			int strokeWidth = 4;
+			Font font = new Font("Arial",Font.BOLD,20);
+			Color strokeColor = main.getPlayers().get(0).getColor();
+			Color fillColor = Color.white;
+			Color textColor = Color.black;
+			int x = (ssX-width)/2;
+			int y = (ssY-height)/2;
+			g.drawImage(genTextRect(text, width, height, strokeWidth, font, strokeColor, fillColor, textColor), x, y, null);
+		} else {
 			g.drawImage(genTextRect("$"+main.getPlayers().get(0).getFunds(), 110, 40, 2, new Font("Arial",Font.BOLD,20), main.getPlayers().get(0).getColor(), Color.white, Color.black),5,ssY-45,null);
 		}
 		

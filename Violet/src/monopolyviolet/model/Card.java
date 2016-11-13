@@ -133,7 +133,7 @@ public class Card {
 			
 			for (int i = 0; i < max+1; i++) {
 				String line = title.substring(startIndex,endIndex);
-				while (metrics.stringWidth(line) < 400 && endIndex < description.length()) {
+				while (metrics.stringWidth(line) < 400 && endIndex < title.length()) {
 					endIndex = endIndex+1;
 					line = title.substring(startIndex, endIndex);
 				}

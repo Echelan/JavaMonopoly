@@ -12,6 +12,7 @@
  */
 package monopolyviolet.model;
 
+import java.io.IOException;
 import monopolyviolet.scenes.EndGame;
 import monopolyviolet.scenes.Game;
 import monopolyviolet.scenes.Scene;
@@ -219,21 +220,24 @@ public class Handler {
     }
 
     public void nextTurn() {
+		boolean won = false;
 		if (players.get(0).isBankrupt()) {
 			do {
 				players.rotate(1);
 			} while (players.get(0).isBankrupt());
 		} else {
 			if (!players.get(0).isRolledDoubles()) {
+				int id = players.get(0).getId();
 				do {
 					players.rotate(1);
 				} while (players.get(0).isBankrupt());
+				won = id == players.get(0).getId();
 			} else {
 				players.get(0).setRolledDoubles(false);
 			}
 		}
 		
-		if (players.size() != 1) {
+		if (!won) {
 			gameState.add(new TurnAnnounce(this,players.get(0)));
 		} else {
 			gameState.add(new EndGame(this,players.get(0)));
@@ -574,6 +578,11 @@ public class Handler {
 			}
 		}
 		
+		try {
+			getGame().buildMapDisplay();
+		} catch (IOException ex) {
+		}
+		refreshMonopolies();
 	}
 	
 	//<editor-fold defaultstate="collapsed" desc="Getters & Setters">

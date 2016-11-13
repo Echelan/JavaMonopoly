@@ -132,6 +132,7 @@ public class HandleAmount extends Scene {
 			}
 		}
 		if (main.gameState.last() instanceof PropertyList) {
+			((PropertyList) main.gameState.last()).boughtHouse();
 			((PropertyList) main.gameState.last()).updateButtons();
 		} else if (main.gameState.last() instanceof PropertyStatus) {
 			((PropertyStatus) main.gameState.last()).bought();
