@@ -117,19 +117,48 @@ public class Card {
 		
 		g.fillRect(0, 0, maxX, maxY);
 		g.drawImage(ImageIO.read(new File("assets/card.png")), 0, 0, null);
-		g.drawString(this.title,maxX/2,20);
 		
 		g.setColor(Color.black);
 		g.setFont(new Font("Arial",Font.BOLD,25));
 		FontMetrics metrics = g.getFontMetrics(g.getFont());
-		int fontX = (507 - metrics.stringWidth(title)) / 2;
-		int fontY = ((80 - metrics.getHeight()) / 2) + metrics.getAscent();
-		g.drawString(title, fontX, fontY);
+		
+		int fontX;
+		int fontY;
+		
+		if (metrics.stringWidth(title) > 400) {
+			
+			int max = (int) Math.ceil(metrics.stringWidth(title)/400);
+			int startIndex = 0;
+			int endIndex = 0;
+			
+			for (int i = 0; i < max+1; i++) {
+				String line = title.substring(startIndex,endIndex);
+				while (metrics.stringWidth(line) < 400 && endIndex < description.length()) {
+					endIndex = endIndex+1;
+					line = title.substring(startIndex, endIndex);
+				}
+				line = title.substring(startIndex, endIndex);
+				
+				fontX = (507 - metrics.stringWidth(line)) / 2;
+				fontY = ((80 - metrics.getHeight()) / 2) + metrics.getAscent();
+
+				g.drawString(line, fontX, fontY+(40*i));
+				startIndex = endIndex;
+			}
+			
+		} else {
+			
+			fontX = (507 - metrics.stringWidth(title)) / 2;
+			fontY = ((80 - metrics.getHeight()) / 2) + metrics.getAscent();
+			g.drawString(title, fontX, fontY);
+			
+		}
 		
 		g.setFont(new Font("Arial",Font.PLAIN,20));
 		metrics = g.getFontMetrics(g.getFont());
 		
-		if (metrics.stringWidth(description) > 300) {
+		if (metrics.stringWidth(description) > 400) {
+			
 			int max = (int) Math.ceil(metrics.stringWidth(description)/400);
 			int startIndex = 0;
 			int endIndex = 0;
@@ -145,15 +174,17 @@ public class Card {
 				fontX = (507 - metrics.stringWidth(line)) / 2;
 				fontY = ((75 - metrics.getHeight()) / 2) + metrics.getAscent();
 
-				g.drawString(line, fontX, fontY+80+(30*(i+1)));
+				g.drawString(line, fontX, fontY+110+(30*(i+1)));
 				startIndex = endIndex;
 			}
 			
 		} else {
+			
 			fontX = (507 - metrics.stringWidth(description)) / 2;
 			fontY = ((75 - metrics.getHeight()) / 2) + metrics.getAscent();
 
-			g.drawString(description, fontX, fontY+80);
+			g.drawString(description, fontX, fontY+110);
+			
 		}
 		
 		return tempStitched;

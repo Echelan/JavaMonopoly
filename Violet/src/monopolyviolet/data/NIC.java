@@ -27,21 +27,25 @@ public abstract class NIC {
 		/**
 		 * Main data for Properties.
 		 */
-		public static Node<String> INFO_PROPERTIES = new Node();
+		public static Node<String> INFO_PROPERTIES;
 		/**
 		 * Main data for Cards.
 		 */
-		public static Node<String> INFO_CARDS = new Node();
+		public static Node<String> INFO_CARDS;
 		/**
 		 * Main data for Special Properties.
 		 */
-		public static Node<String> INFO_SPECIALS = new Node();
+		public static Node<String> INFO_SPECIALS;
 	//</editor-fold>
 
 	//<editor-fold defaultstate="collapsed" desc="Static Images">
 	//</editor-fold>
 		
 	public static void loadAllData() {
+		
+		INFO_PROPERTIES = new Node();
+		INFO_CARDS = new Node();
+		INFO_SPECIALS = new Node();
 		
 		try {
 			loadImages();
@@ -79,6 +83,14 @@ public abstract class NIC {
 		for (int i = 0; i < Files.readAllLines(archivo.toPath()).size(); i++) {
 			INFO_SPECIALS.add(Files.readAllLines(archivo.toPath()).get(i));
 		}
+	}
+	
+	public static void clearAllData() {
+		
+		INFO_PROPERTIES = null;
+		INFO_CARDS = null;
+		INFO_SPECIALS = null;
+		
 	}
 	
 }

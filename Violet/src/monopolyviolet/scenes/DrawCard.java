@@ -98,7 +98,7 @@ public class DrawCard extends Scene {
 		} else if (card.getActionCode() == Card.PAY_ID) {
 			
 			int amount = Integer.parseInt(card.getValue());
-			main.gameState.add(new HandleAmount(main, amount, player, null, true));
+			main.gameState.add(new HandleAmount(main, amount, player, null, true, false));
 			
 		} else if (card.getActionCode() == Card.PAY_ID+Card.PER_ITEM_ID) {
 			
@@ -106,13 +106,13 @@ public class DrawCard extends Scene {
 			int amountHotels = main.getNumHotelsFromPlayer(player);
 			amountHouses = amountHouses * Integer.parseInt(card.getValue().split(",")[0]);
 			amountHotels = amountHotels * Integer.parseInt(card.getValue().split(",")[1]);
-			main.gameState.add(new HandleAmount(main, amountHotels+amountHouses, player, null, true));
+			main.gameState.add(new HandleAmount(main, amountHotels+amountHouses, player, null, true, false));
 			
 		} else if (card.getActionCode() == Card.PAY_ID+Card.PER_PLAYER_ID) {
 			
 			int amount = Integer.parseInt(card.getValue());
 			for (int i = 1; i < main.getPlayers().size(); i++) {
-				main.gameState.add(new HandleAmount(main, amount, player, main.getPlayers().get(i), true));
+				main.gameState.add(new HandleAmount(main, amount, player, main.getPlayers().get(i), true, false));
 			}
 			
 		} else if (card.getActionCode() == Card.COLLECT_ID) {

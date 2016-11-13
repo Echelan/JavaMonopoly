@@ -23,7 +23,6 @@ import monopolyviolet.model.Button;
 import monopolyviolet.model.Handler;
 import monopolyviolet.model.Node;
 import monopolyviolet.model.Player;
-import static monopolyviolet.scenes.Scene.ssX;
 
 /**
  *
@@ -79,20 +78,21 @@ public class Setup extends Scene{
 	}
 
 	private void removePlayers() {
-		
-		main.getPlayers().remove(main.getPlayers().size()-1);
-			
-		numPlayers = numPlayers - 1;
-		
-		if (buttons.last().getInternalName().split(";")[0].compareTo("ADD") == 0) {
-			buttons.remove(buttons.size()-1);
-		}
-		
-		buttons.last().setText("Add Player "+(numPlayers+1));
-		buttons.last().setInternalName("ADD;"+(numPlayers+1));
-		
-		if (numPlayers < 2) {
-			buttons.get(0).setEnabled(false);
+		if (buttons.get(0).getInternalName().compareTo("ROLLS") == 0) {
+			main.getPlayers().remove(main.getPlayers().size()-1);
+
+			numPlayers = numPlayers - 1;
+
+			if (buttons.last().getInternalName().split(";")[0].compareTo("ADD") == 0) {
+				buttons.remove(buttons.size()-1);
+			}
+
+			buttons.last().setText("Add Player "+(numPlayers+1));
+			buttons.last().setInternalName("ADD;"+(numPlayers+1));
+
+			if (numPlayers < 2) {
+				buttons.get(0).setEnabled(false);
+			}
 		}
 	}
 
@@ -173,7 +173,6 @@ public class Setup extends Scene{
 		}
 
 		main.getPlayers().rotate(highestID);
-                
 		
 		int pCount = 0;
 		int bCount = 0;

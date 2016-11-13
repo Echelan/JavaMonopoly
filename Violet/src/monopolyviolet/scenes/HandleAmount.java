@@ -35,16 +35,18 @@ public class HandleAmount extends Scene {
 	private Node<Button> buttons;
 	private int selected;
 	private boolean creationPending;
+	private boolean softPayment;
 	
-	public HandleAmount(Handler main, int amount, Player subject1, Player subject2, boolean isPayment) {
+	public HandleAmount(Handler main, int amount, Player subject1, Player subject2, boolean isPayment, boolean softPayment) {
 		super(main, "PAY/COLLECT", false);
 		
 		this.buttons = new Node();
 		
 		this.isPayment = isPayment;
+		this.softPayment = softPayment;
 		this.amount = amount;
-		this.subject2 = subject2;
 		this.subject1 = subject1;
+		this.subject2 = subject2;
 		this.selected = -1;
 		this.creationPending = false;
 		
@@ -57,7 +59,39 @@ public class HandleAmount extends Scene {
 					this.creationPending = true;
 				} else {
 					this.subject1.setBankrupt(true);
-					this.dispose();
+					main.sellAll(this.subject1);
+				}
+			}
+		} else {
+			newButton.setText("Collect $"+amount);
+			newButton.setInternalName("OK");
+		}
+		buttons.add(newButton);
+		
+	}
+	
+	public HandleAmount(Handler main, int amount, Player subject1, Player subject2, boolean isPayment) {
+		super(main, "PAY/COLLECT", false);
+		
+		this.buttons = new Node();
+		
+		this.isPayment = isPayment;
+		this.softPayment = false;
+		this.amount = amount;
+		this.subject1 = subject1;
+		this.subject2 = subject2;
+		this.selected = -1;
+		this.creationPending = false;
+		
+		Button newButton = new Button((ssX-240)/2,(ssY-180),240,80);
+		if (isPayment) {
+			newButton.setText("Pay $"+amount);
+			newButton.setInternalName("OK");
+			if (this.subject1.getFunds() < amount) {
+				if (main.getPlayerWorth(this.subject1) >= amount) {
+					this.creationPending = true;
+				} else {
+					this.subject1.setBankrupt(true);
 					main.sellAll(this.subject1);
 				}
 			}
@@ -90,11 +124,17 @@ public class HandleAmount extends Scene {
 			if (subject2 != null) {
 				subject2.addFunds(amount);
 			}
+			
 		} else {
 			subject1.addFunds(amount);
 			if (subject2 != null) {
 				subject2.removeFunds(amount);
 			}
+		}
+		if (main.gameState.last() instanceof PropertyList) {
+			((PropertyList) main.gameState.last()).updateButtons();
+		} else if (main.gameState.last() instanceof PropertyStatus) {
+			((PropertyStatus) main.gameState.last()).bought();
 		}
 	}
 
@@ -136,46 +176,49 @@ public class HandleAmount extends Scene {
 		BufferedImage display = new BufferedImage(ssX, ssY, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = display.getGraphics();
 		
-		if (this.creationPending) {
-			this.creationPending = false;
-			main.gameState.add(new PropertyList(main, subject1, amount));
+		if (subject1.isBankrupt()) {
+			this.dispose();
 		}
 		
-		if (main.gameState.last() == this) {
-			int counter = 0;
-			while (counter < buttons.size()) {
-				Button thisButton = buttons.get(counter);
-				g.drawImage(thisButton.getDisplay(),thisButton.getX(),thisButton.getY(), null);
-				counter = counter + 1;
-			}
-			
-			String text = subject1.getName();
-			int width = 300;
-			int height = 40;
-			int strokeWidth = 2;
-			Font font = new Font("Arial",Font.BOLD,20);
-			Color strokeColor = subject1.getColor();
-			Color fillColor = Color.white;
-			Color textColor = Color.black;
-			int x = (ssX-width)/2;
-			int y = 50;
-			g.drawImage(genTextRect(text, width, height, strokeWidth, font, strokeColor, fillColor, textColor), x, y, null);
-			String description;
-			if (!this.isPayment) {
-				description = "Collecting from ";
-			} else {
-				description = "Paying ";
-			}
-			if (subject2 != null) {
-				text = description + subject2.getName();
-				strokeColor = subject2.getColor();
-			} else {
-				text = description+"the bank";
-				strokeColor = Color.black;
-			}
-			y = y + 50;
-			g.drawImage(genTextRect(text, width, height, strokeWidth, font, strokeColor, fillColor, textColor), x, y, null);
+		if (this.creationPending) {
+			this.creationPending = false;
+			main.gameState.add(new PropertyList(main, subject1, amount, softPayment));
 		}
+		
+		int counter = 0;
+		while (counter < buttons.size()) {
+			Button thisButton = buttons.get(counter);
+			g.drawImage(thisButton.getDisplay(),thisButton.getX(),thisButton.getY(), null);
+			counter = counter + 1;
+		}
+
+		String text = subject1.getName();
+		int width = 300;
+		int height = 40;
+		int strokeWidth = 2;
+		Font font = new Font("Arial",Font.BOLD,20);
+		Color strokeColor = subject1.getColor();
+		Color fillColor = Color.white;
+		Color textColor = Color.black;
+		int x = (ssX-width)/2;
+		int y = 50;
+		g.drawImage(genTextRect(text, width, height, strokeWidth, font, strokeColor, fillColor, textColor), x, y, null);
+		
+		String description;
+		if (!this.isPayment) {
+			description = "Collecting from ";
+		} else {
+			description = "Paying ";
+		}
+		if (subject2 != null) {
+			text = description + subject2.getName();
+			strokeColor = subject2.getColor();
+		} else {
+			text = description+"the bank";
+			strokeColor = Color.black;
+		}
+		y = y + 50;
+		g.drawImage(genTextRect(text, width, height, strokeWidth, font, strokeColor, fillColor, textColor), x, y, null);
 		
 		return display;
 	}

@@ -141,6 +141,19 @@ public class Property {
 		g.setColor(this.ownerColor);
 		g.fillOval((154/2)-(diam/2), (225/2)-(diam/2)+20, diam, diam);
 		
+		if (this.numHouses == 5) {
+			int width = 50;
+			int height = 50;
+			g.drawImage(ImageIO.read(new File("assets/icons/hotel.png")), (maxX-width)/2, 4, width, height, null);
+		} else {
+			int width = 50;
+			int height = 50;
+			
+			for (int i = 0; i < numHouses; i++) {
+				g.drawImage(ImageIO.read(new File("assets/icons/house.png")), 11+(i*(width*4/6)), 4, width, height, null);	
+			}
+		}
+		
 		return display;
 	}
 	
@@ -156,6 +169,11 @@ public class Property {
 		g.fillRect(0, 0, maxX, 75);
 		g.drawImage(ImageIO.read(new File("assets/propertyCard.png")), 0, 0, maxX, maxY, null);
 		
+		if (this.isMonopoly()) {
+			int dim = 193/3;
+			g.drawImage(ImageIO.read(new File("assets/icons/monopoly.png")), (maxX-dim)/2, 8, dim, dim, null);
+		}
+
 		g.setFont(new Font("Arial",Font.BOLD,20));
 		FontMetrics metrics = g.getFontMetrics(g.getFont());
 		int fontX = (246 - metrics.stringWidth(this.name)) / 2;
@@ -164,34 +182,35 @@ public class Property {
 		g.setColor(Color.BLACK);
 		g.drawString(this.name, fontX,fontY);
 		
-		if (this.isMonopoly()) {
-			String line = "Monopoly";
-			g.setFont(new Font("Arial",Font.PLAIN,20));
-			metrics = g.getFontMetrics(g.getFont());
-			fontX = (246 - metrics.stringWidth(line)) / 2;
-			fontY = ((75 - metrics.getHeight()) / 2) + metrics.getAscent();
-
-			g.setColor(Color.green);
-			g.drawString(line, fontX, fontY-20);
+		if (this.mortgaged) {
+			int dim = (int) (193/1.5f);
+			g.drawImage(ImageIO.read(new File("assets/icons/mortgage.png")), (maxX-dim)/2, ((maxY-dim)/2)+70, dim, dim, null);
 		}
 		
-		if (this.mortgaged) {
-			String line = "Mortgaged!";
-			g.setFont(new Font("Arial",Font.BOLD,15));
-			metrics = g.getFontMetrics(g.getFont());
-			fontX = (246 - metrics.stringWidth(line)) / 2;
-			fontY = ((75 - metrics.getHeight()) / 2) + metrics.getAscent();
-
-			g.setColor(Color.red);
-			g.drawString(line, fontX, fontY+20);
+		if (this.numHouses == 5) {
+			int width = 50;
+			int height = 50;
+			g.drawImage(ImageIO.read(new File("assets/icons/hotel.png")), (maxX-width)/2, maxY-height-10, width, height, null);
+		} else {
+			int width = 50;
+			int height = 50;
+			
+			for (int i = 0; i < numHouses; i++) {
+				g.drawImage(ImageIO.read(new File("assets/icons/house.png")), (int) ((maxX/2) + ((i-2.5)*(width*4/6))), maxY-height-10, width, height, null);	
+			}
 		}
 		
 		g.setColor(Color.black);
 		
 		int x = (int) (maxX*0.08f);
-		g.setFont(new Font("Arial",Font.PLAIN,15));
+		if (this.owner == -1) {
+			g.setFont(new Font("Arial",Font.BOLD,15));
+		} else {
+			g.setFont(new Font("Arial",Font.PLAIN,15));
+		}
 		g.drawString("Buy Price: $"+this.buyPrice, x, 115);
 		
+		g.setFont(new Font("Arial",Font.PLAIN,15));
 		if (this.buildingCost != 0) {
 			g.drawString("Building Cost: $"+this.buildingCost, x, 140);
 
@@ -220,6 +239,7 @@ public class Property {
 			
 		}
 		
+		g.setFont(new Font("Arial",Font.PLAIN,15));
 		String description = "No owner";
 		if (this.owner != -1) {
 			g.setColor(this.ownerColor);
@@ -341,18 +361,14 @@ public class Property {
 	 * @return the mortgage
 	 */
 	public int getMortgage() {
-		return this.rent/2;
+		return this.buyPrice/2;
 	}
 	
 	/**
 	 * @return the mortgage interest
 	 */
 	public int getMortgageInterest() {
-		float value = this.rent;
-		value = value / 2f;
-		value = value * 1.1f;
-		
-		return (int) value;
+		return (int) (getMortgage()*1.1f);
 	}
 
 	/**

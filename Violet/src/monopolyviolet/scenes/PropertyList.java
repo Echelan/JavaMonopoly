@@ -36,10 +36,27 @@ public class PropertyList extends Scene {
     private int remDebt;
     private int totalDebt;
     private Player player;
+	private boolean softPayment;
+	
+    public PropertyList(Handler main, Player player, int debt, boolean softPayment) {
+        super(main, "LIST", false);
+		
+		this.softPayment = softPayment;
+        this.player = player;
+        this.selected = -1;
+		this.totalDebt = debt;
+		this.remDebt = this.totalDebt-player.getFunds();
+		buttons = new Node();
+		
+        findCurrent();
+		
+		createButtons();
+    }
 	
     public PropertyList(Handler main, Player player, int debt) {
         super(main, "LIST", false);
-        
+		
+		this.softPayment = true;
         this.player = player;
         this.selected = -1;
 		this.totalDebt = debt;
@@ -58,13 +75,19 @@ public class PropertyList extends Scene {
 
     @Override
     protected void clickEvent(int x, int y) {
-		
+		updateButtons();
 		if (selected != -1) {
 			if (buttons.get(selected).isEnabled()) {
 				String internalName = buttons.get(selected).getInternalName();
 				
 				if (internalName.compareTo("BACK") == 0) {
 					this.dispose();
+					
+					boolean isTransaction = totalDebt > 0; 
+					boolean finishedIt = remDebt <= 0;
+					if (softPayment && isTransaction && !finishedIt) {
+						main.gameState.last().dispose();
+					}
 				} else if (internalName.compareTo("SELLP") == 0) {
 					sellProperty();
 				} else if (internalName.compareTo("MORTGAGE") == 0) {
@@ -84,14 +107,16 @@ public class PropertyList extends Scene {
     }
 	
 	private void sellHouse() {
-		player.addFunds(currentProperty.getProperty().getBuildingCost()/2);
+		main.refreshMonopolies();
+		
+		main.gameState.add(new HandleAmount(main, currentProperty.getProperty().getBuildingCost()/2, player, null, false));
 		currentProperty.getProperty().setNumHouses(currentProperty.getProperty().getNumHouses()-1);
 		
 		updateButtons();
 	}
 	
 	private void buyHouse() {
-		player.removeFunds(currentProperty.getProperty().getBuildingCost());
+		main.gameState.add(new HandleAmount(main, currentProperty.getProperty().getBuildingCost(), player, null, true, true));
 		currentProperty.getProperty().setNumHouses(currentProperty.getProperty().getNumHouses()+1);
 		
 		updateButtons();
@@ -99,49 +124,64 @@ public class PropertyList extends Scene {
 	
 	private void doMortgage() {
 		if (currentProperty.getProperty().isMortgaged()) {
-			player.removeFunds(currentProperty.getProperty().getMortgageInterest());
+			main.gameState.add(new HandleAmount(main, currentProperty.getProperty().getMortgageInterest(), player, null, true, true));
 			currentProperty.getProperty().setMortgaged(false);
 		} else {
-			player.addFunds(currentProperty.getProperty().getMortgage());
+			main.gameState.add(new HandleAmount(main, currentProperty.getProperty().getMortgage(), player, null, false));
 			currentProperty.getProperty().setMortgaged(true);
 		}
 		
 		updateButtons();
 	}
 	
-	private void updateButtons() {
+	public void updateButtons() {
 		
 		this.remDebt = this.totalDebt-player.getFunds();
 		
-		buttons.get(0).setEnabled(this.remDebt <= 0);
+		buttons.get(0).setEnabled(this.remDebt <= 0 || this.softPayment);
 		
 		if (currentProperty == null) {
 			removeButtons();
 		} else {
 			int bIndex = 1;
-			boolean canSell = currentProperty.getProperty().getNumHouses() == 0;
+			boolean canSell = currentProperty.getProperty().getNumHouses() == 0 && !currentProperty.getProperty().isMortgaged();
+			if (canSell) {
+				buttons.get(bIndex).setTextColor(Color.red);
+			} else {
+				buttons.get(bIndex).setTextColor(Color.black);
+			}
 			buttons.get(bIndex).setEnabled(canSell);
 
 			bIndex = 2;
 			boolean mortgaged = true;
 			String state = "Get ";
+			buttons.get(bIndex).setTextColor(Color.black);
 			if (currentProperty.getProperty().isMortgaged()) {
-				mortgaged = player.getFunds() >= currentProperty.getProperty().getMortgageInterest();
+				mortgaged = main.getPlayerWorth(player) >= currentProperty.getProperty().getMortgageInterest();
 				state = "Pay ";
+				buttons.get(bIndex).setTextColor(Color.GREEN);
 			}
 			buttons.get(bIndex).setEnabled(mortgaged);
 			buttons.get(bIndex).setText(state+"Mortgage");
 
 			bIndex = 3;
-			boolean canBuy = currentProperty.getProperty().getNumHouses()<5;
-			canBuy = canBuy && currentProperty.getProperty().getBuildingCost() <= player.getFunds();
-			canBuy = canBuy && currentProperty.getProperty().getBuildingCost() > 0;
-			canBuy = canBuy && currentProperty.getProperty().isMonopoly();
-			buttons.get(bIndex).setEnabled(canBuy);
+			buttons.get(bIndex).setEnabled(canBuyHouse());
 
 			bIndex = 4;
 			buttons.get(bIndex).setEnabled(currentProperty.getProperty().getNumHouses()>0);
 		}
+	}
+	
+	private boolean canBuyHouse() {
+		boolean canBuy;
+		
+		canBuy = currentProperty.getProperty().getNumHouses()<5;
+		canBuy = canBuy && currentProperty.getProperty().getBuildingCost() <= main.getPlayerWorth(player);
+		canBuy = canBuy && currentProperty.getProperty().getBuildingCost() > 0;
+		canBuy = canBuy && currentProperty.getProperty().isMonopoly();
+		canBuy = canBuy && currentProperty.getProperty().getNumHouses() == main.getMinimumHouses(currentProperty);
+
+		return canBuy;
 	}
 	
 	private void removeButtons() {
@@ -159,23 +199,27 @@ public class PropertyList extends Scene {
 		int firstX = 20;
 		int secondX = firstX + width + 5;
 		
-		int firstY = 250;
+		int firstY = 200;
 		int secondY = firstY + height + 20;
-		int lastY = ssY - height - 40;
-		
+		int lastY = ssY - 50 - height - 40;
 		
 		Button newButton;
 		
 		newButton = new Button(firstX, lastY, width, height+20);
-		newButton.setEnabled(this.remDebt <= 0);
-		newButton.setText("Back to Map");	
+		newButton.setEnabled(this.remDebt <= 0 || this.softPayment);
+		newButton.setText("Back");	
 		newButton.setInternalName("BACK");
 		buttons.add(newButton);
 		
 		if (currentProperty != null) {
 			newButton = new Button(secondX, firstY, width, height);
-			boolean canSell = currentProperty.getProperty().getNumHouses() == 0;
+			boolean canSell = currentProperty.getProperty().getNumHouses() == 0 && !currentProperty.getProperty().isMortgaged();
 			newButton.setEnabled(canSell);
+			if (canSell) {
+				newButton.setTextColor(Color.red);
+			} else {
+				newButton.setTextColor(Color.black);
+			}
 			newButton.setText("Sell Property");
 			newButton.setInternalName("SELLP");
 			buttons.add(newButton);
@@ -184,8 +228,9 @@ public class PropertyList extends Scene {
 			boolean mortgaged = true;
 			String state = "Get ";
 			if (currentProperty.getProperty().isMortgaged()) {
-				mortgaged = player.getFunds() >= currentProperty.getProperty().getMortgageInterest();
+				mortgaged = main.getPlayerWorth(player) >= currentProperty.getProperty().getMortgageInterest();
 				state = "Pay ";
+				newButton.setTextColor(Color.GREEN);
 			}
 			newButton.setEnabled(mortgaged);
 			newButton.setText(state+"Mortgage");
@@ -193,17 +238,13 @@ public class PropertyList extends Scene {
 			buttons.add(newButton);
 
 			newButton = new Button(secondX, secondY, width, height);
-			boolean canBuy = currentProperty.getProperty().getNumHouses()<5;
-			canBuy = canBuy && currentProperty.getProperty().getBuildingCost() >= player.getFunds();
-			canBuy = canBuy && currentProperty.getProperty().isMonopoly();
-			canBuy = canBuy && currentProperty.getProperty().getNumHouses() < main.getMinimumHouses(currentProperty);
-			newButton.setEnabled(canBuy);
+			newButton.setEnabled(canBuyHouse());
 			newButton.setText("Buy House");
 			newButton.setInternalName("BUYH");
 			buttons.add(newButton);
 
 			newButton = new Button(firstX, secondY, width, height);
-			newButton.setEnabled(currentProperty.getProperty().getNumHouses()>0);
+			newButton.setEnabled(currentProperty.getProperty().getNumHouses() > 0);
 			newButton.setText("Sell House");
 			newButton.setInternalName("SELLH");
 			buttons.add(newButton);
@@ -222,14 +263,14 @@ public class PropertyList extends Scene {
 	}
 	
 	private void sellProperty() {
-		player.addFunds(currentProperty.getProperty().getBuyPrice()/2);
+		main.gameState.add(new HandleAmount(main, currentProperty.getProperty().getBuyPrice()/2, player, null, false));
 		currentProperty.getProperty().resetOwner();
 		nextProperty();
 		try {
 			main.getGame().buildMapDisplay();
 		} catch (IOException ex) {
 		}
-		
+		main.refreshMonopolies();
 		updateButtons();
 	}
 	
@@ -296,14 +337,14 @@ public class PropertyList extends Scene {
 			Color strokeColor = Color.black;
 			Color fillColor = Color.white;
 			Color textColor = Color.black;
-			int x = (ssX-width)/2;
-			int y = 30;
+			int x = 50;
+			int y = 40;
 			g.drawImage(genTextRect(text, width, height, strokeWidth, font, strokeColor, fillColor, textColor), x, y, null);
 		}
-		
+
 		if (currentProperty != null) {
 			BufferedImage propertyCard = currentProperty.getProperty().getPropertyCard();
-			g.drawImage(propertyCard, ssX-10-propertyCard.getWidth(), (ssY-propertyCard.getHeight())/2, null);
+			g.drawImage(propertyCard, ssX-10-propertyCard.getWidth(), ((ssY-propertyCard.getHeight())/2)-50, null);
 		} else {
 			String text = "You own no properties.";
 			int width = 300;
@@ -317,7 +358,7 @@ public class PropertyList extends Scene {
 			int y = (ssY-height)/2;
 			g.drawImage(genTextRect(text, width, height, strokeWidth, font, strokeColor, fillColor, textColor), x, y, null);
 		}
-		
+
 		int counter = 0;
 		while (counter < buttons.size()) {
 			Button thisButton = buttons.get(counter);

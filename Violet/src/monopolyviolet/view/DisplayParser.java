@@ -27,13 +27,12 @@ public class DisplayParser {
 		BufferedImage display = new BufferedImage(Handler.SCREEN_SIZE_X, Handler.SCREEN_SIZE_Y, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = display.getGraphics();
 
-		int counter = 0;
-		while (counter < Handler.gameState.size()) {
-			try {
-				g.drawImage(Handler.gameState.get(counter).getDisplay(), 0, 0, null);
-			} catch (IOException ex) {
+		try {
+			g.drawImage(Handler.gameState.get(0).getDisplay(), 0, 0, null);
+			if (Handler.gameState.size() > 1) {
+				g.drawImage(Handler.gameState.last().getDisplay(), 0, 0, null);
 			}
-			counter = counter + 1;
+		} catch (IOException ex) {
 		}
 
 		return display;

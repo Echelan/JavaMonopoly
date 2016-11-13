@@ -118,7 +118,7 @@ public class Game extends Scene{
 		if (place.hasProperty()) {
 			main.gameState.add(new PropertyStatus(main,place,player));
 		} else if (place.getType() == Place.TAX_TYPE) {
-			main.gameState.add(new HandleAmount(main, 200, player, null, true));
+			main.gameState.add(new HandleAmount(main, 200, player, null, true, false));
 		} else if (place.getType() == Place.GOJAIL_TYPE) {
 			main.sendJail(player.getId());
 		} else if (place.getType() == Place.CHANCE_TYPE) {
@@ -332,22 +332,9 @@ public class Game extends Scene{
 			int xPos = xDisplace + (int) (main.getMap().get(placeID).getX()*Handler.ZOOM);
 			int yPos = yDisplace + (int) (main.getMap().get(placeID).getY()*Handler.ZOOM);
 			
-			int xRes = (i%2);
-			int yRes = (int) Math.floor(i/2);
-			
-			if (xRes == 0) {
-				xRes = -1;
-			} else {
-				xRes = 4;
-			}
-			
-			if (yRes == 0) {
-				yRes = -4;
-			} else if (yRes == 1) {
-				yRes = -1;
-			} else {
-				yRes = 1;
-			}
+			int xRes = ((i%2)*5)-2;
+			int yRes = ((int) Math.floor(i/2));
+			yRes = (yRes-6)+(yRes*2);
 			
 			int xPlayer = (int) (xRes * 8 * Handler.ZOOM);
 			int yPlayer = (int) (yRes * 8 * Handler.ZOOM);
@@ -358,7 +345,9 @@ public class Game extends Scene{
 			g.drawImage(main.getPlayers().get(i).getPiece(), xPos + 10, yPos + 10, (int) (main.getPlayers().get(i).getPiece().getWidth()*Handler.ZOOM), (int)(main.getPlayers().get(i).getPiece().getHeight()*Handler.ZOOM),null);
 		}
 		
-		g.drawImage(genTextRect("$"+main.getPlayers().get(0).getFunds(), 110, 40, 2, new Font("Arial",Font.BOLD,20), main.getPlayers().get(0).getColor(), Color.white, Color.black),5,ssY-45,null);
+		if (!main.getPlayers().get(0).isBankrupt()) {
+			g.drawImage(genTextRect("$"+main.getPlayers().get(0).getFunds(), 110, 40, 2, new Font("Arial",Font.BOLD,20), main.getPlayers().get(0).getColor(), Color.white, Color.black),5,ssY-45,null);
+		}
 		
 		if (updatable) {
 			if (main.getPlayers().get(0).getRoll() > 0) {

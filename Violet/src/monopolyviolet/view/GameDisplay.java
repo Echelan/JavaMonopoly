@@ -53,6 +53,7 @@ public class GameDisplay extends Canvas implements Runnable {
 		while (true) {
 			Graphics g = getBufferStrategy().getDrawGraphics();
 			if (!Handler.gameState.isEmpty()){
+				
 				String newState = "";
 
 				newState = Handler.gameState.last().getName();
@@ -67,7 +68,7 @@ public class GameDisplay extends Canvas implements Runnable {
 				repaint();
 
 				try {
-					Thread.sleep(40);
+					Thread.sleep(20);
 				} catch (InterruptedException ex) {
 				}
 			}

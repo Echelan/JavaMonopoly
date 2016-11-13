@@ -12,7 +12,6 @@
  */
 package monopolyviolet.scenes;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -46,12 +45,9 @@ public class PropertyStatus extends Scene {
 			Button newButton;
 			
 			newButton = new Button(50, 210, 200, 40);
-			if (place.getProperty().getBuyPrice() > player.getFunds()) {
-				newButton.setTextColor(Color.gray);
-			}
 			newButton.setText("Buy property");
 			newButton.setInternalName("BUY");
-			newButton.setEnabled(player.getFunds() >= place.getProperty().getBuyPrice());
+			newButton.setEnabled(main.getPlayerWorth(player) >= place.getProperty().getBuyPrice());
 			buttons.add(newButton);
 
 			newButton = new Button(50, 280, 200, 40);
@@ -96,9 +92,7 @@ public class PropertyStatus extends Scene {
 				
 				if (internalName.compareTo("BACK") == 0) {
 					this.dispose();
-					
 				} else if (internalName.compareTo("BUY") == 0) {
-					this.dispose();
 					buyProperty();
 				} else if (internalName.compareTo("RENT") == 0) {
 					this.dispose();
@@ -108,22 +102,39 @@ public class PropertyStatus extends Scene {
 		}
     }
 	
-	private void buyProperty() {
-		
-		player.removeFunds(place.getProperty().getBuyPrice());
-		place.getProperty().setOwnerName(player.getName());
-		place.getProperty().setOwner(player.getId());
-		place.getProperty().setOwnerColor(player.getColor());
+	public void bought() {
+		if (place.getProperty().getOwner() == -1) {
+			
+			this.dispose();
+			
+			place.getProperty().setOwnerName(player.getName());
+			place.getProperty().setOwner(player.getId());
+			place.getProperty().setOwnerColor(player.getColor());
+			
+			try {
+				main.getGame().buildMapDisplay();
+			} catch (IOException ex) {
+			}
 
-		try {
-			main.getGame().buildMapDisplay();
-		} catch (IOException ex) {
+			main.refreshMonopolies();
+			
 		}
 	}
 	
-	private void payRent() {
+	private void buyProperty() {
 		
-		main.gameState.add(new HandleAmount(main, amount*place.getProperty().getMonopolyBonus(), player, owner, true));
+		main.gameState.add(new HandleAmount(main, place.getProperty().getBuyPrice(), player, null, true, true));
+
+	}
+	
+	private void payRent() {
+		int monopolyBonus = place.getProperty().getMonopolyBonus();
+		if (place.getType() == Place.PROPERTY_TYPE) {
+			if (place.getProperty().getNumHouses() != 0) {
+				monopolyBonus = 1;
+			}
+		}
+		main.gameState.add(new HandleAmount(main, amount*monopolyBonus, player, owner, true, false));
 
 	}
     
@@ -172,11 +183,11 @@ public class PropertyStatus extends Scene {
 			g.drawImage(thisButton.getDisplay(),thisButton.getX(),thisButton.getY(), null);
 			counter = counter + 1;
 		}
+
+		BufferedImage propertyCard = place.getProperty().getPropertyCard();
+
+		g.drawImage(propertyCard, ssX-300, (ssY-propertyCard.getHeight())/2, null);
 		
-        BufferedImage propertyCard = place.getProperty().getPropertyCard();
-		
-        g.drawImage(propertyCard, ssX-300, (ssY-propertyCard.getHeight())/2, null);
-        
         return display;
     }
 	

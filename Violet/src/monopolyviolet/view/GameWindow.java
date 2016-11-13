@@ -12,8 +12,10 @@
  */
 package monopolyviolet.view;
 
-import java.awt.Color;
 import java.awt.event.*;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import monopolyviolet.model.Handler;
 
@@ -31,7 +33,6 @@ public class GameWindow extends JFrame implements WindowListener, ActionListener
 	
 	/**
 	 * Create a new GameWindow.
-	 * @param main main game handler
 	 */
 	public GameWindow() {
 		setLayout(null);
@@ -41,6 +42,11 @@ public class GameWindow extends JFrame implements WindowListener, ActionListener
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
+		try {
+			setIconImage(ImageIO.read(new File("assets/icon.png")));
+		} catch (IOException ex) {
+		}
+		
 		screen = new GameDisplay();
 		screen.setBounds(1, 1, Handler.SCREEN_SIZE_X, Handler.SCREEN_SIZE_Y);
 		screen.setFocusable(false);

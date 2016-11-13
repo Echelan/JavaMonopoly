@@ -95,7 +95,7 @@ public class DiceRoll extends Scene {
 					if (!player.isJailed()) {
 						player.setRoll(roll1+roll2);
 						player.setLastRoll(player.getRoll());
-						main.gameState.add(new HandleAmount(main, 50, player, null, true));
+						main.gameState.add(new HandleAmount(main, 50, player, null, true, false));
 					}
 				}
 			}

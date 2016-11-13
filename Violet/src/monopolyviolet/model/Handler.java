@@ -12,6 +12,7 @@
  */
 package monopolyviolet.model;
 
+import monopolyviolet.scenes.EndGame;
 import monopolyviolet.scenes.Game;
 import monopolyviolet.scenes.Scene;
 import monopolyviolet.scenes.TurnAnnounce;
@@ -31,8 +32,6 @@ public class Handler {
     private Node<Card> chanceCard;
     private Node<Place> map;
     private Node<Player> players;
-    private Node<Property> propertyList;
-    private Node<Property> specialList;
 	
 	private final GameWindow gw;
 	
@@ -42,8 +41,6 @@ public class Handler {
 		communityCard = new Node();
 		chanceCard = new Node();
 		map = new Node();
-		propertyList = new Node();
-		specialList = new Node();
 		gameState = new Node();
 		players = new Node();
 
@@ -63,11 +60,28 @@ public class Handler {
 		gw.startCanvasThread();
 
 		createDecks();
-		createProperties();
-		createSpecials();
 		buildMap();
+		monopolyviolet.data.NIC.clearAllData();
 	}
 
+	public void cleanSlate() {
+		do {
+			players.remove(0);
+		} while (!players.isEmpty());
+		
+		do {
+			gameState.remove(0);
+		} while (!gameState.isEmpty());
+		
+		for (int i = 0; i < map.size(); i++) {
+			if (map.get(i).hasProperty()) {
+				map.get(i).getProperty().resetOwner();
+			}
+		}
+		
+		refreshMonopolies();
+	}
+	
 	public static void modZoom(float aZoom) {
 		float change = aZoom / -50;
 		ZOOM = ZOOM + change;
@@ -86,18 +100,6 @@ public class Handler {
 			} else if (tempCard.getCardType()== Card.CHANCE_ID) {
 				chanceCard.add(tempCard);
 			}
-		}
-    }
-
-    private void createProperties() {
-		for (int i = 0; i < monopolyviolet.data.NIC.INFO_PROPERTIES.size(); i++) {
-			propertyList.add(new Property(i,false));
-		}
-    }
-
-    private void createSpecials() {
-		for (int i = 0; i < monopolyviolet.data.NIC.INFO_SPECIALS.size(); i++) {
-			specialList.add(new Property(i,true));
 		}
     }
 
@@ -169,7 +171,7 @@ public class Handler {
 			String name = "Space";
 			boolean isCorner = (i%10 == 0);
 			getMap().add(new Place(isCorner,x,y,quad));
-			if (isCorner || counter >= propertyList.size()) {
+			if (isCorner) {
 				if (i/10 == 0) {
 					getMap().last().setName("Go!");
 					getMap().last().setType(Place.GO_TYPE);
@@ -194,18 +196,21 @@ public class Handler {
 					getMap().last().setName("Income Tax");
 					getMap().last().setType(Place.TAX_TYPE);
 				} else if (i%10 == 5) {
-					getMap().last().setName(specialList.get(spCounter).getName());
-					getMap().last().setProperty(specialList.get(spCounter));
+					Property temp = new Property(spCounter, true);
+					getMap().last().setName(temp.getName());
+					getMap().last().setProperty(temp);
 					getMap().last().setType(Place.RAILROAD_TYPE);
 					spCounter = spCounter + 1;
 				} else if (i == 12 || i == 28) {
-					getMap().last().setName(specialList.get(spCounter).getName());
-					getMap().last().setProperty(specialList.get(spCounter));
+					Property temp = new Property(spCounter, true);
+					getMap().last().setName(temp.getName());
+					getMap().last().setProperty(temp);
 					getMap().last().setType(Place.UTILITY_TYPE);
 					spCounter = spCounter + 1;
 				} else {
-					getMap().last().setName(propertyList.get(counter).getName());
-					getMap().last().setProperty(propertyList.get(counter));
+					Property temp = new Property(counter, false);
+					getMap().last().setName(temp.getName());
+					getMap().last().setProperty(temp);
 					getMap().last().setType(Place.PROPERTY_TYPE);
 					counter = counter + 1;
 				}
@@ -214,22 +219,26 @@ public class Handler {
     }
 
     public void nextTurn() {
-		boolean playerWon = false;
-		refreshMonopolies();
-		if (!players.get(0).isRolledDoubles()) {
-			int curPlayerID = players.get(0).getId();
+		if (players.get(0).isBankrupt()) {
 			do {
 				players.rotate(1);
 			} while (players.get(0).isBankrupt());
-			playerWon = curPlayerID == players.get(0).getId();
 		} else {
-			players.get(0).setRolledDoubles(false);
+			if (!players.get(0).isRolledDoubles()) {
+				do {
+					players.rotate(1);
+				} while (players.get(0).isBankrupt());
+			} else {
+				players.get(0).setRolledDoubles(false);
+			}
 		}
-		if (!playerWon) {
+		
+		if (players.size() != 1) {
 			gameState.add(new TurnAnnounce(this,players.get(0)));
 		} else {
-			System.out.println(players.get(0).getName()+" won!");
+			gameState.add(new EndGame(this,players.get(0)));
 		}
+		
     }
 	
 	public void sendJail(int pID) {
@@ -281,10 +290,16 @@ public class Handler {
 		return multiple;
 	}
 
-	private void refreshMonopolies() {
+	public void refreshMonopolies() {
 		for (int i = 0; i < map.size(); i++) {
 			if (map.get(i).hasProperty()) {
 				map.get(i).getProperty().setMonopolyBonus(isMonopoly(map.get(i)));
+				
+				if (map.get(i).getProperty().getOwner() == -1) {
+					map.get(i).getProperty().setNumHouses(0);
+					map.get(i).getProperty().setMortgaged(false);
+					map.get(i).getProperty().resetOwner();
+				}
 			}
 		}
 	}
@@ -537,8 +552,9 @@ public class Handler {
 					for (int j = 0; j < thisProperty.getNumHouses(); j++) {
 						value = value + thisProperty.getBuildingCost()/2;
 					}
-					value = value + thisProperty.getBuildingCost()/2;
-					
+					if (!thisProperty.isMortgaged()) {
+						value = value + thisProperty.getBuyPrice()/2;
+					}
 				}
 			}
 		}
@@ -599,19 +615,6 @@ public class Handler {
 		return players;
 	}
 
-	/**
-	 * @return the propertyList
-	 */
-	public Node<Property> getPropertyList() {
-		return propertyList;
-	}
-
-	/**
-	 * @return the specialList
-	 */
-	public Node<Property> getSpecialList() {
-		return specialList;
-	}
 	//</editor-fold>
 	
 }
