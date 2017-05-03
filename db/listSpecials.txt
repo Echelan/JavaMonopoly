@@ -1,0 +1,6 @@
+id=1;name="Reading Railroad";price=200;rent=25;buildingCost=0;rentChange=2,2,2,2;color="WHITE"
+id=2;name="Electric Company";price=150;rent=5;buildingCost=0;rentChange=10;color="BROWN"
+id=3;name="Pennsylvania Road";price=200;rent=25;buildingCost=0;rentChange=2,2,2,2;color="WHITE"
+id=4;name="B & O Railroad";price=200;rent=25;buildingCost=0;rentChange=2,2,2,2;color="WHITE"
+id=5;name="Water Works";price=150;rent=5;buildingCost=0;rentChange=10;color="BROWN"
+id=6;name="Short Line";price=200;rent=25;buildingCost=0;rentChange=2,2,2,2;color="WHITE"
