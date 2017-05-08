@@ -41,10 +41,6 @@ public class GameDisplay extends Canvas implements Runnable {
 
 	@Override
 	public void paint(Graphics g) {
-		try {
-			getBufferStrategy().show();
-		} catch (Exception ex) {
-		}
 	}
 
 	@Override
@@ -65,7 +61,7 @@ public class GameDisplay extends Canvas implements Runnable {
 
 				g.drawImage(DisplayParser.displayImage(), 0, 0, this.getWidth(), this.getHeight(), this);
 
-				repaint();
+				getBufferStrategy().show();
 
 				try {
 					Thread.sleep(20);

@@ -21,7 +21,7 @@ import monopolyviolet.model.Handler;
  *
  * @author Andres
  */
-public class DisplayParser {
+public abstract class DisplayParser {
 	
 	public static BufferedImage displayImage() {
 		BufferedImage display = new BufferedImage(Handler.SCREEN_SIZE_X, Handler.SCREEN_SIZE_Y, BufferedImage.TYPE_INT_ARGB);
